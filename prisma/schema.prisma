@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id        Int       @id @default(autoincrement())
+  fullName  String
+  email     String    @unique
+  phone     String?
+  createdAt DateTime  @default(now())
+  bookings  Booking[]
+  orders    Order[]
+}
+
+model User {
+  id     Int     @id @default(autoincrement())
+  email  String  @unique
+  name   String
+  role   Role
+  orders Order[]
+}
+
+model Category {
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  description String
+
+  products Product[]
+}
+
+model Product {
+  id          Int     @id @default(autoincrement())
+  sku         String  @unique
+  name        String
+  description String
+  price       Decimal @db.Decimal(10, 2)
+  stockQty    Int
+
+  categoryId Int
+  category   Category    @relation(fields: [categoryId], references: [id])
+  order      Order?      @relation(fields: [orderId], references: [id])
+  orderId    Int?
+  orderItems OrderItem[]
+}
+
+model Room {
+  id    Int     @id @default(autoincrement())
+  name  String
+  price Decimal @db.Decimal(10, 2)
+
+  capacity Int
+  bookings Booking[]
+}
+
+model Booking {
+  id Int @id @default(autoincrement())
+
+  roomId Int
+  room   Room @relation(fields: [roomId], references: [id])
+
+  customerId Int
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  numOfGuests Int
+
+  checkinDate  DateTime
+  checkoutDate DateTime
+  status       BookingStatus
+  orders       Order[]
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  invoiceNo String   @unique
+  createdAt DateTime @default(now())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  customerId Int
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  bookingId  Int?
+  booking    Booking?    @relation(fields: [bookingId], references: [id])
+  orderItems OrderItem[]
+
+  subtotal   Decimal @db.Decimal(10, 2)
+  tax        Decimal @db.Decimal(10, 2)
+  total      Decimal @db.Decimal(10, 2)
+  amountPaid Decimal @db.Decimal(10, 2)
+  change     Decimal @db.Decimal(10, 2)
+
+  paymentMethod PaymentMethod @default(CASH)
+  products      Product[]
+  orderId       Int?
+}
+
+model OrderItem {
+  id       Int @id @default(autoincrement())
+  quantity Int
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  CASHIER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+}
