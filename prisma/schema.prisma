@@ -43,18 +43,23 @@ model Product {
 
   categoryId Int
   category   Category    @relation(fields: [categoryId], references: [id])
-  order      Order?      @relation(fields: [orderId], references: [id])
-  orderId    Int?
   orderItems OrderItem[]
 }
 
 model Room {
-  id    Int     @id @default(autoincrement())
-  name  String
-  price Decimal @db.Decimal(10, 2)
+  id         Int       @id @default(autoincrement())
+  roomTypeId Int
+  roomType   RoomType  @relation(fields: [roomTypeId], references: [id])
+  bookings   Booking[]
+}
 
-  capacity Int
-  bookings Booking[]
+model RoomType {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String
+  price       Decimal @db.Decimal(10, 2)
+  capacity    Int
+  rooms       Room[]
 }
 
 model Booking {
@@ -96,8 +101,6 @@ model Order {
   change     Decimal @db.Decimal(10, 2)
 
   paymentMethod PaymentMethod @default(CASH)
-  products      Product[]
-  orderId       Int?
 }
 
 model OrderItem {
