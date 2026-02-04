@@ -1,8 +1,9 @@
 import { createResource, createSignal, For, Show } from "solid-js";
-import { cache, query} from "@solidjs/router";
+import { cache, query } from "@solidjs/router";
 import prisma from "~/lib/prisma";
+import { Product } from "@prisma/client";
 
-export async function fetchCategories() {
+async function fetchCategories() {
     return await prisma.category.findMany();
 }
 
@@ -16,14 +17,43 @@ const getProductsByCategory = query(async (id: number) => {
     }));
 }, "productsCategory");
 
+type Order = {
+    productId: number
+    quantity: number
+    name: string
+}
+
 
 export default function POS() {
     const [categories] = createResource(fetchCategories);
     const [categoryId, setCategory] = createSignal(7);
     const [products] = createResource(categoryId, getProductsByCategory);
 
+    const [order, setOrder] = createSignal<Order[]>([]);
+
     function handleSelectCategory(id: number) {
         setCategory(id);
+    }
+
+    function handleAddOrder(product: { id: number; name: string }) {
+        if (!product) return;
+
+        setOrder(prev => {
+            const existingIndex = prev.findIndex(o => o.productId === product.id);
+
+            if (existingIndex !== -1) {
+                // udpate quantity
+                const updated = [...prev];
+                updated[existingIndex] = {
+                    ...updated[existingIndex],
+                    quantity: updated[existingIndex].quantity + 1,
+                };
+                return updated;
+            } else {
+                // add new
+                return [...prev, { productId: product.id, name: product.name, quantity: 1 }];
+            }
+        });
     }
 
     return (
@@ -63,7 +93,7 @@ export default function POS() {
                     <ul>
                         <For each={products()}>
                             {(p) => (
-                                <button>
+                                <button onClick={handleAddOrder.bind(null, p)}>
                                     {p.name} – ${p.price}
                                 </button>
                             )}
@@ -72,6 +102,18 @@ export default function POS() {
                 </Show>
             </section>
 
+            <section>
+                <h2>Order Listing</h2>
+                <Show when={order()}>
+                    <ul>
+                        <For each={order()}>
+                            {(o) => (
+                                <li>{o.quantity} x {o.name}</li>
+                            )}
+                        </For>
+                    </ul>
+                </Show>
+            </section>
         </div>
     );
 }
