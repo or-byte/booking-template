@@ -81,14 +81,13 @@ model Booking {
 
 model Order {
   id        Int      @id @default(autoincrement())
-  invoiceNo String   @unique
   createdAt DateTime @default(now())
 
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
 
-  customerId Int
-  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId Int?
+  customer   Customer? @relation(fields: [customerId], references: [id])
 
   bookingId  Int?
   booking    Booking?    @relation(fields: [bookingId], references: [id])
