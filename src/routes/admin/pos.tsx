@@ -1,6 +1,8 @@
 import { createResource, createSignal, For, Show } from "solid-js";
-import { action, cache, query, useAction } from "@solidjs/router";
-import prisma from "~/lib/prisma";
+import { useAction } from "@solidjs/router";
+import { getCategories } from "~/lib/category";
+import { getProductsByCategory } from "~/lib/product";
+import { createOrder } from "~/lib/order";
 
 type Cart = {
     productId: number
@@ -8,45 +10,6 @@ type Cart = {
     name: string
     price: number
 }
-
-async function getCategories() {
-    return await prisma.category.findMany();
-}
-
-const getProductsByCategory = query(async (id: number) => {
-    "use server";
-    const products = await prisma.product.findMany({ where: { categoryId: id } });
-
-    return products.map(p => ({
-        ...p,
-        price: p.price.toNumber(),
-    }));
-}, "productsCategory");
-
-const createOrder = action(async (formData: FormData) => {
-    "use server";
-    const items = JSON.parse(formData.get("items") as string);
-
-    const order = await prisma.order.create({
-        data: {
-            subtotal: Number(formData.get("subtotal")),
-            tax: Number(formData.get("tax")),
-            total: Number(formData.get("total")),
-            amountPaid: Number(formData.get("amountPaid")),
-            change: Number(formData.get("change")),
-            paymentMethod: formData.get("paymentMethod") as any,
-            orderItems: {
-                create: items.map((item: any) => ({
-                    productId: item.productId,
-                    quantity: item.quantity,
-                })),
-            },
-        },
-    });
-
-    console.log("Order created!")
-    return;
-})
 
 export default function POS() {
     const createOrderAction = useAction(createOrder);
