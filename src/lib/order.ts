@@ -4,20 +4,30 @@ import prisma from "./prisma";
 
 export type Order = PrismaOrder;
 
-export const createOrder = action(async (formData: FormData) => {
+export interface OrderFormData {
+    items: {
+        productId: number;
+        quantity: number;
+    }[];
+    total: number;
+    amountPaid: number;
+}
+
+export const createOrder = action(async (data: OrderFormData) => {
     "use server";
-    const items = JSON.parse(formData.get("items") as string);
+    const tax = data.total * 0.12;
+    const subtotal = data.total - tax;
+    const change = data.amountPaid - data.total;
 
     const order = await prisma.order.create({
         data: {
-            subtotal: Number(formData.get("subtotal")),
-            tax: Number(formData.get("tax")),
-            total: Number(formData.get("total")),
-            amountPaid: Number(formData.get("amountPaid")),
-            change: Number(formData.get("change")),
-            paymentMethod: formData.get("paymentMethod") as any,
+            subtotal: subtotal,
+            tax: tax,
+            total: data.total,
+            amountPaid: data.amountPaid,
+            change: change,
             orderItems: {
-                create: items.map((item: any) => ({
+                create: data.items.map((item: any) => ({
                     productId: item.productId,
                     quantity: item.quantity,
                 })),

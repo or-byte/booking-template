@@ -1,8 +1,12 @@
-import { Category as PrismaCategory} from "@prisma/client";
+import { Category as PrismaCategory } from "@prisma/client";
 import prisma from "./prisma";
 
 export type Category = PrismaCategory;
 
 export const getCategories = async () => {
-    return await prisma.category.findMany();
+    return await prisma.category.findMany({
+        include: {
+            _count: { select: { products: true } }
+        }
+    });
 }

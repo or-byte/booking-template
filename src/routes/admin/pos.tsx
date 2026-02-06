@@ -2,7 +2,7 @@ import { createResource, createSignal, For, Show } from "solid-js";
 import { useAction } from "@solidjs/router";
 import { getCategories } from "~/lib/category";
 import { getProductsByCategory } from "~/lib/product";
-import { createOrder } from "~/lib/order";
+import { createOrder, OrderFormData } from "~/lib/order";
 
 type Cart = {
     productId: number
@@ -48,25 +48,23 @@ export default function POS() {
         });
     }
 
-    const handleCheckout = () => {
+    const handleCheckout = async () => {
         const items = cart();
         if (items.length === 0) return;
 
         const total = items.reduce((sum, item) => sum + item.quantity * item.price, 0);
-        const tax = total * 0.12; // VAT
-        const subtotal = total - tax;
 
-        const formData = new FormData();
-        formData.set("subtotal", subtotal.toString());
-        formData.set("tax", tax.toString());
-        formData.set("total", total.toString());
-        formData.set("amountPaid", total.toString());
-        formData.set("change", "0");
-        formData.set("paymentMethod", "CASH");
-        formData.set("items", JSON.stringify(items));
+        const data: OrderFormData = {
+            items: items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+            })),
+            total,
+            amountPaid: total // adjust later based on amount paid
+        }
 
-        createOrderAction(formData);
-        
+        await createOrderAction(data);
+
         setCart([]);
     };
 
@@ -89,7 +87,7 @@ export default function POS() {
                 <Show when={categories()}>
                     <ul>
                         <For each={categories()}>
-                            {(c) => <button onClick={[handleSelectCategory, c.id]}>{c.name}</button>}
+                            {(c) => <button onClick={[handleSelectCategory, c.id]}>{c.name}({c._count.products})</button>}
                         </For>
                     </ul>
                 </Show>
@@ -108,7 +106,7 @@ export default function POS() {
                         <For each={products()}>
                             {(p) => (
                                 <button onClick={[handleAddToCart, p]}>
-                                    {p.name} – ${p.price}
+                                    {p.name} – ${p.price} x {p.stockQty}
                                 </button>
                             )}
                         </For>

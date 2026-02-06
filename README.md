@@ -30,7 +30,7 @@ npm run dev -- --open
 
 2. Database sync
     - After making changes, run:
-        `npx prisma mgigrate dev --name <meaningful-change>`
+        `npx prisma migrate dev --name <meaningful-change>`
     - This will create a migration file and sync the database with the schema.
 
 3. Client regeneration
