@@ -23,6 +23,26 @@ npm run dev
 npm run dev -- --open
 ```
 
+## Database Workflow with Prisma
+1. Schema updates
+    - Modify `prisma/schema.prisma` as needed to cater to your feature
+    - Commit changes to `schema.prisma`
+
+2. Database sync
+    - After making changes, run:
+        `npx prisma migrate dev --name <meaningful-change>`
+    - This will create a migration file and sync the database with the schema.
+
+3. Client regeneration
+    - Always regenerate the Prisma client after schema changes:
+        `npx prisma generate`
+
+> The `docker-compose.yml` is for local testing. You should also be able to use Prisma DB (see [Prisma Data Platform](https://console.prisma.io)). Make sure to match the `DATABASE_URL` with your database connection string.
+
+4. Database Seeding
+    - Modify the seed found in `prisma/seed.ts` as needed
+    - After modifying, run: `npx prisma db seed`
+
 ## Building
 
 Solid apps are built with _presets_, which optimise your project for deployment to different environments.
