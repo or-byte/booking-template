@@ -7,22 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Customer {
-  id        Int       @id @default(autoincrement())
-  fullName  String
-  email     String    @unique
-  phone     String?
-  createdAt DateTime  @default(now())
-  bookings  Booking[]
-  orders    Order[]
-}
-
 model User {
-  id     Int     @id @default(autoincrement())
-  email  String  @unique
-  name   String
-  role   Role
-  orders Order[]
+  id             Int       @id @default(autoincrement())
+  fullName       String
+  email          String    @unique
+  name           String
+  role           Role
+  createdAt      DateTime  @default(now())
+  bookings       Booking[]
+  staffOrders    Order[]   @relation("StaffOrders")
+  customerOrders Order[]   @relation("CustomerOrders")
 }
 
 model Category {
@@ -69,7 +63,7 @@ model Booking {
   room   Room @relation(fields: [roomId], references: [id])
 
   customerId Int
-  customer   Customer @relation(fields: [customerId], references: [id])
+  customer   User @relation(fields: [customerId], references: [id])
 
   numOfGuests Int
 
@@ -83,11 +77,11 @@ model Order {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
 
-  userId Int?
-  user   User? @relation(fields: [userId], references: [id])
+  staffId Int?
+  staff   User? @relation("StaffOrders", fields: [staffId], references: [id])
 
   customerId Int?
-  customer   Customer? @relation(fields: [customerId], references: [id])
+  customer   User? @relation("CustomerOrders", fields: [customerId], references: [id])
 
   bookingId  Int?
   booking    Booking?    @relation(fields: [bookingId], references: [id])
@@ -115,8 +109,8 @@ model OrderItem {
 
 enum Role {
   ADMIN
-  MANAGER
-  CASHIER
+  STAFF
+  CUSTOMER
 }
 
 enum BookingStatus {

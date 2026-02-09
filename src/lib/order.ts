@@ -1,10 +1,11 @@
+"use server"
+
 import { Order as PrismaOrder } from "@prisma/client"
-import { action } from "@solidjs/router";
 import prisma from "./prisma";
 
 export type Order = PrismaOrder;
 
-export interface OrderFormData {
+export type OrderFormData = {
     items: {
         productId: number;
         quantity: number;
@@ -13,8 +14,7 @@ export interface OrderFormData {
     amountPaid: number;
 }
 
-export const createOrder = action(async (data: OrderFormData) => {
-    "use server";
+export const createOrder = async (data: OrderFormData) => {
     const tax = data.total * 0.12;
     const subtotal = data.total - tax;
     const change = data.amountPaid - data.total;
@@ -37,4 +37,4 @@ export const createOrder = action(async (data: OrderFormData) => {
 
     console.log("Order created!")
     return;
-})
+}

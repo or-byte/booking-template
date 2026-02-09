@@ -1,5 +1,4 @@
 import { createResource, createSignal, For, Show } from "solid-js";
-import { useAction } from "@solidjs/router";
 import { getCategories } from "~/lib/category";
 import { getProductsByCategory } from "~/lib/product";
 import { createOrder, OrderFormData } from "~/lib/order";
@@ -12,7 +11,6 @@ type Cart = {
 }
 
 export default function POS() {
-    const createOrderAction = useAction(createOrder);
     const [categories] = createResource(getCategories);
     const [categoryId, setCategory] = createSignal(7);
     const [products] = createResource(categoryId, getProductsByCategory);
@@ -48,24 +46,28 @@ export default function POS() {
         });
     }
 
-    const handleCheckout = async () => {
-        const items = cart();
-        if (items.length === 0) return;
+    const handleCheckout = async() => {
+        try {
+            const items = cart();
+            if (items.length === 0) return;
 
-        const total = items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+            const total = items.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
-        const data: OrderFormData = {
-            items: items.map((item) => ({
-                productId: item.productId,
-                quantity: item.quantity,
-            })),
-            total,
-            amountPaid: total // adjust later based on amount paid
+            const data: OrderFormData = {
+                items: items.map((item) => ({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                })),
+                total,
+                amountPaid: total // adjust later based on amount paid
+            }
+
+            await createOrder(data);
+
+            setCart([]);
+        } catch (e) {
+            console.error("Order checkout failed: ", e);
         }
-
-        await createOrderAction(data);
-
-        setCart([]);
     };
 
     return (
@@ -126,8 +128,8 @@ export default function POS() {
                     </ul>
                 </Show>
 
-                <button onClick={handleCheckout} disabled={createOrderAction.pending}>
-                    {createOrderAction.pending ? "Processing..." : "Checkout"}
+                <button onClick={handleCheckout}>
+                    Checkout
                 </button>
             </section>
         </div>
