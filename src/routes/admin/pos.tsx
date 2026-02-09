@@ -46,28 +46,29 @@ export default function POS() {
         });
     }
 
-    const handleCheckout = async() => {
-        try {
-            const items = cart();
-            if (items.length === 0) return;
+    // On failure, will throw transaction fail
+    const handleCheckout = async () => {
+        const items = cart();
+        if (items.length === 0) return;
 
-            const total = items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+        const total = items.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
-            const data: OrderFormData = {
-                items: items.map((item) => ({
-                    productId: item.productId,
-                    quantity: item.quantity,
-                })),
-                total,
-                amountPaid: total // adjust later based on amount paid
-            }
-
-            await createOrder(data);
-
-            setCart([]);
-        } catch (e) {
-            console.error("Order checkout failed: ", e);
+        const data: OrderFormData = {
+            items: items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+            })),
+            total,
+            amountPaid: total // adjust later based on amount paid
         }
+
+        try {
+            await createOrder(data);
+        } catch (e) {
+            throw new Error("Order checkout failed!")
+        }
+
+        setCart([]);
     };
 
     return (
