@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('ADMIN', 'MANAGER', 'CASHIER');
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'STAFF', 'CUSTOMER');
 
 -- CreateEnum
 CREATE TYPE "BookingStatus" AS ENUM ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED');
@@ -8,22 +8,13 @@ CREATE TYPE "BookingStatus" AS ENUM ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPL
 CREATE TYPE "PaymentMethod" AS ENUM ('CASH', 'CARD');
 
 -- CreateTable
-CREATE TABLE "Customer" (
+CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "fullName" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "phone" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "User" (
-    "id" SERIAL NOT NULL,
-    "email" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "role" "Role" NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -85,10 +76,9 @@ CREATE TABLE "Booking" (
 -- CreateTable
 CREATE TABLE "Order" (
     "id" SERIAL NOT NULL,
-    "invoiceNo" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "userId" INTEGER NOT NULL,
-    "customerId" INTEGER NOT NULL,
+    "staffId" INTEGER,
+    "customerId" INTEGER,
     "bookingId" INTEGER,
     "subtotal" DECIMAL(10,2) NOT NULL,
     "tax" DECIMAL(10,2) NOT NULL,
@@ -111,9 +101,6 @@ CREATE TABLE "OrderItem" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Customer_email_key" ON "Customer"("email");
-
--- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
@@ -121,9 +108,6 @@ CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Product_sku_key" ON "Product"("sku");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Order_invoiceNo_key" ON "Order"("invoiceNo");
 
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -135,13 +119,13 @@ ALTER TABLE "Room" ADD CONSTRAINT "Room_roomTypeId_fkey" FOREIGN KEY ("roomTypeI
 ALTER TABLE "Booking" ADD CONSTRAINT "Booking_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Booking" ADD CONSTRAINT "Booking_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Booking" ADD CONSTRAINT "Booking_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Order" ADD CONSTRAINT "Order_staffId_fkey" FOREIGN KEY ("staffId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Order" ADD CONSTRAINT "Order_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Order" ADD CONSTRAINT "Order_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Order" ADD CONSTRAINT "Order_bookingId_fkey" FOREIGN KEY ("bookingId") REFERENCES "Booking"("id") ON DELETE SET NULL ON UPDATE CASCADE;
