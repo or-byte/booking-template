@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client"
+import { createNewRoom } from "~/lib/room";
 const prisma = new PrismaClient()
 
 async function main() {
@@ -6,7 +7,7 @@ async function main() {
     await prisma.category.deleteMany();
     await prisma.roomType.deleteMany();
 
-    await prisma.roomType.create({
+    const dlx = await prisma.roomType.create({
         data: {
             name: "Deluxe Room",
             description: "Our fully air-conditioned Deluxe Room features one queen bed, one double bed, bathroom with walk-in shower, and balcony of our Partial View Seascape. This is a non-smoking room. Included: Free breakfast for four.",
@@ -15,7 +16,7 @@ async function main() {
         }
     })
 
-    await prisma.roomType.create({
+    const sup = await prisma.roomType.create({
         data: {
             name: "Superior Room",
             description: "Our Superior Room features two double beds and bathroom with walk-in shower, as well as, a wall out balcony of our partial view seascape. Included: Free breakfast for four persons.",
@@ -24,7 +25,7 @@ async function main() {
         }
     })
 
-    await prisma.roomType.create({
+    const std = await prisma.roomType.create({
         data: {
             name: "Standard Room",
             description: "Our Standard Room has a partial overlook of the ocean featuring one double bed with a walk-in bathroom & shower, with free breakfast for two.",
@@ -33,7 +34,7 @@ async function main() {
         }
     })
 
-    await prisma.roomType.create({
+    const dorm = await prisma.roomType.create({
         data: {
             name: "Dormitory Room",
             description: "Our Dormitory Room accommodates up to 12 people with 2 bathrooms and 2 walk-in showers rooms.",
@@ -77,6 +78,11 @@ async function main() {
             categoryId: clothing.id
         }
     })
+
+    await createNewRoom("Room DLX", dlx.id); 
+    await createNewRoom("Room SUP", sup.id); 
+    await createNewRoom("Room STD", std.id); 
+    await createNewRoom("Room DORM", dorm.id); 
 }
 
 main()
