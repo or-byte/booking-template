@@ -17,8 +17,6 @@ export default function POS() {
 
     const [cart, setCart] = createSignal<Cart[]>([]);
 
-
-
     function handleSelectCategory(id: number) {
         setCategory(id);
     }
@@ -46,7 +44,6 @@ export default function POS() {
         });
     }
 
-    // On failure, will throw transaction fail
     const handleCheckout = async () => {
         const items = cart();
         if (items.length === 0) return;

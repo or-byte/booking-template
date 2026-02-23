@@ -1,10 +1,13 @@
-import { createSignal, createResource, For, Show } from "solid-js";
+import { BookingStatus } from "@prisma/client";
+import { createSignal, createResource, For, Show, Setter, Accessor } from "solid-js";
 import { BookingFormData, createNewBooking } from "~/lib/booking";
-import { getRoomTypes } from "~/lib/room";
+import { Product } from "~/lib/product";
+import { getAllRoomTypes, getAvailableRoom } from "~/lib/room";
 
 export default function Booking() {
-  const [roomTypes] = createResource(getRoomTypes);
-  const [toggleCreate, setToggle] = createSignal(true);
+  const [roomTypes] = createResource(getAllRoomTypes); // Room types are products of category "Room"
+  const [selectedRoomType, setRoomType] = createSignal<Product>();
+  const [roomId, setRoomId] = createSignal<number>();
 
   const [customerFullName, setCustomerFullName] = createSignal("");
   const [customerEmail, setCustomerEmail] = createSignal("");
@@ -12,97 +15,130 @@ export default function Booking() {
   const [children, setChildren] = createSignal(0);
   const [checkinDate, setCheckinDate] = createSignal("");
   const [checkoutDate, setCheckoutDate] = createSignal("");
-  const [roomTypeId, setRoomTypeId] = createSignal<number | null>(null);
 
-  const handleCreateNew = () => setToggle(!toggleCreate());
 
-  const handleSubmit = async (e: Event) => {
-    e.preventDefault();
+  const handleRoomTypeSelect = async (roomType: any) => {
+    setRoomType(roomType);
+  }
 
-    const booking: BookingFormData = {
-      customerFullName: customerFullName(),
-      customerEmail: customerEmail(),
-      roomTypeId: roomTypeId() ?? 0,
-      numOfGuests: adult() + children(),
-      checkinDate: new Date(checkinDate()),
-      checkoutDate: new Date(checkoutDate()),
-    };
+  const handleRoomFind = async () => {
+    const room = await getAvailableRoom(selectedRoomType()!.id, new Date(checkinDate()), new Date(checkoutDate()));
 
-    console.log("Booking:", booking);
+    setRoomId(room.id);
+  }
+
+  const handleAddPerson = async (accessor: Accessor<number>, setter: Setter<number>, add: boolean = true) => {
+    const value = add ? 1 : -1;
+    setter(accessor() + value);
+  }
+
+  const handleBookNow = async () => {
     try {
-        await createNewBooking(booking);
-    } catch {
-        throw new Error("Failed to create booking");
+      const booking = await createNewBooking({
+        productId: selectedRoomType()!.id,
+        customerFullName: customerFullName(),
+        customerEmail: customerEmail(),
+        numOfGuests: adult() + children(),
+        checkIn: new Date(checkinDate()),
+        checkOut: new Date(checkoutDate()),
+        status: BookingStatus.CONFIRMED
+      });
+      console.log(booking)
+    } catch (err) {
+      console.error(err);
+      throw new Error("Failed to create booking");
     }
   };
 
   return (
     <div>
       <section>
-        <h2>Booking</h2>
-        <button onClick={handleCreateNew}>Create new</button>
-        <Show when={toggleCreate()}>
-          <div>
-            <h2>Create Booking</h2>
-            <form onSubmit={handleSubmit}>
-              Full Name{" "}
+        {/* Room Type Buttons */}
+        <section>
+          <Show when={roomTypes()?.length}>
+            <For each={roomTypes()}>
+              {(rt) => (
+                <button
+                  type="button"
+                  onClick={[handleRoomTypeSelect, rt]}
+                >
+                  {rt.name} PHP {rt.price}
+                </button>
+              )}
+            </For>
+          </Show>
+        </section>
+
+        {/* Booking Form */}
+        <div>
+          <Show when={selectedRoomType()}>
+            <h2>
+              Create Booking for {selectedRoomType()!.name}
+            </h2>
+
+            Select dates: {"  "}
+            <input
+              type="date"
+              value={checkinDate()}
+              onInput={(e) =>
+                setCheckinDate(e.currentTarget.value)
+              }
+            />
+            -
+            <input
+              type="date"
+              value={checkoutDate()}
+              onInput={(e) =>
+                setCheckoutDate(e.currentTarget.value)
+              }
+            />
+
+            {/* Find rooms */}
+            <div>
+              <Show when={checkinDate}>
+                Selected dates: {checkinDate()}
+              </Show>
+              <Show when={checkoutDate()}>
+                - {checkoutDate()}
+              </Show>
+            </div>
+            <Show when={checkoutDate() && checkinDate()}>
+              <button onclick={handleRoomFind}>Find me rooms!</button>
+            </Show>
+
+            <Show when={roomId()}>
+              <p>Room found: {roomId()}</p>
+
+              Full Name
               <input
                 type="text"
                 value={customerFullName()}
-                onInput={(e) => setCustomerFullName(e.currentTarget.value)}
-              />{" "}
+                onInput={(e) =>
+                  setCustomerFullName(e.currentTarget.value)
+                }
+              />
               <br />
-              Email{" "}
+
+              Email
               <input
                 type="email"
                 value={customerEmail()}
-                onInput={(e) => setCustomerEmail(e.currentTarget.value)}
-              />{" "}
+                onInput={(e) =>
+                  setCustomerEmail(e.currentTarget.value)
+                }
+              />
               <br />
-              Adult{" "}
-              <input
-                type="number"
-                value={adult()}
-                onInput={(e) => setAdult(Number(e.currentTarget.value))}
-              />{" "}
+
+              Adult: <button onClick={() => handleAddPerson(adult, setAdult, false)}>-</button> {adult()} <button onClick={() => handleAddPerson(adult, setAdult)}>+</button>
               <br />
-              Children{" "}
-              <input
-                type="number"
-                value={children()}
-                onInput={(e) => setChildren(Number(e.currentTarget.value))}
-              />{" "}
-              <br />
-              Check In Date{" "}
-              <input
-                type="date"
-                value={checkinDate()}
-                onInput={(e) => setCheckinDate(e.currentTarget.value)}
-              />{" "}
-              <br />
-              Check Out Date{" "}
-              <input
-                type="date"
-                value={checkoutDate()}
-                onInput={(e) => setCheckoutDate(e.currentTarget.value)}
-              />{" "}
-              <br />
-              Room Type
-              <select
-                value={roomTypeId() ?? ""}
-                onInput={(e) => setRoomTypeId(Number(e.currentTarget.value))}
-              >
-                <option value="">Select a room type</option>
-                <For each={roomTypes()}>
-                  {(rt) => <option value={rt.id}>{rt.name}</option>}
-                </For>
-              </select>
-              <br />
-              <button>Submit</button>
-            </form>
-          </div>
-        </Show>
-      </section>
-    </div>
+
+              Children: <button onClick={() => handleAddPerson(children, setChildren, false)}>-</button> {children()} <button onClick={() => handleAddPerson(children, setChildren)}>+</button>
+
+              <button onClick={handleBookNow}>Book now!</button>
+            </Show>
+          </Show>
+        </div>
+      </section >
+    </div >
   );
 }
