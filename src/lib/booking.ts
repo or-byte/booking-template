@@ -1,72 +1,57 @@
-"use server";
-
 import { BookingStatus, Booking as PrismaBooking } from "@prisma/client"
-import prisma from "./prisma";
 import { createNewUser, findUserByEmail } from "./user";
-import { isRoomAvailable } from "./room";
+import { getAvailableRoom } from "./room";
+import prisma from "./prisma";
 
 export type Booking = PrismaBooking;
 
 export type BookingFormData = {
+    productId: number
     customerFullName: string
     customerEmail: string
-    roomTypeId: number
     numOfGuests: number
-    checkinDate: Date
-    checkoutDate: Date
+    checkIn: Date
+    checkOut: Date
+    status: BookingStatus
 }
 
-function serializeBookings(bookings: Booking[]) {
-    return bookings.map((b) => ({
-        ...b,
-        checkinDate: b.checkinDate.toISOString(),
-        checkoutDate: b.checkoutDate.toISOString(),
-    }))
-}
+export const createNewBooking = async (form: BookingFormData) : Promise<{id: string, customerId: number, roomId: number, numOfGuests: number, status: BookingStatus}> => {
+    "use server"
+    const start = new Date(form.checkIn);
+    start.setHours(12);
+    const end = new Date(form.checkOut);
+    end.setHours(14);
 
-export const getBookings = async (options?: { status?: BookingStatus; roomId?: number }) => {
-    const bookings = await prisma.booking.findMany({
-        where: {
-            ...(options?.status && { status: options.status }),
-            ...(options?.roomId && { roomId: options.roomId }),
-        },
-        include: {
-            room: true,
-            customer: true,
-            orders: true,
-        }
-    });
-
-    return serializeBookings(bookings);
-}
-
-export const createNewBooking = async (data: BookingFormData) => {
-    const room = await prisma.room.findFirst({
-        where: { roomTypeId: data.roomTypeId }
-    })
-
-    if (!room) throw new Error("Room not found");
-
-    const conflict = await isRoomAvailable(room.id, new Date(data.checkinDate), new Date(data.checkoutDate));
-
-    if (conflict) throw new Error("No room available")
-
-    let customer = await findUserByEmail(data.customerEmail);
+    let customer = await findUserByEmail(form.customerEmail);
 
     if (!customer) {
-        customer = await createNewUser(data.customerEmail, data.customerFullName, "CUSTOMER")
+        customer = await createNewUser(form.customerEmail, form.customerFullName, "CUSTOMER")
     }
 
-    const booking = await prisma.booking.create({
-        data: {
-            room: { connect: { id: room.id } },
-            customer: { connect: { id: customer.id } },
-            numOfGuests: data.numOfGuests,
-            checkinDate: data.checkinDate,
-            checkoutDate: data.checkoutDate,  
-            status: "PENDING"   
-        }
-    })
+    const room = await getAvailableRoom(form.productId, start, end);
 
-    return booking;
+    const result = await prisma.$queryRaw`
+    INSERT INTO "Booking" 
+        ("customerId", "roomId", "numOfGuests", "checkInRange", "status")
+    VALUES
+        (
+            ${customer.id},
+            ${room.id},
+            ${form.numOfGuests},
+            tstzrange(
+                ${start}::timestamptz,
+                ${end}::timestamptz,
+                '[)'
+            ),
+            ${form.status}::"BookingStatus"
+        )
+     RETURNING 
+        "id",
+        "customerId",
+        "roomId",
+        "numOfGuests",
+        "status"
+    `
+
+    return result;
 }

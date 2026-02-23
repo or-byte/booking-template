@@ -14,7 +14,6 @@ model User {
   role           Role
   createdAt      DateTime  @default(now())
   bookings       Booking[]
-  staffOrders    Order[]   @relation("StaffOrders")
   customerOrders Order[]   @relation("CustomerOrders")
 }
 
@@ -32,28 +31,21 @@ model Product {
   name        String
   description String
   price       Decimal @db.Decimal(10, 2)
-  stockQty    Int
+  stockQty    Int     @default(0)
 
   categoryId Int
   category   Category    @relation(fields: [categoryId], references: [id])
   orderItems OrderItem[]
+  rooms      Room[]
 }
 
 model Room {
-  id         Int       @id @default(autoincrement())
-  name       String
-  roomTypeId Int
-  roomType   RoomType  @relation(fields: [roomTypeId], references: [id])
-  bookings   Booking[]
-}
-
-model RoomType {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String
-  price       Decimal @db.Decimal(10, 2)
-  capacity    Int
-  rooms       Room[]
+  id        Int       @id @default(autoincrement())
+  name      String
+  capacity  Int
+  productId Int
+  product   Product   @relation(fields: [productId], references: [id])
+  bookings  Booking[]
 }
 
 model Booking {
@@ -67,8 +59,7 @@ model Booking {
 
   numOfGuests Int
 
-  checkinDate  DateTime
-  checkoutDate DateTime
+  checkInRange Unsupported("tstzrange")
   status       BookingStatus
   orders       Order[]
 }
@@ -76,9 +67,6 @@ model Booking {
 model Order {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-
-  staffId Int?
-  staff   User? @relation("StaffOrders", fields: [staffId], references: [id])
 
   customerId Int?
   customer   User? @relation("CustomerOrders", fields: [customerId], references: [id])

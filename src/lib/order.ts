@@ -1,9 +1,11 @@
-"use server"
-
 import { Order as PrismaOrder } from "@prisma/client"
 import prisma from "./prisma";
 
-export type Order = PrismaOrder;
+export type Order = Omit<PrismaOrder, "total" | "amountPaid" | "change" > & {
+    total: number
+    amountPaid: number
+    change: number
+};
 
 export type OrderFormData = {
     items: {
@@ -14,7 +16,7 @@ export type OrderFormData = {
     amountPaid: number;
 }
 
-export const createOrder = async (data: OrderFormData) => {
+export const createOrder = async (data: OrderFormData): Promise<Order> => {
     const tax = data.total * 0.12;
     const subtotal = data.total - tax;
     const change = data.amountPaid - data.total;
@@ -35,6 +37,10 @@ export const createOrder = async (data: OrderFormData) => {
         },
     });
 
-    console.log("Order created!")
-    return;
+    return {
+        ...order,
+        total: order.total.toNumber(),
+        amountPaid: order.amountPaid.toNumber(),
+        change: order.change.toNumber()
+    };
 }

@@ -1,17 +1,17 @@
-"use server";
-
 import { User as PrismaUser, Role } from "@prisma/client"
 import prisma from "./prisma";
 
 export type User = PrismaUser;
 
 export const findUserByEmail = async (email: string) => {
+    "use server"
     return prisma.user.findUnique({
         where: { email }
     });
 };
 
 export const createNewUser = async (email: string, fullName: string, role: Role) => {
+    "use server"
     const customer = await prisma.user.create({
         data: {
             fullName: fullName,
