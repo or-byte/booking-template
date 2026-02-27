@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer class="bg-[#4a90a4] text-white py-12">
+    <footer class="bg-[var(--color-accent-1)] text-white py-12">
       <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-6">
 
         <div>

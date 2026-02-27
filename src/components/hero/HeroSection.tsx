@@ -1,3 +1,5 @@
+import Button from "../button/Button";
+
 export default function Hero() {
   return (
     <section
@@ -17,9 +19,9 @@ export default function Hero() {
           Discover elegant rooms, breathtaking views, and unforgettable stays.
         </p>
 
-        <button class="px-8 py-3 border border-white hover:bg-white hover:text-black transition-all duration-300">
+        <Button class="px-8 py-3 border border-white hover:bg-white hover:text-black transition-all duration-300 rounded-[10px]">
           Book Your Stay
-        </button>
+        </Button>
       </div>
     </section>
   );
