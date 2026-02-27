@@ -1,5 +1,47 @@
-body {
-  font-family: Gordita, Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: "Inter", sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: Didot, "Bodoni MT", serif;
+  }
+
+  :root {
+    --color-bg: #EBEBEB;
+    --color-footer: #A7A7A7;
+    --color-primary: #335d92;
+    --color-accent-1: #419EBD;
+    --color-accent-2: #54a1bb;
+    --color-disabled: #83ACB9;
+    --color-border-1: #B4B4B4;
+
+    --font-size-h1: 4rem;
+    --font-size-h2: 64px;
+    --font-size-h3: 40px;
+    --font-size-h4: 32px;
+    --font-size-body-lg: 16px;
+    --font-size-body-sm: 14px;
+    --font-size-body-xs: 12px;
+
+    --line-height-h1: 1.1;
+    --line-height-h2: 1.1;
+    --line-height-h3: 1.1;
+    --line-height-h4: 1.1;
+    --line-height-body-lg: 1.35;
+    --line-height-body-sm: 1.2;
+
+    --font-weight-light: 100;
+    --font-weight-regular: 400;
+    --font-weight-bold: 700;
+  }
 }
 
 a {

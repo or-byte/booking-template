@@ -1,19 +1,25 @@
 import { Title } from "@solidjs/meta";
 import Counter from "~/components/Counter";
+import NavBar from "~/components/navbar/NavBar";
+import Hero from "~/components/hero/HeroSection";
+import RoomsSection from "~/components/room/RoomSection";
+import RestaurantSection from "~/components/restaurant/RestaurantSection";
+import PawikanSection from "~/components/pawikan/PawikanSection";
+import AttractionSection from "~/components/attraction/AttractionSection";
+import AmenitiesSection from "~/components/amenities/AmenitiesSection";
+import Footer from "~/components/footer/FooterSection";
 
 export default function Home() {
   return (
-    <main>
-      <Title>Hello World</Title>
-      <h1>Hello world!</h1>
-      <Counter />
-      <p>
-        Visit{" "}
-        <a href="https://start.solidjs.com" target="_blank">
-          start.solidjs.com
-        </a>{" "}
-        to learn how to build SolidStart apps.
-      </p>
-    </main>
+    <>
+      <NavBar />
+      <Hero />
+      <RoomsSection />
+      <RestaurantSection />
+      <PawikanSection />
+      <AttractionSection />
+      <AmenitiesSection />
+      <Footer />
+    </>
   );
 }
