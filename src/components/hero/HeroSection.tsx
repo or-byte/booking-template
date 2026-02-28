@@ -19,7 +19,7 @@ export default function Hero() {
           Discover elegant rooms, breathtaking views, and unforgettable stays.
         </p>
 
-        <Button class="px-20 py-5 border border-white hover:bg-white/15 transition-all duration-300 rounded-[10px]">
+        <Button class="px-20 py-5 border border-white hover:bg-white/15 hover:cursor-pointer transition-all duration-300 rounded-[10px]">
           Book Your Stay
         </Button>
       </div>

@@ -72,7 +72,7 @@ export default function Home() {
         linkHref="#"
         linkLabel="Go to El Mar"
       >
-        <div class="flex justify-center w-full">
+        <div class="flex justify-center w-full h-[400px]">
           <ImageGallery
             images={[
               "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
@@ -88,7 +88,7 @@ export default function Home() {
         linkHref="#"
         linkLabel="View More Details"
       >
-        <div class="flex justify-center w-full">
+        <div class="flex justify-center w-full h-[400px]">
           <ImageGallery
             images={[
               "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
@@ -104,7 +104,7 @@ export default function Home() {
         linkHref="#"
         linkLabel="View More Details"
       >
-        <div class="flex justify-center w-full">
+        <div class="flex justify-center w-full h-[400px]">
           <ImageGallery
             images={[
               "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",

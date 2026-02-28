@@ -18,9 +18,9 @@ export default function AmenitiesSection() {
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-gray-700">
           {amenities.map((item) => (
-            <div class="flex items-center justify-center gap-2">
-              <span>✦</span>
-              <span>{item}</span>
+            <div class="flex items-center gap-2">
+              <span class="mt-1 text-[var(--color-accent-1)]">✦</span>
+              <span class="text-left">{item}</span>
             </div>
           ))}
         </div>
