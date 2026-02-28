@@ -4,7 +4,6 @@ import Hero from "~/components/hero/HeroSection";
 import FeatureSection from "~/components/feature_section/FeatureSection";
 import RoomsCard from "~/components/cards/RoomsCard";
 import AmenitiesSection from "~/components/amenities/AmenitiesSection";
-import Footer from "~/components/footer/FooterSection";
 import ImageGallery from "~/components/gallery/ImageGallery";
 
 const rooms = [
@@ -115,7 +114,6 @@ export default function Home() {
         </div>
       </FeatureSection>
       <AmenitiesSection />
-      <Footer />
     </>
   );
 }
