@@ -1,19 +1,27 @@
 import { A } from "@solidjs/router";
 import { createSignal, For, onMount, onCleanup } from "solid-js";
 import Button from "../button/Button";
-import { useNavigate } from "@solidjs/router";
+import { useNavigate, useLocation } from "@solidjs/router";
 
 const menuItems = [
-  { href: "/pricing", label: "About Us" },
-  { href: "/about", label: "Rooms" },
-  { href: "/about", label: "Explore" },
-  { href: "/support", label: "Contact Us" },
+  { href: "/about", label: "About Us" },
+  { href: "/rooms", label: "Rooms" },
+  { href: "/explore", label: "Explore" },
+  { href: "/contact", label: "Contact Us" },
+];
+
+const exploreDropdown = [
+  { href: "/attractions", label: "Attractions" },
+  { href: "/activities", label: "Dining" },
+  { href: "/facilities", label: "Facilities" },
+  { href: "/offers", label: "Gallery" },
 ];
 
 const leftItems = menuItems.slice(0, 2);
 const rightItems = menuItems.slice(2);
 
 export default function NavBar() {
+  const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = createSignal(false);
   const [scrolled, setScrolled] = createSignal(false);
@@ -35,9 +43,7 @@ export default function NavBar() {
         class={`
           fixed top-0 left-0 w-full z-50
           transition-all duration-300
-          ${scrolled()
-            ? "bg-white shadow-md"
-            : "bg-transparent"}
+          ${scrolled() || location.pathname !== "/" ? "bg-white shadow-md" : "bg-transparent"}}
         `}
       >
         <div class="max-w-6xl mx-auto px-4 flex items-center justify-center gap-20 relative">
@@ -50,7 +56,7 @@ export default function NavBar() {
                   href={item.href}
                   class={`
                     transition-colors duration-200
-                    ${scrolled()
+                    ${scrolled() || location.pathname !== "/"
                       ? "text-black hover:text-[var(--color-accent-1)]"
                       : "text-white hover:text-white/70"}
                   `}
@@ -70,21 +76,41 @@ export default function NavBar() {
             onClick={[goTo, "/"]}
           />
 
-          {/* Right side */}
-          <div class="hidden md:flex items-center gap-20">
+          <div class="hidden md:flex items-center gap-20 relative">
             <For each={rightItems}>
               {(item) => (
-                <A
-                  href={item.href}
-                  class={`
-                    transition-colors duration-200
-                    ${scrolled()
-                      ? "text-black hover:text-[var(--color-accent-1)]"
-                      : "text-white hover:text-white/70"}
-                  `}
-                >
-                  {item.label}
-                </A>
+                <div class="relative group">
+                  <A
+                    href={item.href}
+                    class={`
+                        transition-colors duration-200
+                        ${scrolled() || location.pathname !== "/"
+                        ? "text-black hover:text-[var(--color-accent-1)]"
+                        : "text-white hover:text-white/70"}
+                    `}
+                  >
+                    {item.label}
+                  </A>
+
+                  {/* Dropdown for Explore */}
+                  {item.label === "Explore" && (
+                    <div class="
+                        absolute top-full left-0 mt-2 w-48 bg-white shadow-lg opacity-0
+                        invisible group-hover:opacity-100 group-hover:visible transition-all duration-200
+                      ">
+                      <For each={exploreDropdown}>
+                        {(subItem) => (
+                          <A
+                            href={subItem.href}
+                            class="block px-4 py-2 text-gray-700 hover:bg-[var(--color-accent-1)]/70 hover:text-white transition-colors"
+                          >
+                            {subItem.label}
+                          </A>
+                        )}
+                      </For>
+                    </div>
+                  )}
+                </div>
               )}
             </For>
           </div>

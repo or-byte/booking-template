@@ -2,9 +2,10 @@ import { Title } from "@solidjs/meta";
 import NavBar from "~/components/navbar/NavBar";
 import Hero from "~/components/hero/HeroSection";
 import FeatureSection from "~/components/feature_section/FeatureSection";
-import RoomsCard from "~/components/rooms_card/RoomsCard";
+import RoomsCard from "~/components/cards/RoomsCard";
 import AmenitiesSection from "~/components/amenities/AmenitiesSection";
 import Footer from "~/components/footer/FooterSection";
+import ImageGallery from "~/components/gallery/ImageGallery";
 
 const rooms = [
   {
@@ -71,10 +72,15 @@ export default function Home() {
         linkHref="#"
         linkLabel="Go to El Mar"
       >
-        <img
-          src="/images/restaurant.jpg"
-          class="w-full h-[400px] object-cover"
-        />
+        <div class="flex justify-center w-full">
+          <ImageGallery
+            images={[
+              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
+              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
+              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
+            ]}
+          />
+        </div>
       </FeatureSection>
       <FeatureSection
         title="Pawikan Center Section"
@@ -82,22 +88,14 @@ export default function Home() {
         linkHref="#"
         linkLabel="View More Details"
       >
-        <div class="grid md:grid-cols-2 gap-6">
-          <img
-            src="/images/turtles1.jpg"
-            class="rounded-lg object-cover w-full h-[350px]"
+        <div class="flex justify-center w-full">
+          <ImageGallery
+            images={[
+              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
+              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
+              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
+            ]}
           />
-
-          <div class="grid gap-6">
-            <img
-              src="/images/turtles2.jpg"
-              class="rounded-lg object-cover w-full h-[160px]"
-            />
-            <img
-              src="/images/turtles3.jpg"
-              class="rounded-lg object-cover w-full h-[160px]"
-            />
-          </div>
         </div>
       </FeatureSection>
       <FeatureSection
@@ -106,10 +104,15 @@ export default function Home() {
         linkHref="#"
         linkLabel="View More Details"
       >
-        <img
-          src="/images/mount-samat.jpg"
-          class="w-full h-[400px] object-cover rounded-lg"
-        />
+        <div class="flex justify-center w-full">
+          <ImageGallery
+            images={[
+              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
+              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
+              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
+            ]}
+          />
+        </div>
       </FeatureSection>
       <AmenitiesSection />
       <Footer />
