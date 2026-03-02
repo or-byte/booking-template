@@ -43,8 +43,7 @@ export default function NavBar() {
         class={`
           fixed top-0 left-0 w-full z-50
           transition-all duration-300
-          ${scrolled() || location.pathname !== "/" ? "bg-white shadow-md" : "bg-transparent"}}
-        `}
+          ${scrolled() || location.pathname !== "/" ? "bg-white shadow-md" : "bg-transparent"}`}
       >
         <div class="max-w-6xl mx-auto px-4 flex items-center justify-center gap-20 relative">
 

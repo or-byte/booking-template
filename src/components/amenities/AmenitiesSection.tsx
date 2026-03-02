@@ -1,3 +1,5 @@
+import { For } from "solid-js";
+
 export default function AmenitiesSection() {
   const amenities = [
     "Free WiFi",
@@ -17,12 +19,14 @@ export default function AmenitiesSection() {
         <h2 class="text-3xl font-serif mb-10">Hotel Amenities</h2>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-gray-700">
-          {amenities.map((item) => (
-            <div class="flex items-center gap-2">
-              <span class="mt-1 text-[var(--color-accent-1)]">✦</span>
-              <span class="text-left">{item}</span>
-            </div>
-          ))}
+          <For each={amenities}>
+            {(amenity) => (
+              <div class="flex items-center gap-2">
+                <span class="mt-1 text-[var(--color-accent-1)]">✦</span>
+                <span class="text-left">{amenity}</span>
+              </div>
+            )}
+          </For>
         </div>
 
       </div>
