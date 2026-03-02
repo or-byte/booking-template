@@ -33,10 +33,11 @@ model Product {
   price       Decimal @db.Decimal(10, 2)
   stockQty    Int     @default(0)
 
-  categoryId Int
-  category   Category    @relation(fields: [categoryId], references: [id])
-  orderItems OrderItem[]
-  rooms      Room[]
+  categoryId   Int
+  category     Category      @relation(fields: [categoryId], references: [id])
+  orderItems   OrderItem[]
+  rooms        Room[]
+  packageItems PackageItem[]
 }
 
 model Room {
@@ -62,6 +63,22 @@ model Booking {
   checkInRange Unsupported("tstzrange")
   status       BookingStatus
   orders       Order[]
+}
+
+model Package {
+  id           Int           @id @default(autoincrement())
+  slug         String        @unique
+  name         String
+  description  String
+  packageItems PackageItem[]
+}
+
+model PackageItem {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  packageId Int
+  package   Package @relation(fields: [packageId], references: [id])
 }
 
 model Order {

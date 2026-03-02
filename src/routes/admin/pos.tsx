@@ -2,6 +2,7 @@ import { createResource, createSignal, For, Show } from "solid-js";
 import { getCategories } from "~/lib/category";
 import { getProductsByCategory } from "~/lib/product";
 import { createOrder, OrderFormData } from "~/lib/order";
+import { getAllRooms } from "~/lib/room";
 
 type Cart = {
     productId: number
