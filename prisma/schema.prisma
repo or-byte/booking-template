@@ -98,6 +98,7 @@ model Order {
   amountPaid Decimal @db.Decimal(10, 2)
   change     Decimal @db.Decimal(10, 2)
 
+  status        OrderStatus
   paymentMethod PaymentMethod @default(CASH)
 }
 
@@ -128,4 +129,11 @@ enum BookingStatus {
 enum PaymentMethod {
   CASH
   CARD
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
 }

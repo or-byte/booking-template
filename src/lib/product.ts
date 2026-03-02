@@ -11,15 +11,15 @@ export type ProductFormData = {
     categoryId: number;
 }
 
-export const getProductsByCategory = query(async (id: number): Promise<Product[]> => {
+export const getProductsByCategory = async (id: number): Promise<Product[]> => {
     "use server";
-    const products = await prisma.product.findMany({ where: { categoryId: id } });
+    const products = await prisma.product.findMany({ where: { categoryId: id} });
 
     return products.map(p => ({
         ...p,
         price: p.price.toNumber(),
     }));
-}, "productsCategory");
+};
 
 export const createNewProduct = async (form: ProductFormData): Promise<Product> => {
     "use server";

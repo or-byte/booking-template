@@ -10,13 +10,14 @@ export type CategoryFormData = {
 export const getCategories = async (): Promise<Category[]> => {
     "use server"
     return await prisma.category.findMany({
+        where: { name: { not: "Room" } },
         include: {
             _count: { select: { products: true } }
         }
     });
 }
 
-export const createNewCategory = async (form: CategoryFormData) : Promise<Category> => {
+export const createNewCategory = async (form: CategoryFormData): Promise<Category> => {
     "use server"
     const category = await prisma.category.create({
         data: {
