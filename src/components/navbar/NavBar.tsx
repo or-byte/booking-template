@@ -1,6 +1,5 @@
 import { A } from "@solidjs/router";
 import { createSignal, For, onMount, onCleanup } from "solid-js";
-import Button from "../button/Button";
 import { useNavigate, useLocation } from "@solidjs/router";
 
 const menuItems = [
@@ -45,7 +44,12 @@ export default function NavBar() {
           transition-all duration-300
           ${scrolled() || location.pathname !== "/" ? "bg-white shadow-md" : "bg-transparent"}`}
       >
-        <div class="max-w-6xl mx-auto px-4 flex items-center justify-center gap-20 relative">
+        <div class="
+          max-w-6xl mx-auto px-4
+          flex items-center
+          justify-between md:justify-center
+          gap-20 relative
+        ">
 
           {/* Left side */}
           <div class="hidden md:flex items-center gap-20">
@@ -142,10 +146,6 @@ export default function NavBar() {
                 </A>
               )}
             </For>
-
-            <Button onClick={[goTo, "/login"]}>
-              Sign In
-            </Button>
           </div>
         </div>
       )}
