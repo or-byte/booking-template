@@ -1,7 +1,7 @@
 import { createResource, createSignal, For, Show } from "solid-js";
 import { getCategories } from "~/lib/category";
 import { getProductsByCategory } from "~/lib/product";
-import { createOrAppendOrder, getOrderByBooking, Order, OrderFormData } from "~/lib/order";
+import { createOrAppendOrder, getOrderByBooking, OrderFormData } from "~/lib/order";
 import { BookingWithCustomer, getAllFutureBookings } from "~/lib/booking";
 import { parseBookingRange } from "~/utils/booking";
 
@@ -88,27 +88,35 @@ export default function POS() {
         const items = cart();
         if (items.length === 0) return;
 
-        const total = items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+        if (!selectedBooking()?.id) {
+            alert("No booking selected");
+            return;
+        }
 
-        const data: OrderFormData = {
-            items: items.map((item) => ({
+        const data : OrderFormData = {
+            items: items.map(item => ({
                 productId: item.productId,
                 quantity: item.quantity,
             })),
-            total,
-            amountPaid: total, // adjust later based on amount paid
+            amountPaid: items.reduce(
+                (sum, item) => sum + item.quantity * item.price,
+                0
+            ), // TODO change to actual amount paid
             bookingId: selectedBooking()?.id
-        }
+        };
 
         try {
             const order = await createOrAppendOrder(data);
-            alert(`Order created successfully: Order ID: ${order.id}`);
-            refetch();
-        } catch (e) {
-            throw new Error(`Order checkout failed: ${e}`)
-        }
 
-        setCart([]);
+            alert(
+                `Order #${order.id}\nTotal: ₱${order.total}\nChange: ₱${order.change}`
+            );
+
+            refetch();
+            setCart([]);
+        } catch (e) {
+            console.error(e);
+        }
     };
 
     return (
