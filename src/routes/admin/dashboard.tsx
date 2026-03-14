@@ -1,6 +1,6 @@
 import { useNavigate } from "@solidjs/router";
 import { createEffect, createResource, createSignal, For, Show } from "solid-js";
-import { getCategories } from "~/lib/category";
+import { getCategories, createNewCategory, Category } from "~/lib/category";
 import { createNewProduct, getAllProducts, updateProduct } from "~/lib/product";
 
 export default function AdminDashboard() {
@@ -14,14 +14,24 @@ export default function AdminDashboard() {
     { id: "rooms", label: "Rooms" },
   ];
 
-  const [allCategories] = createResource(() => getCategories());
+  // Categories
+  const [allCategories, { mutate: setAllCategories }] = createResource(() => getCategories());
   const [selectedCategoryId, setSelectedCategoryId] = createSignal("All");
+
+  // Products
   const [allProducts] = createResource(() => getAllProducts());
   const [visibleProducts, setVisibleProducts] = createSignal([]);
   const [selectedProduct, setSelectedProduct] = createSignal(null);
-  const [sidebarOpen, setSidebarOpen] = createSignal(false); // mobile sidebar toggle
 
-  // Update visible products
+  // Sidebar
+  const [sidebarOpen, setSidebarOpen] = createSignal(false);
+
+  // Create category modal
+  const [categoryModalOpen, setCategoryModalOpen] = createSignal(false);
+  const [newCategoryName, setNewCategoryName] = createSignal("");
+  const [newCategoryDesc, setNewCategoryDesc] = createSignal("");
+
+  // Update visible products whenever category or products change
   createEffect(() => {
     if (!allProducts()) return;
     const selectedId = selectedCategoryId();
@@ -65,6 +75,25 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleCreateCategory = async () => {
+    if (!newCategoryName().trim()) return alert("Category name cannot be empty.");
+    try {
+      const newCat: Category = await createNewCategory({
+        name: newCategoryName(),
+        description: newCategoryDesc(),
+      });
+      setAllCategories((prev) => [...(prev || []), newCat]);
+      setSelectedCategoryId(newCat.id);
+      setNewCategoryName("");
+      setNewCategoryDesc("");
+      setCategoryModalOpen(false);
+      alert("Category created successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to create category.");
+    }
+  };
+
   return (
     <div class="flex flex-col h-screen">
       {/* Top Navbar */}
@@ -81,19 +110,18 @@ export default function AdminDashboard() {
 
         {/* Mobile sidebar toggle */}
         <button
-          class="sm:hidden p-2 bg-blue-600 rounded"
+          class="sm:hidden p-2"
           onClick={() => setSidebarOpen(!sidebarOpen())}
         >
-          ☰
+          {sidebarOpen() ? "✕" : "☰"}
         </button>
       </div>
 
       <div class="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <div
-          class={`bg-gray-50 p-4 flex flex-col gap-2 sm:w-48 sm:flex ${
-            sidebarOpen() ? "block absolute z-20 w-48 h-full shadow-lg" : "hidden"
-          }`}
+          class={`bg-gray-50 p-4 flex flex-col gap-2 sm:w-48 sm:flex ${sidebarOpen() ? "block absolute z-20 w-48 h-full shadow-lg" : "hidden"
+            }`}
         >
           {tabs.map((tab) => (
             <button
@@ -122,14 +150,23 @@ export default function AdminDashboard() {
 
           {/* Products */}
           <Show when={activeTab() === "products"}>
-            {/* New Product */}
+            {/* Actions */}
             <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <button
-                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                onClick={() => setSelectedProduct(createNewProductTemplate())}
-              >
-                + New Product
-              </button>
+              <div class="flex gap-2">
+                <button
+                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  onClick={() => setSelectedProduct(createNewProductTemplate())}
+                >
+                  + New Product
+                </button>
+
+                <button
+                  class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                  onClick={() => setCategoryModalOpen(true)}
+                >
+                  + New Category
+                </button>
+              </div>
 
               {/* Category Filter */}
               <div class="flex items-center gap-2">
@@ -137,7 +174,10 @@ export default function AdminDashboard() {
                 <select
                   class="border p-1 rounded"
                   value={selectedCategoryId()}
-                  onChange={(e) => setSelectedCategoryId(e.currentTarget.value)}
+                  onChange={(e) => {
+                    setSelectedCategoryId(e.currentTarget.value);
+                    setSelectedProduct(undefined);
+                  }}
                 >
                   <option value="All">All</option>
                   <For each={allCategories()}>
@@ -265,6 +305,42 @@ export default function AdminDashboard() {
           </Show>
         </div>
       </div>
+
+      {/* Category Modal */}
+      <Show when={categoryModalOpen()}>
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-30">
+          <div class="bg-white p-6 rounded shadow-md w-full max-w-sm">
+            <h2 class="text-lg font-semibold mb-4">Create New Category</h2>
+            <input
+              type="text"
+              placeholder="Category name"
+              class="border p-2 rounded w-full mb-2"
+              value={newCategoryName()}
+              onInput={(e) => setNewCategoryName(e.currentTarget.value)}
+            />
+            <textarea
+              placeholder="Description (optional)"
+              class="border p-2 rounded w-full mb-4"
+              value={newCategoryDesc()}
+              onInput={(e) => setNewCategoryDesc(e.currentTarget.value)}
+            />
+            <div class="flex justify-end gap-2">
+              <button
+                class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+                onClick={() => setCategoryModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                onClick={handleCreateCategory}
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      </Show>
     </div>
   );
 }
