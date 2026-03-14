@@ -71,3 +71,8 @@ export const updateProduct = async (form: ProductFormData & { id: number }) => {
 
   return { ...product, price: product.price.toNumber() };
 };
+
+export const deleteProduct = async (id: number) => {
+  "use server";
+  await prisma.product.delete({ where: { id } });
+};

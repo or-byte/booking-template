@@ -1,7 +1,7 @@
 import { useNavigate } from "@solidjs/router";
 import { createEffect, createResource, createSignal, For, Show } from "solid-js";
 import { getCategories, createNewCategory, Category } from "~/lib/category";
-import { createNewProduct, getAllProducts, updateProduct } from "~/lib/product";
+import { createNewProduct, deleteProduct, getAllProducts, updateProduct } from "~/lib/product";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = createSignal("products");
@@ -52,6 +52,25 @@ export default function AdminDashboard() {
     categoryId: selectedCategoryId() === "All" ? null : Number(selectedCategoryId()),
   });
 
+  const handleCreateCategory = async () => {
+    if (!newCategoryName().trim()) return alert("Category name cannot be empty.");
+    try {
+      const newCat: Category = await createNewCategory({
+        name: newCategoryName(),
+        description: newCategoryDesc(),
+      });
+      setAllCategories((prev) => [...(prev || []), newCat]);
+      setSelectedCategoryId(newCat.id);
+      setNewCategoryName("");
+      setNewCategoryDesc("");
+      setCategoryModalOpen(false);
+      alert("Category created successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to create category.");
+    }
+  };
+
   const handleSaveProduct = async () => {
     const product = selectedProduct();
     if (!product) return;
@@ -75,24 +94,23 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleCreateCategory = async () => {
-    if (!newCategoryName().trim()) return alert("Category name cannot be empty.");
-    try {
-      const newCat: Category = await createNewCategory({
-        name: newCategoryName(),
-        description: newCategoryDesc(),
-      });
-      setAllCategories((prev) => [...(prev || []), newCat]);
-      setSelectedCategoryId(newCat.id);
-      setNewCategoryName("");
-      setNewCategoryDesc("");
-      setCategoryModalOpen(false);
-      alert("Category created successfully!");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to create category.");
+  const handleDeleteProduct = async () => {
+    if (confirm("Are you sure you want to delete this product?")) {
+      try {
+        await deleteProduct(selectedProduct().id);
+        setVisibleProducts((prev) =>
+          prev.filter((p) => p.id !== selectedProduct().id)
+        );
+        setSelectedProduct(null);
+        alert("Product deleted successfully!");
+      } catch (err) {
+        console.error(err);
+        alert("Failed to delete product.");
+      }
     }
-  };
+  }
+
+
 
   return (
     <div class="flex flex-col h-screen">
@@ -155,16 +173,16 @@ export default function AdminDashboard() {
               <div class="flex gap-2">
                 <button
                   class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                  onClick={() => setSelectedProduct(createNewProductTemplate())}
-                >
-                  + New Product
-                </button>
-
-                <button
-                  class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
                   onClick={() => setCategoryModalOpen(true)}
                 >
                   + New Category
+                </button>
+
+                <button
+                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  onClick={() => setSelectedProduct(createNewProductTemplate())}
+                >
+                  + New Product
                 </button>
               </div>
 
@@ -298,6 +316,14 @@ export default function AdminDashboard() {
                     >
                       Cancel
                     </button>
+                    {selectedProduct()?.id && (
+                      <button
+                        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex-1"
+                        onClick={handleDeleteProduct}
+                      >
+                        Delete Product
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -332,7 +358,7 @@ export default function AdminDashboard() {
                 Cancel
               </button>
               <button
-                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                 onClick={handleCreateCategory}
               >
                 Create
