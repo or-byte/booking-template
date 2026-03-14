@@ -2,39 +2,25 @@ import { Title } from "@solidjs/meta";
 import NavBar from "~/components/navbar/NavBar";
 import Hero from "~/components/hero/HeroSection";
 import FeatureSection from "~/components/feature_section/FeatureSection";
-import RoomsCard from "~/components/cards/RoomsCard";
+import RoomsCard, { RoomsCardItem } from "~/components/cards/RoomsCard";
 import AmenitiesSection from "~/components/amenities/AmenitiesSection";
 import ImageGallery from "~/components/gallery/ImageGallery";
+import { getAllRoomTypes } from "~/lib/room";
+import { createMemo, createResource } from "solid-js";
 
-const rooms = [
-  {
-    id: 1,
-    title: "Superior Room",
-    price: "$$$ per night",
-    image: "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-  },
-  {
-    id: 2,
-    title: "Deluxe",
-    price: "$$$ per night",
-    image: "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-  },
-  {
-    id: 3,
-    title: "Standard",
-    price: "$$$ per night",
-    image: "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-  },
-  {
-    id: 4,
-    title: "Dormitory",
-    price: "$$$ per night",
-    image: "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-  },
-];
-
+const roomImagePlaceholder = "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=";
 
 export default function Home() {
+  const [rooms] = createResource(async () => await getAllRoomTypes());
+
+  const roomsCardItems = createMemo<RoomsCardItem[]>(() => {
+    const data = rooms();
+    if (!data) return [];
+    return data.map((p) => ({
+      ...p,
+      image: roomImagePlaceholder,
+    }));
+  });
   return (
     <>
       <Title>The Waterfront Beach Resort</Title>
@@ -47,7 +33,7 @@ export default function Home() {
         linkLabel="View More Rooms"
       >
         <RoomsCard
-          items={rooms}
+          items={roomsCardItems()}
           defaultActive={0}
           expandedFlex={4}
           collapsedFlex={1.6} // slightly wider small cards
@@ -59,7 +45,7 @@ export default function Home() {
                 ${isActive ? "text-3xl" : "text-xl opacity-70"}
               `}
               >
-                {room.title}
+                {room.name}
               </h2>
             </div>
           )}

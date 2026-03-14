@@ -1,9 +1,7 @@
 import { createSignal, For, JSX } from "solid-js";
+import { Product } from "~/lib/product";
 
-export type RoomsCardItem = {
-  id: string | number;
-  image: string;
-};
+export type RoomsCardItem = Product & { image: string };
 
 type RoomsCardProps<T> = {
   items: T[];
@@ -53,7 +51,7 @@ export default function RoomsCard<T extends RoomsCardItem>(
               style={{
                 flex:
                   typeof window !== "undefined" &&
-                  window.innerWidth >= 768
+                    window.innerWidth >= 768
                     ? isActive()
                       ? expanded().toString()
                       : collapsed().toString()

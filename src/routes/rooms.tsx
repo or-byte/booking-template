@@ -1,29 +1,11 @@
 import { Title } from "@solidjs/meta";
-import { For } from "solid-js";
+import { createResource, For, Show } from "solid-js";
 import BookingRoomCard from "~/components/cards/BookingRoomCard";
-
-const rooms = [
-  {
-    id: 1,
-    title: "Superior Room",
-    price: "$$$ per night",
-    image: "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-  },
-  {
-    id: 2,
-    title: "Deluxe",
-    price: "$$$ per night",
-    image: "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-  },
-  {
-    id: 3,
-    title: "Standard",
-    price: "$$$ per night",
-    image: "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-  },
-];
+import { getAllRoomTypes } from "~/lib/room";
 
 export default function Rooms() {
+  const [rooms] = createResource(async () => { return await getAllRoomTypes() });
+
   return (
     <main class="min-h-screen">
       <Title>Rooms</Title>
@@ -40,20 +22,35 @@ export default function Rooms() {
         </div>
 
         {/* Rooms List */}
-        <div class="flex flex-col">
-          <For each={rooms}>
-            {(room, index) => (
-              <div class="py-6">
-                <BookingRoomCard
-                  image={room.image}
-                  title={room.title}
-                  priceLabel={room.price}
-                />
-              </div>
-            )}
-          </For>
+        <div class="flex flex-col gap-4">
+          <Show
+            when={!rooms.loading}
+            fallback={
+              <For each={Array(3)}>
+                {() =>
+                  <div class="py-6">
+                    <div
+                      class="w-full h-[180px] sm:h-[220px] md:h-[260px] lg:h-[300px] rounded-2xl overflow-hidden bg-gray-200 animate-pulse shadow-md transition-all duration-300"
+                    />
+                  </div>
+                }
+              </For>
+            }
+          >
+            <For each={rooms()}>
+              {(room) => (
+                <div class="py-6">
+                  <BookingRoomCard
+                    image="https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU="
+                    title={room.name}
+                    priceLabel={room.price.toString()}
+                  />
+                </div>
+              )}
+            </For>
+          </Show>
         </div>
       </div>
-    </main>
+    </main >
   );
 }
