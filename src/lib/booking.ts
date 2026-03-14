@@ -5,25 +5,25 @@ import prisma from "./prisma";
 
 export type Booking = PrismaBooking & { checkInRange: string };
 
-export type BookingWithCustomer = Booking & { customer: { fullName: string, email: string }}
+export type BookingWithCustomer = Booking & { customer: { fullName: string, email: string } }
 
 export type BookingFormData = {
-    productId: number
-    customerFullName: string
-    customerEmail: string
-    numOfGuests: number
-    checkIn: Date
-    checkOut: Date
-    status: BookingStatus
+  productId: number
+  customerFullName: string
+  customerEmail: string
+  numOfGuests: number
+  checkIn: Date
+  checkOut: Date
+  status: BookingStatus
 }
 
 export const getAllFutureBookings = async (): Promise<BookingWithCustomer[]> => {
-    "use server"
-    const today = new Date();
-    today.setHours(0, 0, 0, 0)
+  "use server"
+  const today = new Date();
+  today.setHours(0, 0, 0, 0)
 
-    const result = await prisma.$queryRaw<BookingWithCustomer[]>
-        `
+  const result = await prisma.$queryRaw<BookingWithCustomer[]>
+    `
             SELECT
                 b."id",
                 b."roomId",
@@ -42,42 +42,42 @@ export const getAllFutureBookings = async (): Promise<BookingWithCustomer[]> => 
             ORDER BY lower(b."checkInRange") ASC
         `;
 
-    return result;
+  return result;
 }
 
 export const createNewBooking = async (form: BookingFormData): Promise<{
-    id: string
-    customerId: number
-    roomId: number
-    numOfGuests: number
-    status: BookingStatus
+  id: string
+  customerId: number
+  roomId: number
+  numOfGuests: number
+  status: BookingStatus
 }> => {
-    "use server"
+  "use server"
 
-    const start = new Date(form.checkIn)
-    start.setHours(12)
+  const start = new Date(form.checkIn)
+  start.setHours(12)
 
-    const end = new Date(form.checkOut)
-    end.setHours(14)
+  const end = new Date(form.checkOut)
+  end.setHours(14)
 
-    let customer = await findUserByEmail(form.customerEmail)
+  let customer = await findUserByEmail(form.customerEmail)
 
-    if (!customer) {
-        customer = await createNewUser(
-            form.customerEmail,
-            form.customerFullName,
-            "CUSTOMER"
-        )
-    }
+  if (!customer) {
+    customer = await createNewUser(
+      form.customerEmail,
+      form.customerFullName,
+      "CUSTOMER"
+    )
+  }
 
-    const room = await getAvailableRoom(form.productId, start, end)
+  const room = await getAvailableRoom(form.productId, start, end)
 
-    if (!room) {
-        throw new Error("No available room found")
-    }
+  if (!room) {
+    throw new Error("No available room found")
+  }
 
-    const result = await prisma.$queryRaw<{ id: string, customerId: number, roomId: number, numOfGuests: number, status: BookingStatus }[]>
-        `
+  const result = await prisma.$queryRaw<{ id: string, customerId: number, roomId: number, numOfGuests: number, status: BookingStatus }[]>
+    `
             INSERT INTO "Booking" 
                 ("customerId", "roomId", "numOfGuests", "checkInRange", "status")
             VALUES
@@ -100,9 +100,9 @@ export const createNewBooking = async (form: BookingFormData): Promise<{
                 "status"
         `;
 
-    if (!result.length) {
-        throw new Error("Failed returning response in createNewBooking")
-    }
+  if (!result.length) {
+    throw new Error("Failed returning response in createNewBooking")
+  }
 
-    return result[0]
+  return result[0]
 }

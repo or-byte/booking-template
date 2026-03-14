@@ -21,6 +21,7 @@ export default function Home() {
       image: roomImagePlaceholder,
     }));
   });
+  
   return (
     <>
       <Title>The Waterfront Beach Resort</Title>
