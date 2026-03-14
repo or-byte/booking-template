@@ -14,27 +14,22 @@ export default function AdminDashboard() {
     { id: "rooms", label: "Rooms" },
   ];
 
-  // Categories
   const [allCategories] = createResource(() => getCategories());
   const [selectedCategoryId, setSelectedCategoryId] = createSignal("All");
-
-  // Products
   const [allProducts] = createResource(() => getAllProducts());
   const [visibleProducts, setVisibleProducts] = createSignal([]);
   const [selectedProduct, setSelectedProduct] = createSignal(null);
+  const [sidebarOpen, setSidebarOpen] = createSignal(false); // mobile sidebar toggle
 
-  // Update visible products whenever category or products change
+  // Update visible products
   createEffect(() => {
     if (!allProducts()) return;
-
     const selectedId = selectedCategoryId();
-    if (selectedId === "All") {
-      setVisibleProducts(allProducts());
-    } else {
+    if (selectedId === "All") setVisibleProducts(allProducts());
+    else
       setVisibleProducts(
         allProducts().filter((p) => String(p.categoryId) === String(selectedId))
       );
-    }
   });
 
   const createNewProductTemplate = () => ({
@@ -44,8 +39,7 @@ export default function AdminDashboard() {
     description: "",
     price: 0,
     stockQty: 0,
-    categoryId:
-      selectedCategoryId() === "All" ? null : Number(selectedCategoryId()),
+    categoryId: selectedCategoryId() === "All" ? null : Number(selectedCategoryId()),
   });
 
   const handleSaveProduct = async () => {
@@ -54,19 +48,15 @@ export default function AdminDashboard() {
 
     try {
       let savedProduct;
-
       if (product.id) {
-        // UPDATE
         savedProduct = await updateProduct(product);
         setVisibleProducts((prev) =>
           prev.map((p) => (p.id === savedProduct.id ? savedProduct : p))
         );
       } else {
-        // CREATE
         savedProduct = await createNewProduct(product);
         setVisibleProducts((prev) => [...prev, savedProduct]);
       }
-
       alert(`Product ${product.id ? "updated" : "created"} successfully!`);
       setSelectedProduct(null);
     } catch (err) {
@@ -78,28 +68,45 @@ export default function AdminDashboard() {
   return (
     <div class="flex flex-col h-screen">
       {/* Top Navbar */}
-      <div class="h-16 bg-blue-400 text-white flex items-center px-6 shadow">
-        <img
-          src="/images/waterfront_logo.png"
-          alt="logo"
-          class="cursor-pointer transition-all duration-300 w-[90px]"
-          onClick={[goTo, "/"]}
-        />
-        <h1 class="text-xl font-bold ml-4">Admin Panel</h1>
+      <div class="h-16 bg-blue-400 text-white flex items-center px-4 sm:px-6 shadow justify-between">
+        <div class="flex items-center gap-4">
+          <img
+            src="/images/waterfront_logo.png"
+            alt="logo"
+            class="cursor-pointer w-[60px] sm:w-[90px] transition-all"
+            onClick={[goTo, "/"]}
+          />
+          <h1 class="text-xl font-bold hidden sm:block">Admin Panel</h1>
+        </div>
+
+        {/* Mobile sidebar toggle */}
+        <button
+          class="sm:hidden p-2 bg-blue-600 rounded"
+          onClick={() => setSidebarOpen(!sidebarOpen())}
+        >
+          ☰
+        </button>
       </div>
 
-      <div class="flex flex-1">
+      <div class="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div class="w-48 bg-gray-50 p-4 flex flex-col gap-2">
+        <div
+          class={`bg-gray-50 p-4 flex flex-col gap-2 sm:w-48 sm:flex ${
+            sidebarOpen() ? "block absolute z-20 w-48 h-full shadow-lg" : "hidden"
+          }`}
+        >
           {tabs.map((tab) => (
             <button
               class={[
-                "p-3 rounded text-left flex items-center gap-2 transition-colors duration-200",
+                "p-3 rounded text-left flex items-center gap-2 transition-colors duration-200 w-full",
                 activeTab() === tab.id
                   ? "bg-blue-300 text-blue-900 font-semibold"
                   : "hover:bg-gray-100 text-gray-700",
               ].join(" ")}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setSidebarOpen(false);
+              }}
             >
               {tab.label}
             </button>
@@ -107,37 +114,37 @@ export default function AdminDashboard() {
         </div>
 
         {/* Main content */}
-        <div class="flex-1 p-6 bg-gray-50">
-          {/* Dashboard Tab */}
+        <div class="flex-1 p-4 sm:p-6 overflow-auto">
+          {/* Dashboard */}
           <Show when={activeTab() === "dashboard"}>
             <div>Admin Dashboard Content</div>
           </Show>
 
-          {/* Products Tab */}
+          {/* Products */}
           <Show when={activeTab() === "products"}>
-            {/* New Product Button */}
-            <div class="mb-4">
+            {/* New Product */}
+            <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <button
                 class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                 onClick={() => setSelectedProduct(createNewProductTemplate())}
               >
                 + New Product
               </button>
-            </div>
 
-            {/* Category Filter */}
-            <div class="mb-4">
-              <label class="font-semibold mr-2">Filter by category:</label>
-              <select
-                class="border p-1 rounded"
-                value={selectedCategoryId()}
-                onChange={(e) => setSelectedCategoryId(e.currentTarget.value)}
-              >
-                <option value="All">All</option>
-                <For each={allCategories()}>
-                  {(cat) => <option value={cat.id}>{cat.name}</option>}
-                </For>
-              </select>
+              {/* Category Filter */}
+              <div class="flex items-center gap-2">
+                <label class="font-semibold">Filter by category:</label>
+                <select
+                  class="border p-1 rounded"
+                  value={selectedCategoryId()}
+                  onChange={(e) => setSelectedCategoryId(e.currentTarget.value)}
+                >
+                  <option value="All">All</option>
+                  <For each={allCategories()}>
+                    {(cat) => <option value={cat.id}>{cat.name}</option>}
+                  </For>
+                </select>
+              </div>
             </div>
 
             {/* Products List */}
@@ -161,7 +168,7 @@ export default function AdminDashboard() {
 
             {/* Product Editor */}
             <Show when={selectedProduct()}>
-              <div class="mt-6 p-4 border rounded bg-white shadow">
+              <div class="mt-6 p-4 border rounded bg-white shadow w-full sm:max-w-md">
                 <h2 class="text-lg font-semibold mb-2">
                   {selectedProduct().id ? "Edit Product" : "New Product"}:{" "}
                   {selectedProduct().name || "(unnamed)"}
@@ -174,10 +181,7 @@ export default function AdminDashboard() {
                       class="border p-1 rounded w-full"
                       value={selectedProduct().name}
                       onInput={(e) =>
-                        setSelectedProduct({
-                          ...selectedProduct(),
-                          name: e.currentTarget.value,
-                        })
+                        setSelectedProduct({ ...selectedProduct(), name: e.currentTarget.value })
                       }
                     />
                   </label>
@@ -188,10 +192,7 @@ export default function AdminDashboard() {
                       class="border p-1 rounded w-full"
                       value={selectedProduct().sku}
                       onInput={(e) =>
-                        setSelectedProduct({
-                          ...selectedProduct(),
-                          sku: e.currentTarget.value,
-                        })
+                        setSelectedProduct({ ...selectedProduct(), sku: e.currentTarget.value })
                       }
                     />
                   </label>
@@ -223,8 +224,6 @@ export default function AdminDashboard() {
                       }
                     />
                   </label>
-
-                  {/* Category Dropdown */}
                   <label>
                     Category:
                     <select
@@ -246,18 +245,20 @@ export default function AdminDashboard() {
                     </select>
                   </label>
 
-                  <button
-                    class="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600"
-                    onClick={handleSaveProduct}
-                  >
-                    Save Product
-                  </button>
-                  <button
-                    class="bg-gray-300 text-gray-800 px-4 py-2 rounded mt-2 hover:bg-gray-400"
-                    onClick={() => setSelectedProduct(null)}
-                  >
-                    Cancel
-                  </button>
+                  <div class="flex flex-col sm:flex-row gap-2 mt-2">
+                    <button
+                      class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1"
+                      onClick={handleSaveProduct}
+                    >
+                      Save Product
+                    </button>
+                    <button
+                      class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 flex-1"
+                      onClick={() => setSelectedProduct(null)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               </div>
             </Show>
