@@ -8,13 +8,16 @@ datasource db {
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
-  fullName       String
-  email          String    @unique
-  role           Role
-  createdAt      DateTime  @default(now())
-  bookings       Booking[]
-  customerOrders Order[]   @relation("CustomerOrders")
+  id               Int       @id @default(autoincrement())
+  fullName         String
+  email            String    @unique
+  role             Role
+  createdAt        DateTime  @default(now())
+  bookings         Booking[]
+  customerOrders   Order[]   @relation("CustomerOrders")
+  createdPackages  Package[] @relation("PackageCreatedBy")
+  reviewedPackages Package[] @relation("PackageReviewedBy")
+  approvedPackages Package[] @relation("PackageApprovedBy")
 }
 
 model Category {
@@ -66,15 +69,25 @@ model Booking {
 }
 
 model Package {
-  id           Int           @id @default(autoincrement())
-  slug         String        @unique
-  name         String
+  id Int @id @default(autoincrement())
+
+  createdById Int
+  createdBy   User @relation(name: "PackageCreatedBy", fields: [createdById], references: [id])
+
+  reviewedById Int?
+  reviewedBy   User? @relation(name: "PackageReviewedBy", fields: [reviewedById], references: [id])
+
+  approvedById Int?
+  approvedBy   User? @relation(name: "PackageApprovedBy", fields: [approvedById], references: [id])
+
   description  String
   packageItems PackageItem[]
 }
 
 model PackageItem {
   id        Int     @id @default(autoincrement())
+  quantity  Int
+  price     Int
   productId Int
   product   Product @relation(fields: [productId], references: [id])
   packageId Int

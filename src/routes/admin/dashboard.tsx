@@ -1,17 +1,18 @@
 import { useNavigate } from "@solidjs/router";
 import { createEffect, createResource, createSignal, For, Show } from "solid-js";
 import { getCategories, createNewCategory, Category } from "~/lib/category";
+import { createPackage, getAllPackages, Package, PackageFormData, PackageItem, PackageItemFormData, updatePackage, UpdatePackageFormData } from "~/lib/package";
 import { createNewProduct, deleteProduct, getAllProducts, updateProduct } from "~/lib/product";
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = createSignal("products");
+  const [activeTab, setActiveTab] = createSignal("packages");
   const navigate = useNavigate();
   const goTo = (path: string) => navigate(path);
 
   const tabs = [
     { id: "dashboard", label: "Dashboard" },
     { id: "products", label: "Products" },
-    { id: "rooms", label: "Rooms" },
+    { id: "packages", label: "Packages" },
   ];
 
   // Categories
@@ -21,7 +22,7 @@ export default function AdminDashboard() {
   // Products
   const [allProducts] = createResource(() => getAllProducts());
   const [visibleProducts, setVisibleProducts] = createSignal([]);
-  const [selectedProduct, setSelectedProduct] = createSignal(null);
+  const [selectedProduct, setSelectedProduct] = createSignal();
 
   // Sidebar
   const [sidebarOpen, setSidebarOpen] = createSignal(false);
@@ -110,7 +111,38 @@ export default function AdminDashboard() {
     }
   }
 
+  // Packages states
+  const [packages, { refetch: refetchPackages }] = createResource(async () => getAllPackages())
+  const [selectedPackage, setSelectedPackage] = createSignal<Package>();
 
+  const handleSavePackage = async () => {
+
+    try {
+      // UPDATE
+      if (selectedPackage()?.id) {
+        const updateForm: UpdatePackageFormData = {
+          description: selectedPackage()?.description ?? " ",
+        }
+
+        await updatePackage(selectedPackage().id, updateForm);
+      }
+      // CREATE NEW
+      else {
+        const form: PackageFormData = {
+          createdById: 1,
+          description: selectedPackage()?.description ?? " ",
+          packageItems: []
+        }
+
+        await createPackage(form);
+      }
+      setSelectedPackage(undefined);
+      refetchPackages();
+    } catch (err) {
+      console.error(err);
+      throw new Error("Failed to create package");
+    }
+  }
 
   return (
     <div class="flex flex-col h-screen">
@@ -129,7 +161,7 @@ export default function AdminDashboard() {
         {/* Mobile sidebar toggle */}
         <button
           class="sm:hidden p-2"
-          onClick={() => setSidebarOpen(!sidebarOpen())}
+          onClick={[setSidebarOpen, !sidebarOpen()]}
         >
           {sidebarOpen() ? "✕" : "☰"}
         </button>
@@ -173,14 +205,14 @@ export default function AdminDashboard() {
               <div class="flex gap-2">
                 <button
                   class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                  onClick={() => setCategoryModalOpen(true)}
+                  onClick={[setCategoryModalOpen, true]}
                 >
                   + New Category
                 </button>
 
                 <button
                   class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                  onClick={() => setSelectedProduct(createNewProductTemplate())}
+                  onClick={[setSelectedProduct, createNewProductTemplate]}
                 >
                   + New Product
                 </button>
@@ -215,7 +247,7 @@ export default function AdminDashboard() {
                 {(p) => (
                   <div
                     class="p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100"
-                    onClick={() => setSelectedProduct(p)}
+                    onClick={[setSelectedProduct, p]}
                   >
                     <div class="font-medium">{p.name}</div>
                     <div class="text-sm text-gray-600">SKU: {p.sku}</div>
@@ -312,7 +344,7 @@ export default function AdminDashboard() {
                     </button>
                     <button
                       class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 flex-1"
-                      onClick={() => setSelectedProduct(null)}
+                      onClick={() => setSelectedProduct(undefined)}
                     >
                       Cancel
                     </button>
@@ -328,6 +360,95 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </Show>
+          </Show>
+
+          {/* Proposals */}
+          <Show when={activeTab() === "packages"}>
+            {/* Actions */}
+            <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div class="flex gap-2">
+                <button
+                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  onClick={[setSelectedPackage, null]}
+                >
+                  + Create package
+                </button>
+              </div>
+            </div>
+
+            <Show when={!packages.loading}>
+              <For each={packages()}>
+                {(p) => (
+                  <div
+                    class="p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100"
+                    onClick={() => {
+                      setSelectedPackage(p);
+                      console.log(selectedPackage());
+                    }}
+                  >
+                    <div class="font-medium">{p.id} {p.createdBy.fullName}</div>
+                    <div class="text-sm text-gray-600">Description: {p.description}</div>
+                  </div>
+                )}
+              </For>
+            </Show>
+
+            {/* Package Editor */}
+            <Show when={selectedPackage() !== undefined}>
+              <div class="mt-6 p-4 border rounded bg-white shadow w-full sm:max-w-md">
+                <h2 class="text-lg font-semibold mb-2">
+                  {selectedPackage()?.id ? "Edit Package" : "New Package"}:{" "}
+                </h2>
+                <div class="flex flex-col gap-3">
+                  <label>
+                    Description:
+                    <textarea
+                      class="border p-1 rounded w-full"
+                      value={selectedPackage()?.description ?? " "}
+                      onInput={(e) =>
+                        setSelectedPackage({
+                          ...selectedPackage(),
+                          description: e.currentTarget.value,
+                        })
+                      }
+                    />
+                  </label>
+                  <label>
+                    Products:
+                    <For each={selectedPackage()?.packageItems}>
+                      {(i: PackageItem) => {
+                        return (<div>
+                          {i.quantity} x {i.name} - PHP {i.price}
+                        </div>)
+                      }}
+                    </For>
+                  </label>
+
+                  <div class="flex flex-col sm:flex-row gap-2 mt-2">
+                    <button
+                      class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1"
+                      onClick={handleSavePackage}
+                    >
+                      Save Package / Modify / Approve
+                    </button>
+                    <button
+                      class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 flex-1"
+                      onClick={() => setSelectedPackage(undefined)}
+                    >
+                      Cancel
+                    </button>
+                    {selectedPackage()?.id && (
+                      <button
+                        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex-1"
+                      >
+                        Reject Proposal
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Show>
+
           </Show>
         </div>
       </div>
@@ -353,7 +474,7 @@ export default function AdminDashboard() {
             <div class="flex justify-end gap-2">
               <button
                 class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
-                onClick={() => setCategoryModalOpen(false)}
+                onClick={[setCategoryModalOpen, false]}
               >
                 Cancel
               </button>
