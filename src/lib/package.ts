@@ -20,6 +20,7 @@ export type UpdatePackageFormData = {
   description?: string
   reviewedById?: number | null
   approvedById?: number | null
+  packageItems?: PackageItemFormData[]
 }
 
 export const getAllPackages = async () => {
@@ -91,7 +92,24 @@ export const updatePackage = async (id: number, form: UpdatePackageFormData) => 
 
   return prisma.package.update({
     where: { id },
-    data: form,
+    data: {
+      description: form.description,
+      reviewedById: form.reviewedById,
+      approvedById: form.approvedById,
+      ...(form.packageItems && {
+        packageItems: {
+          deleteMany: {},
+          create: form.packageItems.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        },
+      }),
+    },
+    include: {
+      packageItems: true,
+    },
   });
 }
 

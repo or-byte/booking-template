@@ -116,33 +116,39 @@ export default function AdminDashboard() {
   const [selectedPackage, setSelectedPackage] = createSignal<Package>();
 
   const handleSavePackage = async () => {
-
     try {
+      const pkg = selectedPackage();
+      if (!pkg) return;
+
+      const formattedItems = (pkg.packageItems || []).map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+
       // UPDATE
-      if (selectedPackage()?.id) {
-        const updateForm: UpdatePackageFormData = {
-          description: selectedPackage()?.description ?? " ",
-        }
-
-        await updatePackage(selectedPackage().id, updateForm);
+      if (pkg.id) {
+        await updatePackage(pkg.id, {
+          description: pkg.description ?? "",
+          packageItems: formattedItems,
+        });
       }
-      // CREATE NEW
+      // CREATE
       else {
-        const form: PackageFormData = {
+        await createPackage({
           createdById: 1,
-          description: selectedPackage()?.description ?? " ",
-          packageItems: []
-        }
-
-        await createPackage(form);
+          description: pkg.description ?? "",
+          packageItems: formattedItems,
+        });
       }
+
       setSelectedPackage(undefined);
       refetchPackages();
     } catch (err) {
       console.error(err);
-      throw new Error("Failed to create package");
+      alert("Failed to save package");
     }
-  }
+  };
 
   return (
     <div class="flex flex-col h-screen">
@@ -413,15 +419,124 @@ export default function AdminDashboard() {
                       }
                     />
                   </label>
-                  <label>
-                    Products:
+                  <label class="flex flex-col gap-2">
+                    <span class="font-semibold">Products:</span>
+
+                    {/* HEADER */}
+                    <div class="flex gap-2 items-center text-sm font-semibold text-gray-600 px-1">
+                      <div class="flex-1">Product</div>
+                      <div class="w-20 text-center">Qty</div>
+                      <div class="w-24 text-center">Price</div>
+                      <div class="w-8"></div>
+                    </div>
+
+                    {/* ITEMS */}
                     <For each={selectedPackage()?.packageItems}>
-                      {(i: PackageItem) => {
-                        return (<div>
-                          {i.quantity} x {i.name} - PHP {i.price}
-                        </div>)
-                      }}
+                      {(item, index) => (
+                        <div class="flex gap-2 items-center mb-2">
+
+                          {/* Select Product */}
+                          <select
+                            class="border p-1 rounded flex-1"
+                            value={item.productId}
+                            onChange={(e) => {
+                              const productId = Number(e.currentTarget.value);
+                              const product = allProducts()?.find(p => p.id === productId);
+
+                              const updated = [...selectedPackage().packageItems];
+                              updated[index()] = {
+                                ...updated[index()],
+                                productId,
+                                price: Number(product?.price ?? 0),
+                              };
+
+                              setSelectedPackage({
+                                ...selectedPackage(),
+                                packageItems: updated,
+                              });
+                            }}
+                          >
+                            <option value="">Select product</option>
+                            <For each={allProducts()}>
+                              {(p) => (
+                                <option value={p.id}>
+                                  {p.name} (₱{p.price})
+                                </option>
+                              )}
+                            </For>
+                          </select>
+
+                          {/* Quantity */}
+                          <input
+                            type="number"
+                            class="border p-1 rounded w-20 text-center"
+                            value={item.quantity}
+                            onInput={(e) => {
+                              const updated = [...selectedPackage().packageItems];
+                              updated[index()].quantity = Number(e.currentTarget.value);
+
+                              setSelectedPackage({
+                                ...selectedPackage(),
+                                packageItems: updated,
+                              });
+                            }}
+                          />
+
+                          {/* Price */}
+                          <input
+                            type="number"
+                            class="border p-1 rounded w-24 text-center"
+                            value={item.price}
+                            onInput={(e) => {
+                              const updated = [...selectedPackage().packageItems];
+                              updated[index()].price = Number(e.currentTarget.value);
+
+                              setSelectedPackage({
+                                ...selectedPackage(),
+                                packageItems: updated,
+                              });
+                            }}
+                          />
+
+                          {/* Remove */}
+                          <button
+                            class="text-red-500 w-8"
+                            onClick={() => {
+                              const updated = selectedPackage().packageItems.filter(
+                                (_, i) => i !== index()
+                              );
+
+                              setSelectedPackage({
+                                ...selectedPackage(),
+                                packageItems: updated,
+                              });
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      )}
                     </For>
+
+                    {/* Add Paackage Item */}
+                    <button
+                      class="mt-2 bg-green-500 text-white px-3 py-1 rounded w-fit"
+                      onClick={() => {
+                        setSelectedPackage({
+                          ...selectedPackage(),
+                          packageItems: [
+                            ...(selectedPackage()?.packageItems || []),
+                            {
+                              productId: 0,
+                              quantity: 1,
+                              price: 0,
+                            },
+                          ],
+                        });
+                      }}
+                    >
+                      + Add Item
+                    </button>
                   </label>
 
                   <div class="flex flex-col sm:flex-row gap-2 mt-2">
