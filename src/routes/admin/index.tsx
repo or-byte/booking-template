@@ -1,5 +1,6 @@
 import { useNavigate } from "@solidjs/router";
 import { createEffect, createResource, createSignal, For, Show } from "solid-js";
+import ProposalSection from "~/components/admin/ProposalSection";
 import { getCategories, createNewCategory, Category } from "~/lib/category";
 import { createPackage, getAllPackages, Package, PackageFormData, PackageItem, PackageItemFormData, updatePackage, UpdatePackageFormData } from "~/lib/package";
 import { createNewProduct, deleteProduct, getAllProducts, updateProduct } from "~/lib/product";
@@ -114,6 +115,7 @@ export default function AdminDashboard() {
   // Packages states
   const [packages, { refetch: refetchPackages }] = createResource(async () => getAllPackages())
   const [selectedPackage, setSelectedPackage] = createSignal<Package>();
+  const [isEditingPackage, setIsEditingPackage] = createSignal();
 
   const handleSavePackage = async () => {
     try {
@@ -383,24 +385,44 @@ export default function AdminDashboard() {
             </div>
 
             <Show when={!packages.loading}>
+              {/* Package Description */}
+              <Show when={selectedPackage() !== undefined}>
+                <ProposalSection package={selectedPackage()!} onUpdate={refetchPackages} />
+              </Show>
               <For each={packages()}>
-                {(p) => (
-                  <div
-                    class="p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100"
-                    onClick={() => {
-                      setSelectedPackage(p);
-                      console.log(selectedPackage());
-                    }}
-                  >
-                    <div class="font-medium">{p.id} {p.createdBy.fullName}</div>
-                    <div class="text-sm text-gray-600">Description: {p.description}</div>
-                  </div>
-                )}
+                {(p) => {
+                  const status = p.approvedBy ? "Approved" : p.reviewedBy ? "Reviewed" : "Needs review"
+
+                  return (
+                    <div
+                      class="p-2 border-b border-gray-200 cursor-default hover:bg-gray-100 grid grid-cols-2"
+                    >
+                      <div onClick={() => {
+                        setSelectedPackage(p)
+                        setIsEditingPackage(false);
+                      }}>
+                        <div class="font-medium">{p.id} {p.createdBy.fullName}</div>
+                        <div class="text-sm text-gray-600">Description: {p.description}</div>
+                        <div class="text-sm text-gray-600">Status: {status}</div>
+                      </div>
+                      <div>
+                        <div class="self-center justify-self-end cursor-pointer"
+                          onClick={() => {
+                            setSelectedPackage(p);
+                            setIsEditingPackage(true);
+                          }}>
+                          Edit
+                        </div>
+                      </div>
+                    </div>
+                  )
+                }}
               </For>
             </Show>
 
-            {/* Package Editor */}
-            <Show when={selectedPackage() !== undefined}>
+
+            <Show when={isEditingPackage() && selectedPackage() !== undefined}>
+              {/* Package Editor */}
               <div class="mt-6 p-4 border rounded bg-white shadow w-full sm:max-w-md">
                 <h2 class="text-lg font-semibold mb-2">
                   {selectedPackage()?.id ? "Edit Package" : "New Package"}:{" "}

@@ -1,8 +1,9 @@
 import { Package as PrismaPackage, PackageItem as PrismaPackageItem } from "@prisma/client"
 import prisma from "./prisma";
+import { User } from "./user";
 
 export type PackageItem = Omit<PrismaPackageItem, "price"> & { name: string, price: number };
-export type Package = PrismaPackage & { packageItems: PackageItem[] };
+export type Package = PrismaPackage & { packageItems: PackageItem[], createdBy: User, reviewedBy: User, approvedBy: User };
 
 export type PackageFormData = {
   createdById: number
@@ -23,7 +24,7 @@ export type UpdatePackageFormData = {
   packageItems?: PackageItemFormData[]
 }
 
-export const getAllPackages = async () => {
+export const getAllPackages = async () : Promise<Package> => {
   "use server"
 
   const packages = await prisma.package.findMany({
@@ -46,7 +47,10 @@ export const getAllPackages = async () => {
       ...i,
       name: product.name,
       price: Number(product.price)
-    }))
+    })),
+    createdBy: p.createdBy,
+    reviewedBy: p.reviewedBy,
+    approvedBy: p.approvedBy
   }));
 }
 
