@@ -4,6 +4,7 @@ import { Package, updatePackage, UpdatePackageFormData } from "~/lib/package"
 export type ProposalSectionProps = {
   package: Package | null
   onUpdate?: () => void
+  onEdit?: () => void
 }
 
 export default function ProposalSection(props: ProposalSectionProps) {
@@ -25,7 +26,7 @@ export default function ProposalSection(props: ProposalSectionProps) {
     props.onUpdate();
   }
 
-  return <div>
+  return <div class="mt-6 p-4 border rounded bg-white shadow w-full sm:max-w-md">
     <div>
       Package # {props.package?.id} - {props.package?.createdBy.fullName}
     </div>
@@ -58,6 +59,10 @@ export default function ProposalSection(props: ProposalSectionProps) {
       <div class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
         onClick={handleSubmitReview}>
         Submit Review
+      </div>
+      <div class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
+        onClick={props.onEdit}>
+        Edit
       </div>
     </Show>
 
