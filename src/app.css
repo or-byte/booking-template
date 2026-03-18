@@ -3,6 +3,8 @@
 @layer base {
   body {
     font-family: "Inter", sans-serif;
+    display: flex;
+    min-height: 100vh;
   }
 
   h1,
@@ -40,13 +42,20 @@
   }
 }
 
+/* MetaProvider renders a wrapper div — target it */
+body>div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 main {
+  flex: 1;
   text-align: center;
   margin-top: 100px;
   margin-left: 80px;
   margin-right: 80px;
   margin-bottom: 80px;
-
 }
 
 h1 {
