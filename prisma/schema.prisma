@@ -8,15 +8,15 @@ datasource db {
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
-  fullName       String
-  email          String    @unique
-  name           String
-  role           Role
-  createdAt      DateTime  @default(now())
-  bookings       Booking[]
-  staffOrders    Order[]   @relation("StaffOrders")
-  customerOrders Order[]   @relation("CustomerOrders")
+  id               Int       @id @default(autoincrement())
+  fullName         String
+  email            String    @unique
+  role             Role
+  createdAt        DateTime  @default(now())
+  createdPackages  Package[] @relation("PackageCreatedBy")
+  reviewedPackages Package[] @relation("PackageReviewedBy")
+  approvedPackages Package[] @relation("PackageApprovedBy")
+  updatedPackaged  Package[] @relation("PackageUpdatedBy")
 }
 
 model Category {
@@ -33,94 +33,50 @@ model Product {
   name        String
   description String
   price       Decimal @db.Decimal(10, 2)
-  stockQty    Int
+  stockQty    Int     @default(0)
 
-  categoryId Int
-  category   Category    @relation(fields: [categoryId], references: [id])
-  orderItems OrderItem[]
+  categoryId   Int
+  category     Category      @relation(fields: [categoryId], references: [id])
+  package      Package?      @relation(fields: [packageId], references: [id])
+  packageId    Int?
+  packageItems PackageItem[]
 }
 
-model Room {
-  id         Int       @id @default(autoincrement())
-  roomTypeId Int
-  roomType   RoomType  @relation(fields: [roomTypeId], references: [id])
-  bookings   Booking[]
-}
-
-model RoomType {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String
-  price       Decimal @db.Decimal(10, 2)
-  capacity    Int
-  rooms       Room[]
-}
-
-model Booking {
+model Package {
   id Int @id @default(autoincrement())
 
-  roomId Int
-  room   Room @relation(fields: [roomId], references: [id])
+  createdById Int
+  createdBy   User @relation(name: "PackageCreatedBy", fields: [createdById], references: [id])
 
-  customerId Int
-  customer   User @relation(fields: [customerId], references: [id])
+  reviewedById Int?
+  reviewedBy   User? @relation(name: "PackageReviewedBy", fields: [reviewedById], references: [id])
 
-  numOfGuests Int
+  approvedById Int?
+  approvedBy   User? @relation(name: "PackageApprovedBy", fields: [approvedById], references: [id])
 
-  checkinDate  DateTime
-  checkoutDate DateTime
-  status       BookingStatus
-  orders       Order[]
+  updatedById Int?
+  updatedBy   User? @relation(name: "PackageUpdatedBy", fields: [updatedById], references: [id])
+
+  description   String
+  overridePrice Decimal? @db.Decimal(10, 2)
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
+  packageItems PackageItem[]
+  products     Product[]
 }
 
-model Order {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-
-  staffId Int?
-  staff   User? @relation("StaffOrders", fields: [staffId], references: [id])
-
-  customerId Int?
-  customer   User? @relation("CustomerOrders", fields: [customerId], references: [id])
-
-  bookingId  Int?
-  booking    Booking?    @relation(fields: [bookingId], references: [id])
-  orderItems OrderItem[]
-
-  subtotal   Decimal @db.Decimal(10, 2)
-  tax        Decimal @db.Decimal(10, 2)
-  total      Decimal @db.Decimal(10, 2)
-  amountPaid Decimal @db.Decimal(10, 2)
-  change     Decimal @db.Decimal(10, 2)
-
-  paymentMethod PaymentMethod @default(CASH)
-}
-
-model OrderItem {
-  id       Int @id @default(autoincrement())
-  quantity Int
-
+model PackageItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int
+  packageId Int
+  package   Package @relation(fields: [packageId], references: [id])
   productId Int
   product   Product @relation(fields: [productId], references: [id])
-
-  orderId Int
-  order   Order @relation(fields: [orderId], references: [id])
 }
 
 enum Role {
   ADMIN
   STAFF
   CUSTOMER
-}
-
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-}
-
-enum PaymentMethod {
-  CASH
-  CARD
 }
