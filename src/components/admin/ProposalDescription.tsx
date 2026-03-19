@@ -1,13 +1,13 @@
 import { For, Show } from "solid-js";
 import { Package, updatePackage, UpdatePackageFormData } from "~/lib/package"
 
-export type ProposalSectionProps = {
+export type ProposalDescriptionProps = {
   package: Package | null
   onUpdate?: () => void
   onEdit?: () => void
 }
 
-export default function ProposalSection(props: ProposalSectionProps) {
+export default function ProposalDescription(props: ProposalDescriptionProps) {
   if (!props.package) return;
 
   const handleSubmitReview = async () => {
