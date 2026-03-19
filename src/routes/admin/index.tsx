@@ -14,6 +14,9 @@ export default function AdminDashboard() {
 
   // Sidebar
   const [sidebarOpen, setSidebarOpen] = createSignal(false);
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen());
+  }
 
   return (
     <div class="flex flex-col h-screen">
@@ -32,7 +35,7 @@ export default function AdminDashboard() {
         {/* Mobile sidebar toggle */}
         <button
           class="sm:hidden p-2"
-          onClick={[setSidebarOpen, !sidebarOpen()]}
+          onClick={toggleSidebar}
         >
           {sidebarOpen() ? "✕" : "☰"}
         </button>
@@ -41,8 +44,7 @@ export default function AdminDashboard() {
       <div class="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <div
-          class={`bg-gray-50 p-4 flex flex-col gap-2 sm:w-48 sm:flex ${sidebarOpen() ? "block absolute z-20 w-48 h-full shadow-lg" : "hidden"
-            }`}
+          class={`bg-gray-50 p-4 flex flex-col gap-2 sm:w-48 sm:flex ${sidebarOpen() ? "block absolute z-20 w-48 h-full shadow-lg" : "hidden"}`}
         >
           {tabs.map((tab) => (
             <button
