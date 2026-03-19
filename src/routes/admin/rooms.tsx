@@ -15,7 +15,6 @@ export default function AdminRooms() {
     const [selectedRoom, setSelectedRoom] = createSignal<Room>()
     const handleSelectRoom = (room: Room) => {
         setSelectedRoom(room);
-        console.log(bookingsForRoomToday());
     }
 
     const [bookings] = createResource<BookingWithCustomer[]>(getAllConfirmedBookings);

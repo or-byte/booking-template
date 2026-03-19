@@ -1,4 +1,5 @@
 import { For, Show } from "solid-js";
+import { sendEmail } from "~/lib/google/email";
 import { Package, updatePackage, UpdatePackageFormData } from "~/lib/package"
 
 export type ProposalSectionProps = {
@@ -15,6 +16,7 @@ export default function ProposalSection(props: ProposalSectionProps) {
       reviewedById: 1 // TODO replace with session user id
     }
     await updatePackage(props.package?.id, form);
+    await sendEmail("arkclumacad@gmail.com", "Package Proposal Reviewed", props.package!); // TODO replace recipient
     props.onUpdate();
   }
 
@@ -23,6 +25,7 @@ export default function ProposalSection(props: ProposalSectionProps) {
       approvedById: 1 // TODO repalce with session user id
     }
     await updatePackage(props.package?.id, form);
+    await sendEmail("arkclumacad@gmail.com", "Package Proposal Approved", props.package!);// TODO replace recipient
     props.onUpdate();
   }
 

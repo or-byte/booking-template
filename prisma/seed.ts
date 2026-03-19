@@ -1,8 +1,13 @@
 import prisma from "~/lib/prisma";
-import { createNewCategory } from "~/lib/category";
-import { createNewProduct } from "~/lib/product";
 
 async function main() {
+    await prisma.user.create({
+        data: {
+            fullName: "Ark Faith Lumacad",
+            email: "arkclumacad@gmail.com",
+            role: "ADMIN"
+        }
+    })
     const hygiene = await prisma.category.create({
         data: {
             name: "Hygiene",

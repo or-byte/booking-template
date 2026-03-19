@@ -18,6 +18,7 @@ model User {
   createdPackages  Package[] @relation("PackageCreatedBy")
   reviewedPackages Package[] @relation("PackageReviewedBy")
   approvedPackages Package[] @relation("PackageApprovedBy")
+  updatedPackaged  Package[] @relation("PackageUpdatedBy")
 }
 
 model Category {
@@ -80,8 +81,14 @@ model Package {
   approvedById Int?
   approvedBy   User? @relation(name: "PackageApprovedBy", fields: [approvedById], references: [id])
 
+  updatedById Int?
+  updatedBy   User? @relation(name: "PackageUpdatedBy", fields: [updatedById], references: [id])
+
   description  String
   packageItems PackageItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model PackageItem {

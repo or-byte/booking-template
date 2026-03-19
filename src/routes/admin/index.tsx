@@ -2,6 +2,7 @@ import { useNavigate } from "@solidjs/router";
 import { createEffect, createResource, createSignal, For, Show } from "solid-js";
 import ProposalSection from "~/components/admin/ProposalSection";
 import { getCategories, createNewCategory, Category } from "~/lib/category";
+import { sendEmail } from "~/lib/google/email";
 import { createPackage, getAllPackages, Package, PackageFormData, PackageItem, PackageItemFormData, updatePackage, UpdatePackageFormData } from "~/lib/package";
 import { createNewProduct, deleteProduct, getAllProducts, updateProduct } from "~/lib/product";
 
@@ -130,18 +131,21 @@ export default function AdminDashboard() {
 
       // UPDATE
       if (pkg.id) {
-        await updatePackage(pkg.id, {
+        const result = await updatePackage(pkg.id, {
           description: pkg.description ?? "",
           packageItems: formattedItems,
+          updatedById: 1 // TODO replace with current user session
         });
+        await sendEmail("arkclumacad@gmail.com", "Package Proposal Modified", result); // TODO replace recipient
       }
       // CREATE
       else {
-        await createPackage({
+        const result = await createPackage({
           createdById: 1,
           description: pkg.description ?? "",
           packageItems: formattedItems,
         });
+        await sendEmail("arkclumacad@gmail.com", "Package Proposal Created", result); // TODO replace recipient
       }
 
       setSelectedPackage(undefined);
