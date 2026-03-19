@@ -159,13 +159,9 @@ export default function NavBar() {
                         onClick={exploreToggle}
                       >
                         <div class="flex items-center justify-between">
-                          <A
-                            href={item.href}
-                            class="text-xl"
-                            onClick={toggle}
-                          >
+                          <p class="text-xl">
                             {item.label}
-                          </A>
+                          </p>
                           <span
                             class={`inline-block transition-transform duration-200 ${exploreOpen() ? "rotate-180" : ""}`}
                           >
