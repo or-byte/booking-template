@@ -1,6 +1,6 @@
 import { Package as PrismaPackage, PackageItem as PrismaPackageItem } from "@prisma/client"
-import prisma from "./prisma";
 import { User } from "./user";
+import prisma from "./prisma";
 
 export type PackageItem = Omit<PrismaPackageItem, "price"> & {
   name: string
@@ -45,7 +45,7 @@ export const PackageStatus = {
 export const getAllPackages = async (): Promise<Package[]> => {
   "use server"
 
-  const packages = await prisma.package.findMany({
+  const results = await prisma.package.findMany({
     include: {
       packageItems: {
         include: { product: true },
@@ -60,24 +60,13 @@ export const getAllPackages = async (): Promise<Package[]> => {
     }
   });
 
-  return packages.map((p) => ({
-    ...p,
-    packageItems: p.packageItems.map(({ product, ...i }) => ({
-      ...i,
-      name: product.name,
-      price: Number(product.price)
-    })),
-    createdBy: p.createdBy,
-    reviewedBy: p.reviewedBy,
-    approvedBy: p.approvedBy,
-    updatedBy: p.updatedBy
-  }));
+  return results.map((p) => formatPackage(p));
 }
 
 export const getPackageById = async (id: number) => {
   "use server"
 
-  return prisma.package.findUnique({
+  const result = prisma.package.findUnique({
     where: { id },
     include: {
       packageItems: {
@@ -88,13 +77,15 @@ export const getPackageById = async (id: number) => {
       approvedBy: true,
       updatedBy: true
     },
-  }); 
+  });
+
+  return formatPackage(result);
 }
 
 export const createPackage = async (form: PackageFormData): Promise<Package> => {
   "use server"
 
-  const pkg = await prisma.package.create({
+  const result = await prisma.package.create({
     data: {
       createdById: form.createdById,
       description: form.description,
@@ -117,18 +108,7 @@ export const createPackage = async (form: PackageFormData): Promise<Package> => 
     },
   });
 
-  return ({
-    ...pkg,
-    packageItems: pkg.packageItems.map(({ product, ...i }) => ({
-      ...i,
-      name: product.name,
-      price: Number(product.price)
-    })),
-    createdBy: pkg.createdBy,
-    reviewedBy: pkg.reviewedBy,
-    approvedBy: pkg.approvedBy,
-    updatedBy: pkg.updatedBy
-  });
+  return formatPackage(result);
 }
 
 export const updatePackage = async (id: number, form: UpdatePackageFormData): Promise<Package> => {
@@ -136,7 +116,7 @@ export const updatePackage = async (id: number, form: UpdatePackageFormData): Pr
 
   const updatedById = form.updatedById || form.reviewedById || form.approvedById;
 
-  const pkg = await prisma.package.update({
+  const result = await prisma.package.update({
     where: { id },
     data: {
       description: form.description,
@@ -165,18 +145,7 @@ export const updatePackage = async (id: number, form: UpdatePackageFormData): Pr
     },
   });
 
-  return ({
-    ...pkg,
-    packageItems: pkg.packageItems.map(({ product, ...i }) => ({
-      ...i,
-      name: product.name,
-      price: Number(product.price)
-    })),
-    createdBy: pkg.createdBy,
-    reviewedBy: pkg.reviewedBy,
-    approvedBy: pkg.approvedBy,
-    updatedBy: pkg.updatedBy
-  });
+  return formatPackage(result);
 }
 
 export const addItemsToPackage = async (packageId: number, items: PackageItemFormData[]) => {
@@ -211,10 +180,6 @@ export function formatPackage(pkg: any) : Package {
       ...i,
       name: product.name,
       price: Number(product.price)
-    })),
-    createdBy: pkg.createdBy,
-    reviewedBy: pkg.reviewedBy,
-    approvedBy: pkg.approvedBy,
-    updatedBy: pkg.updatedBy
+    }))
   });
 }
