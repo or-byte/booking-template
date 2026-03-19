@@ -74,6 +74,12 @@ h1 {
   line-height: 1.1;
 }
 
+h2 {
+  font-size: 45px;
+  font-weight: 100;
+  line-height: 1.1;
+}
+
 p {
   max-width: 14rem;
   line-height: 1.35;
@@ -98,6 +104,49 @@ p {
 }
 
 .always-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1; /* slate-300 */
+  background-color: #cbd5e1;
+  /* slate-300 */
   border-radius: 999px;
+}
+
+@layer components {
+  .btn {
+    @apply py-2 px-6 bg-[var(--color-accent-1)] rounded-[10px] cursor-pointer transition-colors duration-200 text-white;
+  }
+
+  .btn:hover {
+    @apply bg-[var(--color-accent-2)];
+  }
+
+  .btn:disabled {
+    @apply bg-[var(--color-disabled)] text-[var(--color-footer)];
+  }
+
+  .btn:disabled:hover {
+    @apply cursor-not-allowed;
+  }
+
+  .nav {
+    @apply hidden md:flex gap-4 items-center rounded-[20px] bg-[var(--color-bg-2)] py-[20px] px-[30px]
+  }
+
+  .subheader-1 {
+    @apply font-bold text-base;
+  }
+
+  .body-1 {
+    @apply font-normal text-base;
+  }
+
+  .body-2 {
+    @apply font-normal text-sm;
+  }
+
+  .body-3 {
+    @apply font-normal text-xs;
+  }
+
+  .spinner {
+    @apply w-8 h-8 border-4 border-[var(--color-footer)]/30 border-t-[var(--color-accent-1)] rounded-full animate-spin
+  }
 }
