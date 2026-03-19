@@ -1,23 +1,29 @@
 import { MetaProvider, Title } from "@solidjs/meta";
-import { Router } from "@solidjs/router";
+import { Router, useLocation } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
 import NavBar from "~/components/navbar/NavBar";
 import Footer from "./components/footer/FooterSection";
 import "./app.css";
 
+function Layout(props: { children: any }) {
+  const location = useLocation();
+  // Admin routes will have the global navbar exluded
+  const hideLayout = location.pathname.includes("/admin");
+
+  return (
+    <MetaProvider>
+      <Title>The Waterfront Beach Resort</Title>
+      {!hideLayout && <NavBar />}
+      <Suspense>{props.children}</Suspense>
+      {!hideLayout && <Footer />}
+    </MetaProvider>
+  );
+}
+
 export default function App() {
   return (
-    <Router
-      root={props => (
-        <MetaProvider>
-          <Title>The Waterfront Beach Resort</Title>
-          <NavBar />
-          <Suspense>{props.children}</Suspense>
-          <Footer />
-        </MetaProvider>
-      )}
-    >
+    <Router root={(props) => <Layout>{props.children}</Layout>}>
       <FileRoutes />
     </Router>
   );
