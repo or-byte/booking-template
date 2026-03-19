@@ -37,8 +37,6 @@ model Product {
 
   categoryId   Int
   category     Category      @relation(fields: [categoryId], references: [id])
-  package      Package?      @relation(fields: [packageId], references: [id])
-  packageId    Int?
   packageItems PackageItem[]
 }
 
@@ -63,7 +61,6 @@ model Package {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @default(now()) @updatedAt
   packageItems PackageItem[]
-  products     Product[]
 }
 
 model PackageItem {

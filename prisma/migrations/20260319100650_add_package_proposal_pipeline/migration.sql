@@ -33,8 +33,7 @@ ALTER TABLE "OrderItem" DROP CONSTRAINT "OrderItem_productId_fkey";
 ALTER TABLE "Room" DROP CONSTRAINT "Room_roomTypeId_fkey";
 
 -- AlterTable
-ALTER TABLE "Product" ADD COLUMN     "packageId" INTEGER,
-ALTER COLUMN "stockQty" SET DEFAULT 0;
+ALTER TABLE "Product" ALTER COLUMN "stockQty" SET DEFAULT 0;
 
 -- DropTable
 DROP TABLE "Booking";
@@ -81,9 +80,6 @@ CREATE TABLE "PackageItem" (
 
     CONSTRAINT "PackageItem_pkey" PRIMARY KEY ("id")
 );
-
--- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_packageId_fkey" FOREIGN KEY ("packageId") REFERENCES "Package"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Package" ADD CONSTRAINT "Package_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
