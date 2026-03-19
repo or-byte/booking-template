@@ -14,7 +14,7 @@ type FeatureSectionProps = {
 export default function FeatureSection(props: FeatureSectionProps) {
   return (
     <section class={`py-20 ${props.bgClass ?? "bg-white"}`}>
-      <div class={`flex flex-col mx-[80px] px-6 ${props.class ?? ""}`}>
+      <div class={`flex flex-col mx-4 md:mx-[80px] px-6 ${props.class ?? ""}`}>
         
         <h2 class="text-3xl font-serif mb-4">
           {props.title}

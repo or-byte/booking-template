@@ -30,7 +30,7 @@ export default function Rooms() {
 
       <div class="max-w-7xl mx-auto px-6 py-16">
         {/* Page Header */}
-        <div class="mb-12">
+        <div class="flex flex-col items-center mb-12 ">
           <h1 class="text-4xl md:text-5xl font-serif font-semibold">
             Our Rooms
           </h1>

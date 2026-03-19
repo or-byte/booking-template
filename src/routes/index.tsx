@@ -5,6 +5,9 @@ import FeatureSection from "~/components/feature_section/FeatureSection";
 import RoomsCard from "~/components/cards/RoomsCard";
 import AmenitiesSection from "~/components/amenities/AmenitiesSection";
 import ImageGallery from "~/components/gallery/ImageGallery";
+import { clientOnly } from "@solidjs/start";
+
+const MapGoogle = clientOnly(() => import("~/components/map/MapGoogle"));
 
 const rooms = [
   {
@@ -71,7 +74,7 @@ export default function Home() {
         linkHref="#"
         linkLabel="Go to El Mar"
       >
-        <div class="flex justify-center w-full h-[400px]">
+        <div class="flex justify-center w-full min-h-[200px] md:h-[400px]">
           <ImageGallery
             images={[
               "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
@@ -82,12 +85,12 @@ export default function Home() {
         </div>
       </FeatureSection>
       <FeatureSection
-        title="Pawikan Center Section"
+        title="Explore Bataan"
         description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
         linkHref="#"
         linkLabel="View More Details"
       >
-        <div class="flex justify-center w-full h-[400px]">
+        <div class="flex justify-center w-full min-h-[200px] md:h-[400px]">
           <ImageGallery
             images={[
               "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
@@ -98,20 +101,12 @@ export default function Home() {
         </div>
       </FeatureSection>
       <FeatureSection
-        title="Mount Samat"
-        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-        linkHref="#"
-        linkLabel="View More Details"
-      >
-        <div class="flex justify-center w-full h-[400px]">
-          <ImageGallery
-            images={[
-              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-            ]}
-          />
-        </div>
+        title="Where to Find Us"
+        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit.">
+        <MapGoogle
+          origin="NAIA Terminal 1, Pasay, Metro Manila"
+          destination="Waterfront Beach Resort, Bataan"
+        />
       </FeatureSection>
       <AmenitiesSection />
     </>

@@ -10,9 +10,12 @@ export default function ImageGallery(props: ImageGalleryProps) {
   // 3-image layout
   if (total === 3) {
     return (
-      <div class="grid w-full h-full min-h-0 gap-4 grid-cols-[3fr_2fr] grid-rows-2">
-        {/* Left large image */}
-        <div class="relative overflow-hidden rounded-xl row-span-2 min-h-0">
+      <div class="
+      grid gap-4 w-full
+      grid-cols-1
+      md:grid-cols-[3fr_2fr] md:grid-rows-2">
+        {/* Large Image */}
+        <div class="relative overflow-hidden rounded-xl aspect-[4/3] md:aspect-auto md:row-span-2">
           <img
             src={props.images[0]}
             class="w-full h-full object-cover"
@@ -20,8 +23,8 @@ export default function ImageGallery(props: ImageGalleryProps) {
           />
         </div>
 
-        {/* Right column */}
-        <div class="relative overflow-hidden rounded-xl min-h-0">
+        {/* Right Images */}
+        <div class="relative overflow-hidden rounded-xl aspect-[4/3] md:aspect-auto">
           <img
             src={props.images[1]}
             class="w-full h-full object-cover"
@@ -29,7 +32,7 @@ export default function ImageGallery(props: ImageGalleryProps) {
           />
         </div>
 
-        <div class="relative overflow-hidden rounded-xl min-h-0">
+        <div class="relative overflow-hidden rounded-xl aspect-[4/3] md:aspect-auto">
           <img
             src={props.images[2]}
             class="w-full h-full object-cover"
@@ -49,15 +52,21 @@ export default function ImageGallery(props: ImageGalleryProps) {
   }
 
   return (
-    <div class="grid w-full grid-cols-2 md:grid-cols-4 gap-4 h-full auto-rows-fr min-h-0">
+    <div class="
+      grid gap-4 w-full
+      grid-cols-1
+      sm:grid-cols-2
+      md:grid-cols-4
+      auto-rows-[200px] md:auto-rows-[220px]
+    ">
       <For each={props.images}>
         {(img, i) => (
           <div
             class={`
-          relative overflow-hidden rounded-xl
-          ${getSpan(i())}
-          min-h-0
-        `}
+            relative overflow-hidden rounded-xl
+            aspect-[4/3] sm:aspect-auto
+            ${getSpan(i())}
+          `}
           >
             <img
               src={img}
