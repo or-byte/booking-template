@@ -1,6 +1,7 @@
 import { A } from "@solidjs/router";
-import { createSignal, For, onMount, onCleanup } from "solid-js";
+import { createSignal, For, onMount, onCleanup, Show } from "solid-js";
 import { useNavigate, useLocation } from "@solidjs/router";
+import { MdOutlineKeyboard_arrow_down } from 'solid-icons/md';
 
 const menuItems = [
   { href: "/about", label: "About Us" },
@@ -23,9 +24,13 @@ export default function NavBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = createSignal(false);
+  const [exploreOpen, setExploreOpen] = createSignal(false);
   const [scrolled, setScrolled] = createSignal(false);
 
-  const goTo = (path: string) => navigate(path);
+  const goTo = (path: string) => {
+    setOpen(false);
+    navigate(path)
+  };
 
   onMount(() => {
     const handleScroll = () => {
@@ -122,7 +127,7 @@ export default function NavBar() {
           <button
             class={`
               md:hidden text-2xl absolute right-4
-              ${scrolled() ? "text-black" : "text-white"}
+              ${scrolled() || open() || location.pathname !== "/"? "text-black" : "text-white"}
             `}
             onClick={() => setOpen(!open())}
           >
@@ -137,13 +142,57 @@ export default function NavBar() {
           <div class="flex flex-col gap-6 px-6 py-8 text-black">
             <For each={menuItems}>
               {(item) => (
-                <A
-                  href={item.href}
-                  class="text-2xl"
-                  onClick={() => setOpen(false)}
-                >
-                  {item.label}
-                </A>
+                <>
+                  {item.label === "Explore" ? (
+                    <div class="flex flex-col">
+                      {/* Explore toggle row */}
+                      <button
+                        class="text-black p-1"
+                        onClick={() => setExploreOpen(!exploreOpen())}
+                      >
+                        <div class="flex items-center justify-between">
+                          <A
+                            href={item.href}
+                            class="text-xl"
+                            onClick={() => setOpen(false)}
+                          >
+                            {item.label}
+                          </A>
+                          <span
+                            class={`inline-block transition-transform duration-200 ${exploreOpen() ? "rotate-180" : ""}`}
+                          >
+                            <MdOutlineKeyboard_arrow_down size={20} />
+                          </span>
+                        </div>
+                      </button>
+
+                      {/* Explore sub-items */}
+                      <Show when={exploreOpen()}>
+                        <div class="flex flex-col gap-4 mt-4 pl-4 border-l-2 border-slate-100">
+                          <For each={exploreDropdown}>
+                            {(subItem) => (
+                              <A
+                                href={subItem.href}
+                                class="text-lg text-slate-600"
+                                onClick={() => setOpen(false)}
+                              >
+                                {subItem.label}
+                              </A>
+                            )}
+                          </For>
+                        </div>
+                      </Show>
+                    </div>
+                  ) : (
+                    <A
+                      href={item.href}
+                      class="text-xl"
+                      onClick={() => setOpen(false)}
+                    >
+                      {item.label}
+                    </A>
+                  )}
+                </>
               )}
             </For>
           </div>

@@ -1,6 +1,10 @@
 import Button from "../button/Button";
+import { useNavigate } from "@solidjs/router";
 
 export default function Hero() {
+  const navigate = useNavigate();
+  const goToRooms = () => navigate("/rooms");
+
   return (
     <section
       class="
@@ -57,6 +61,7 @@ export default function Hero() {
             transition-all duration-300
             rounded-[10px]
           "
+          onClick={goToRooms}
         >
           Book Your Stay
         </Button>
