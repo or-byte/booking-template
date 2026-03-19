@@ -32,6 +32,14 @@ export default function NavBar() {
     navigate(path)
   };
 
+  const toggle = () => {
+    setOpen(!open());
+  };
+
+  const exploreToggle = () => {
+    setExploreOpen(!exploreOpen())
+  }
+
   onMount(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -148,13 +156,13 @@ export default function NavBar() {
                       {/* Explore toggle row */}
                       <button
                         class="text-black p-1"
-                        onClick={() => setExploreOpen(!exploreOpen())}
+                        onClick={exploreToggle}
                       >
                         <div class="flex items-center justify-between">
                           <A
                             href={item.href}
                             class="text-xl"
-                            onClick={() => setOpen(false)}
+                            onClick={toggle}
                           >
                             {item.label}
                           </A>
@@ -174,7 +182,7 @@ export default function NavBar() {
                               <A
                                 href={subItem.href}
                                 class="text-lg text-slate-600"
-                                onClick={() => setOpen(false)}
+                                onClick={toggle}
                               >
                                 {subItem.label}
                               </A>
@@ -187,7 +195,7 @@ export default function NavBar() {
                     <A
                       href={item.href}
                       class="text-xl"
-                      onClick={() => setOpen(false)}
+                      onClick={toggle}
                     >
                       {item.label}
                     </A>
