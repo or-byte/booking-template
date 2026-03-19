@@ -1,5 +1,5 @@
 import { useNavigate } from "@solidjs/router";
-import { createEffect, createResource, createSignal, For, Show } from "solid-js";
+import { createEffect, createResource, createSignal, For, Match, Show, Switch } from "solid-js";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = createSignal("packages");
@@ -65,19 +65,21 @@ export default function AdminDashboard() {
         {/* Main content */}
         <div class="flex-1 p-4 sm:p-6 overflow-auto">
           {/* Dashboard */}
-          <Show when={activeTab() === "dashboard"}>
-            <div>Admin Dashboard Content</div>
-          </Show>
+          <Switch fallback={<div>No active tab</div>}>
+            <Match when={activeTab() === "dashboard"}>
+              <div>Admin Dashboard Content</div>
+            </Match>
 
-          {/* Products */}
-          <Show when={activeTab() === "products"}>
-            <div> Products Content </div>
-          </Show>
+            {/* Products */}
+            <Match when={activeTab() === "products"}>
+              <div> Products Content </div>
+            </Match>
 
-          {/* Proposals */}
-          <Show when={activeTab() === "packages"}>
-            <div> Proposals Content </div>
-          </Show>
+            {/* Packages */}
+            <Match when={activeTab() === "packages"}>
+              <div> Package Proposals Content </div>
+            </Match>
+          </Switch>
         </div>
       </div>
     </div>
