@@ -147,7 +147,7 @@ export default function MapGoogle(props: any) {
 
                   {/* Scroll is scoped to each category's places */}
                   <Show when={open()}>
-                    <div class="overflow-y-auto max-h-[200px]">
+                    <div class="overflow-y-auto max-h-[600px] always-scrollbar">
                       <For each={category.places}>
                         {(destination) => {
                           const isSelected = () => selectedPlace()?.name === destination.name;

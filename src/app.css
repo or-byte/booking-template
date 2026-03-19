@@ -88,3 +88,16 @@ p {
     max-width: none;
   }
 }
+
+.always-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.always-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.always-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1; /* slate-300 */
+  border-radius: 999px;
+}
