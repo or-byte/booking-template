@@ -34,44 +34,50 @@ export default function Contact() {
     <main class="px-4 sm:px-4 lg:px-8 py-8">
       <Title>Contact Us</Title>
 
-      <div class="flex w-full mb-10 justify-between">
-        <div class="flex flex-col w-[30%] gap-8">
-          <div class="flex flex-col gap-8 body-2">
-            <h2 class="text-2xl font-bold]">Contact Us</h2>
+      <div class="flex flex-col lg:flex-row w-full mt-5 mb-10 gap-10 lg:justify-between">
+        {/* Left: contact info */}
+        <div class="flex flex-col w-full lg:w-[30%] gap-8">
+          <div class="flex flex-col gap-4 body-2 items-center">
+            <h2 class="text-2xl font-bold">Contact Us</h2>
             <p class="text-[#5D5D5D] text-justify">Lorem ipsum dolor sit amet,
               consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
               Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
           </div>
 
-          {/* form area */}
-          <div class="flex flex-col gap-[15px] text-[#5D5D5D] body-3">
-            <div class="flex gap-2 items-center">
-              <MdFillEmail />
-              <p>sampleemail@gmail.com</p>
-            </div>
-            <div class="flex gap-2 items-center">
-              <MdFillLocal_phone />
-              <p>+63123456789</p>
-            </div>
-            <div class="flex gap-2 items-center">
-              <MdFillLocal_phone />
-              <p>+63123456789</p>
-            </div>
-            <div class="flex gap-2 items-center">
-              <TbOutlineWorld />
-              <p>thewaterfrontbeachresort.com</p>
+          <div class="flex justify-center">
+            <div class="flex flex-col gap-[15px] text-[#5D5D5D] body-3">
+              <div class="flex gap-2 items-center">
+                <MdFillEmail />
+                <p>sampleemail@gmail.com</p>
+              </div>
+              <div class="flex gap-2 items-center">
+                <MdFillLocal_phone />
+                <p>+63123456789</p>
+              </div>
+              <div class="flex gap-2 items-center">
+                <MdFillLocal_phone />
+                <p>+63123456789</p>
+              </div>
+              <div class="flex gap-2 items-center">
+                <TbOutlineWorld />
+                <p>thewaterfrontbeachresort.com</p>
+              </div>
             </div>
           </div>
         </div>
-        <div class=" flex flex-col w-[50%] gap-[20px]">
-          <div class="flex gap-[20px] w-full">
+
+        {/* Right: form */}
+        <div class="flex flex-col w-full lg:w-[50%] gap-[20px]">
+          <div class="flex flex-col sm:flex-row gap-[20px] w-full">
             <Input
+              class="flex-1"
               label="First Name"
               placeholder="e.g John"
               value={firstName()}
               onInput={(e) => setFirstName(e.currentTarget.value)}
             />
             <Input
+              class="flex-1"
               label="Last Name"
               placeholder="e.g Doe"
               value={lastName()}
@@ -105,7 +111,6 @@ export default function Contact() {
           </Show>
         </div>
       </div>
-
       <MapGoogle
         origin="NAIA Terminal 1, Pasay, Metro Manila"
         destination="Waterfront Beach Resort, Bataan"
