@@ -2,23 +2,35 @@ import { Package as PrismaPackage, PackageItem as PrismaPackageItem } from "@pri
 import { User } from "./user";
 import prisma from "./prisma";
 
+export const PackageStatus = {
+  CREATED: "CREATED",
+  MODIFIED: "MODIFIED",
+  REVIEWED: "REVIEWED",
+  APPROVED: "APPROVED"
+} as const;
+
+export type PackageStatus = (typeof PackageStatus)[keyof typeof PackageStatus];
+
 export type PackageItem = Omit<PrismaPackageItem, "price"> & {
   name: string
   price: number
 };
 
-export type Package = PrismaPackage & {
+export type Package = Omit<PrismaPackage, "overridePrice"> & {
   packageItems: PackageItem[]
   createdBy: User
   reviewedBy: User | null
   approvedBy: User | null
   updatedBy: User | null
+  overridePrice?: number
+  status: PackageStatus
 };
 
 export type PackageFormData = {
   createdById: number
   description: string
   packageItems: PackageItemFormData[]
+  overridePrice?: number
 }
 
 export type PackageItemFormData = {
@@ -33,14 +45,8 @@ export type UpdatePackageFormData = {
   approvedById?: number | null
   updatedById?: number | null
   packageItems?: PackageItemFormData[]
+  overridePrice?: number
 }
-
-export const PackageStatus = {
-  CREATED: "CREATED",
-  MODIFIED: "MODIFIED",
-  REVIEWED: "REVIEWED",
-  APPROVED: "APPROVED"
-} as const;
 
 export const getAllPackages = async (): Promise<Package[]> => {
   "use server"
@@ -93,9 +99,9 @@ export const createPackage = async (form: PackageFormData): Promise<Package> => 
         create: form.packageItems.map(item => ({
           productId: item.productId,
           quantity: item.quantity,
-          price: item.price,
         })),
       },
+      overridePrice: form.overridePrice
     },
     include: {
       packageItems: {
@@ -129,10 +135,10 @@ export const updatePackage = async (id: number, form: UpdatePackageFormData): Pr
           create: form.packageItems.map(item => ({
             productId: item.productId,
             quantity: item.quantity,
-            price: item.price,
           })),
         },
       }),
+      overridePrice: form.overridePrice
     },
     include: {
       packageItems: {
@@ -173,13 +179,27 @@ export const deletePackage = async (id: number) => {
   });
 }
 
-export function formatPackage(pkg: any) : Package {
+
+export function getPackageStatus(pkg: any): PackageStatus {
+  if (pkg.approvedBy) return PackageStatus.APPROVED;
+  if (pkg.reviewedBy) return PackageStatus.REVIEWED;
+  if (pkg.updatedBy && pkg.updatedAt !== pkg.createdAt) return PackageStatus.MODIFIED;
+  return PackageStatus.CREATED;
+}
+
+export function formatPackage(pkg: any): Package {
   return ({
     ...pkg,
+    status: getPackageStatus(pkg),
     packageItems: pkg.packageItems.map(({ product, ...i }) => ({
       ...i,
       name: product.name,
       price: Number(product.price)
-    }))
+    })),
+    overridePrice: Number(pkg.overridePrice)
   });
+}
+
+export function calculatePrice(pkg: Package): number {
+  return pkg.packageItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 }

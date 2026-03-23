@@ -1,6 +1,6 @@
 import { useNavigate } from "@solidjs/router";
 import { createResource, createSignal, For, Match, Show, Switch } from "solid-js";
-import ProposalDescription from "~/components/admin/ProposalDescription";
+import ProposalDetails from "~/components/admin/ProposalDetails";
 import { createPackage, getAllPackages, Package, updatePackage } from "~/lib/package";
 import { getAllProducts } from "~/lib/product";
 
@@ -29,6 +29,10 @@ export default function AdminDashboard() {
   const [selectedPackage, setSelectedPackage] = createSignal<Package | null>();
   const [isEditingPackage, setIsEditingPackage] = createSignal();
 
+  const toggleEditPackage = () => {
+    setIsEditingPackage(!isEditingPackage());
+  }
+
   const handleSavePackage = async () => {
     try {
       const pkg = selectedPackage();
@@ -42,18 +46,20 @@ export default function AdminDashboard() {
 
       // UPDATE
       if (pkg.id) {
-        const result = await updatePackage(pkg.id, {
+        await updatePackage(pkg.id, {
           description: pkg.description ?? "",
           packageItems: formattedItems,
-          updatedById: 1 // TODO replace with current user session
+          updatedById: 1, // TODO replace with current user session
+          overridePrice: pkg.overridePrice
         });
       }
       // CREATE
       else {
-        const result = await createPackage({
+        await createPackage({
           createdById: 1,
           description: pkg.description ?? "",
           packageItems: formattedItems,
+          overridePrice: pkg.overridePrice
         });
       }
 
@@ -145,7 +151,7 @@ export default function AdminDashboard() {
                 {/* Package Description */}
                 <Show when={selectedPackage() !== undefined}>
                   <Show when={!isEditingPackage()}>
-                    <ProposalDescription package={selectedPackage()!} onUpdate={refetchPackages} onEdit={[setIsEditingPackage, true]} />
+                    <ProposalDetails package={selectedPackage()!} onUpdate={refetchPackages} onEdit={toggleEditPackage} />
                   </Show>
                   <Show when={isEditingPackage()}>
                     {/* Package Editor */}
@@ -173,8 +179,7 @@ export default function AdminDashboard() {
                           {/* HEADER */}
                           <div class="flex gap-2 items-center text-sm font-semibold text-gray-600 px-1">
                             <div class="flex-1">Product</div>
-                            <div class="w-20 text-center">Qty</div>
-                            <div class="w-24 text-center">Price</div>
+                            <div class="w-24 text-center">Quantity</div>
                             <div class="w-8"></div>
                           </div>
 
@@ -230,22 +235,6 @@ export default function AdminDashboard() {
                                   }}
                                 />
 
-                                {/* Price */}
-                                <input
-                                  type="number"
-                                  class="border p-1 rounded w-24 text-center"
-                                  value={item.price}
-                                  onInput={(e) => {
-                                    const updated = [...selectedPackage().packageItems];
-                                    updated[index()].price = Number(e.currentTarget.value);
-
-                                    setSelectedPackage({
-                                      ...selectedPackage(),
-                                      packageItems: updated,
-                                    });
-                                  }}
-                                />
-
                                 {/* Remove */}
                                 <button
                                   class="text-red-500 w-8"
@@ -285,6 +274,27 @@ export default function AdminDashboard() {
                           >
                             + Add Item
                           </button>
+                        </label>
+
+                        {}
+
+                        {/* PACKAGE PRICE */}
+                        <label class="flex items-center gap-2">
+                          <span class="font-semibold">Override Price:</span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            class="border p-1 rounded w-24 text-center"
+                            value={selectedPackage()?.overridePrice ?? 0}
+                            onInput={(e) => {
+                              const value = e.currentTarget.value;
+                              setSelectedPackage({
+                                ...selectedPackage(),
+                                overridePrice: value === "" ? 0 : parseFloat(value),
+                              });
+                            }}
+                          />
                         </label>
 
                         <div class="flex flex-col sm:flex-row gap-2 mt-2">
