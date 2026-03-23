@@ -19,6 +19,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
     }
   };
 
+  // All about them prices
   const calculatedPrice = props.package ? calculatePrice(props.package) : 0;
   const overridePrice = props.package?.overridePrice ?? 0;
   const totalPrice = overridePrice > 0 ? overridePrice : calculatedPrice;
@@ -46,7 +47,10 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
           Package #{props.package?.id} - {props.package?.createdBy.fullName}
         </div>
         <div class="text-sm text-gray-600">
-          Status: <span class="font-medium">{props.package?.status}</span>
+          Status: {props.package?.status === "APPROVED" ?
+            (<span class="text-green-600 font-bold">APPROVED!</span>) :
+            <span class="font-medium">{props.package?.status}</span>
+          }
         </div>
         <div class="text-sm text-gray-700">
           Description: {props.package?.description}
@@ -110,38 +114,31 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
         </div>
 
         {/* CREATED / MODIFIED => Show Review + Edit */}
-        <Switch fallback={<div>Checking status...</div>}>
-          <Match when={props.package?.status === PackageStatus.CREATED || props.package?.status === PackageStatus.MODIFIED}>
-            <div class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
-              onClick={handleReview}>
-              Submit Review
-            </div>
-            <div class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
-              onClick={props.onEdit}>
-              Edit
-            </div>
-          </Match>
+        <Show when={props.package?.status === PackageStatus.CREATED || props.package?.status === PackageStatus.MODIFIED}>
+          <div class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
+            onClick={handleReview}>
+            Submit Review
+          </div>
+          <div class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
+            onClick={props.onEdit}>
+            Edit
+          </div>
+        </Show>
 
-          {/* REVIEWED => Show Approve / Deny */}
-          <Match when={props.package?.status === PackageStatus.REVIEWED}>
-            <div class="flex gap-2 flex-1">
-              <div
-                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
-                onClick={handleApprove}
-              >
-                Approve
-              </div>
-              <div class="bg-blue-300 text-white px-4 py-2 rounded hover:bg-blue-400 flex-1 text-center">
-                Deny
-              </div>
+        {/* REVIEWED => Show Approve / Deny */}
+        <Show when={props.package?.status === PackageStatus.REVIEWED}>
+          <div class="flex gap-2 flex-1">
+            <div
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
+              onClick={handleApprove}
+            >
+              Approve
             </div>
-          </Match>
-
-          {/* APPROVED => Show Approve text */}
-          <Match when={props.package?.status === PackageStatus.APPROVED}>
-            <div class="text-green-600 font-bold">APPROVED!</div>
-          </Match>
-        </Switch>
+            <div class="bg-blue-300 text-white px-4 py-2 rounded hover:bg-blue-400 flex-1 text-center">
+              Deny
+            </div>
+          </div>
+        </Show>
       </div>
     </Show>
   )
