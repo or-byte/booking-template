@@ -85,6 +85,8 @@ export const getPackageById = async (id: number) => {
     },
   });
 
+  if (!result) throw new Error("No result");
+
   return formatPackage(result);
 }
 
@@ -113,6 +115,8 @@ export const createPackage = async (form: PackageFormData): Promise<Package> => 
       updatedBy: true
     },
   });
+
+  if (result!) throw new Error("No result");
 
   return formatPackage(result);
 }
@@ -151,6 +155,8 @@ export const updatePackage = async (id: number, form: UpdatePackageFormData): Pr
     },
   });
 
+  if (result!) throw new Error("No result");
+  
   return formatPackage(result);
 }
 
@@ -174,7 +180,7 @@ export const deletePackage = async (id: number) => {
     where: { packageId: id },
   });
 
-  return prisma.package.delete({
+  await prisma.package.delete({
     where: { id },
   });
 }
