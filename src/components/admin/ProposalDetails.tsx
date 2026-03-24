@@ -6,7 +6,7 @@ import { useAction } from "@solidjs/router";
 
 export type ProposalDetailsProps = {
   package: Package | null
-  onUpdate?: () => void
+  onUpdate?: (pkg: Package) => void
   onEdit?: () => void
   onCancel?: () => void
 }
