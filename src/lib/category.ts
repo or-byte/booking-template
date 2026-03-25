@@ -1,6 +1,7 @@
-import { Prisma, Category as PrismaCategory } from "@prisma/client";
+import { Category as PrismaCategory } from "@prisma/client";
 import prisma from "./prisma";
 
+// Explicitly added count as field in Category to surpass unrecognizable error for _count
 export type Category = PrismaCategory & { count?: number };
 
 export type CategoryFormData = {
@@ -8,6 +9,8 @@ export type CategoryFormData = {
   description: string
 }
 
+/// getCategories fetches all except Room
+// Room is a category but it is used separately
 export const getCategories = async (): Promise<Category[]> => {
   "use server"
   const categories = await prisma.category.findMany({
