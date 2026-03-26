@@ -1,5 +1,6 @@
 import { Product as PrismaProduct } from "@prisma/client"
 import prisma from "./prisma";
+import { query } from "@solidjs/router";
 
 export type Product = Omit<PrismaProduct, "price"> & { price: number };
 
@@ -13,29 +14,48 @@ export type ProductFormData = {
 
 export type EditableProduct = Partial<Product> & { id?: number; categoryId?: number }
 
-export const getAllProducts = async (): Promise<Product[]> => {
-  "use server"
+// This function fetches all products except of category Room. For fetching rooms, use `getProductsByCategory`
+export const getAllProducts = query(
+  async (): Promise<Product[]> => {
+    "use server"
 
-  const products = await prisma.product.findMany({
-    where: {
-      category: {
-        name: {
-          not: "Room",
+    const products = await prisma.product.findMany({
+      where: {
+        category: {
+          name: {
+            not: "Room",
+          },
         },
       },
-    },
-  });
+    });
 
-  return products.map(mapProduct);
-}
+    return products.map(mapProduct);
+  },
+  "all-products"
+);
 
-export const getProductsByCategory = async (id: number): Promise<Product[]> => {
-  "use server"
+export const getProductsByCategory = query(
+  async (id: number): Promise<Product[]> => {
+    "use server"
 
-  const products = await prisma.product.findMany({ where: { categoryId: id } });
+    const products = await prisma.product.findMany({ where: { categoryId: id } });
 
-  return products.map(mapProduct);
-};
+    return products.map(mapProduct);
+  },
+  "products-by-category-id"
+);
+
+
+export const getProductsByCategoryName = query(
+  async (name: string): Promise<Product[]> => {
+    "use server"
+
+    const products = await prisma.product.findMany({ where: { category: { name: name } } });
+
+    return products.map(mapProduct);
+  },
+  "products-by-category-name"
+);
 
 export const createNewProduct = async (form: ProductFormData): Promise<Product> => {
   "use server"

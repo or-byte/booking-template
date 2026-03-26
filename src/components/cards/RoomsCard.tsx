@@ -1,8 +1,11 @@
 import { createSignal, For, JSX } from "solid-js";
+import { gPlaceholderRoomImage } from "~/routes/rooms";
 
 export type RoomsCardItem = {
   id: string | number;
+  name: string
   image: string;
+  price: string;
 };
 
 type RoomsCardProps<T> = {
@@ -62,7 +65,7 @@ export default function RoomsCard<T extends RoomsCardItem>(
             >
               {/* Background */}
               <img
-                src={item.image}
+                src={gPlaceholderRoomImage}
                 alt=""
                 class="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
               />
