@@ -121,6 +121,7 @@ export default function BookingRequest() {
       contactNumber: form()?.contactNumber!,
       contactEmail: form()?.contactEmail!,
       eventDate: form()?.eventDate!,
+      durationInDays: form()?.durationInDays!,
       title: `${form()?.companyName!}'s Proposed Reservation`,
       packageItems: cleanedPackageItems,
       userId: userId!

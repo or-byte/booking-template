@@ -1,8 +1,9 @@
-import { createResource, For, Show } from "solid-js";
+import { createMemo, createResource, For, Show } from "solid-js";
 import { PackageEventType, Package, calculatePrice, reviewPackageAction, approvePackageAction, rejectPackageAction, getPackageEvents } from "~/lib/package";
 import Button from "../button/Button";
 import { useSession } from "~/lib/auth";
 import { useAction } from "@solidjs/router";
+import { BookingFormData, BookingStatus, createNewBooking } from "~/lib/booking";
 import { statusDescriptionMap } from "~/lib/google/templates/status";
 
 export type ProposalDetailsProps = {
@@ -24,7 +25,19 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
   const approvePackage = useAction(approvePackageAction);
   const rejectPackage = useAction(rejectPackageAction);
 
-  // Calculated price is based on product price
+  // Date
+  const startDate = createMemo(() => {
+    if (props.package?.eventDate) return props.package.eventDate;
+    return new Date(); // fallback to today if undefined
+  });
+
+  const endDate = createMemo(() => {
+    const start = startDate();
+    const duration = props.package?.durationInDays ?? 1; // fallback to 1 day if undefined
+    return new Date(start.getTime() + duration * 24 * 60 * 60 * 1000);
+  });
+
+  // Prices
   const calculatedPrice = () => props.package ? calculatePrice(props.package) : 0;
   const overridePrice = () => props.package?.overridePrice ?? 0;
   const totalPrice = () => overridePrice() > 0 ? overridePrice() : calculatedPrice();
@@ -81,6 +94,42 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
     }
   }
 
+  const handleGenerateBookings = async () => {
+    const rooms = props.package?.packageItems?.filter(item => item.category === "Room") ?? [];
+
+    const forms: BookingFormData[] = [];
+
+    for (const room of rooms) {
+      for (let i = 0; i < room.quantity; i++) {
+        forms.push({
+          productId: room.productId,
+          checkInDate: startDate(),
+          checkOutDate: endDate(),
+          status: BookingStatus.CONFIRMED,
+        });
+      }
+    }
+
+    const email = props.package?.contactEmail;
+    if (!email) {
+      console.error("no contact email");
+      return;
+    }
+
+    try {
+      const created = await createNewBooking(email, forms);
+
+      if (created.length < forms.length) {
+        alert(`Only ${created.length} out of ${forms.length} bookings were created. Some rooms are unavailable.`);
+      } else {
+        alert("All bookings successfully created!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to generate bookings");
+    }
+  };
+
   return (
     <Show when={props.package}>
       <div class="p-4 border border-[var(--color-border-1)] rounded-[10px] bg-white shadow w-full sm:max-w-md text-left">
@@ -97,7 +146,18 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
               Contact Email: <span class="font-medium">{props.package?.contactEmail ?? "N/A"}</span>
             </p>
             <p class="body-3 text-[#666666]">
-              Event Date : <span class="font-medium">{props.package?.eventDate.toDateString() ?? "N/A"}</span>
+              Event Dates :
+              <span class="font-medium">
+                {props.package?.eventDate
+                  ? (() => {
+                    const start = new Date(props.package.eventDate);
+                    const end = new Date(start);
+                    end.setDate(start.getDate() + (props.package.durationInDays ?? 0));
+
+                    return `${start.toDateString()} - ${end.toDateString()}`;
+                  })()
+                  : "N/A"}
+              </span>
             </p>
             <p class="body-3 text-[#666666]">
               Number of Guests: <span class="font-medium">{props.package?.numberOfGuests ?? "N/A"}</span>
@@ -235,6 +295,18 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
               onClick={handleReject}>
               Reject
             </Button>
+          </div>
+        </Show>
+
+        {/* APPROVED => Show Generate Bookings button */}
+        <Show when={props.package?.status === PackageEventType.APPROVED}>
+          <div class="flex gap-2 flex-1">
+            <div
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
+              onClick={handleGenerateBookings}
+            >
+              Generate Bookings
+            </div>
           </div>
         </Show>
       </div>

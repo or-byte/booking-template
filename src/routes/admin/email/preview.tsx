@@ -93,6 +93,7 @@ const samplePackage: Package = {
   eventDate: new Date(),
   reservationDate: new Date(),
   title: "Sample Proposed Package for Company Outing",
+  durationInDays: 3,
   packageItems: [
     {
       id: 1,
