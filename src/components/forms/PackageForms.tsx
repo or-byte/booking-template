@@ -16,8 +16,8 @@ type Props = {
 };
 
 const modeConfig = {
-  create: { title: "New Package",  saveLabel: "Create" },
-  edit:   { title: "Edit Package", saveLabel: "Save" },
+  create: { title: "New Package", saveLabel: "Create" },
+  edit: { title: "Edit Package", saveLabel: "Save" },
 };
 
 const emptyPackage: Package = {
@@ -26,6 +26,7 @@ const emptyPackage: Package = {
   contactEmail: "",
   numberOfGuests: 0,
   eventDate: new Date(),
+  durationInDays: 0,
   title: "",
   packageItems: [],
   overridePrice: 0,
@@ -88,6 +89,29 @@ export default function PackageForm(props: Props) {
             onInput={(e) => setField({ numberOfGuests: Number(e.currentTarget.value) })}
           />
         </label>
+
+        <div class="flex gap-4">
+          {/* Event Date */}
+          {/* The value is set like this because Input value requires "yyyy-MM-dd" format */}
+          <label class="text-left flex-1">
+            <p class="body-2 font-bold pb-2">Event Date:</p>
+            <Input
+              type="date"
+              value={pkg().eventDate?.toISOString().split("T")[0] ?? new Date()}
+              onInput={(e) => setField({ eventDate: new Date(e.currentTarget.value) })}
+            />
+          </label>
+
+          {/* Days */}
+          <label class="text-left flex-1">
+            <p class="body-2 font-bold pb-2">Duration (days):</p>
+            <Input
+              type="number"
+              value={pkg().durationInDays ?? ""}
+              onInput={(e) => setField({ durationInDays: Number(e.currentTarget.value) })}
+            />
+          </label>
+        </div>
 
         {/* Title */}
         <label class="text-left">

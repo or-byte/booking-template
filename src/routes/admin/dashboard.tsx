@@ -8,74 +8,7 @@ import { listEvents, createEvent, deleteEvent, getServiceAccountAccessToken } fr
 import GoogleCalendar from "~/components/calendar/GoogleCalendar";
 import Button from "~/components/button/Button";
 import PackageCard from "~/components/cards/PackageCard";
-
-export const BookingStatus = {
-  CHECK_IN: "Check In",
-  CHECK_OUT: "Check Out",
-  RESERVED: "Reserved",
-  CANCELLED: "Cancelled",
-} as const;
-
-export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus];
-
-export type Booking = {
-  id: number;
-  guest: string;
-  roomType: string;
-  roomNumber: string;
-  checkIn: string;
-  checkOut: string;
-  status: BookingStatus;
-};
-
-export const sampleBookings: Booking[] = [
-  {
-    id: 1,
-    guest: "John Doe",
-    roomType: "Deluxe",
-    roomNumber: "Room 1",
-    checkIn: "03/24/2026",
-    checkOut: "03/27/2026",
-    status: BookingStatus.CHECK_IN,
-  },
-  {
-    id: 2,
-    guest: "Jane Doe",
-    roomType: "Standard",
-    roomNumber: "Room 2",
-    checkIn: "03/24/2026",
-    checkOut: "03/27/2026",
-    status: BookingStatus.CHECK_IN,
-  },
-  {
-    id: 3,
-    guest: "Bob Smith",
-    roomType: "Suite",
-    roomNumber: "Room 5",
-    checkIn: "03/25/2026",
-    checkOut: "03/28/2026",
-    status: BookingStatus.RESERVED,
-  },
-  {
-    id: 4,
-    guest: "Alice Johnson",
-    roomType: "Deluxe",
-    roomNumber: "Room 3",
-    checkIn: "03/20/2026",
-    checkOut: "03/23/2026",
-    status: BookingStatus.CHECK_OUT,
-  },
-  {
-    id: 5,
-    guest: "Carlos Rivera",
-    roomType: "Standard",
-    roomNumber: "Room 6",
-    checkIn: "03/22/2026",
-    checkOut: "03/24/2026",
-    status: BookingStatus.CANCELLED,
-  },
-];
-
+import { Booking, BookingStatus, getAllBookings, updateBookingStatus } from "~/lib/booking";
 
 const productColumns: Column<Product>[] = [
   { header: "Name", accessor: "name" },
@@ -115,7 +48,8 @@ export default function Dashboard() {
   const [sortOrder, setSortOrder] = createSignal<"asc" | "desc" | null>(null);
   const [statusFilter, setStatusFilter] = createSignal("All");
   const [editingId, setEditingId] = createSignal<number | null>(null);
-  const [bookings, setBookings] = createSignal([...sampleBookings]);
+
+  const [bookings, { mutate: mutateBookings }] = createResource(async () => await getAllBookings());
 
   //Products state
   const [allProducts] = createResource<Product[]>(() => getAllProducts());
@@ -147,9 +81,9 @@ export default function Dashboard() {
 
     // Sort
     if (sortOrder() === "asc") {
-      data.sort((a, b) => a.guest.localeCompare(b.guest));
+      data.sort((a, b) => a.leadGuestName.localeCompare(b.leadGuestName));
     } else if (sortOrder() === "desc") {
-      data.sort((a, b) => b.guest.localeCompare(a.guest));
+      data.sort((a, b) => b.leadGuestName.localeCompare(a.leadGuestName));
     }
 
     return data;
@@ -159,15 +93,25 @@ export default function Dashboard() {
     setSortOrder(prev => prev === "asc" ? "desc" : "asc");
   };
 
-  const handleStatusChange = (id: number, status: BookingStatus) => {
-    setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
+  const handleStatusChange = async (id: number, status: BookingStatus) => {
+
+    try {
+      await updateBookingStatus(id, status)
+        .then((res) => {
+          const status = res.status;
+          mutateBookings(prev => prev?.map(b => (b.id === id ? { ...b, status} : b)) ?? prev);
+        })
+    }
+    catch (err) {
+      console.error(err);
+    }
     setEditingId(null);
   };
 
   const bookingColumn: Column<Booking>[] = [
     {
       header: "Guest",
-      accessor: "guest",
+      accessor: "leadGuestName",
       renderHeader: () => (
         <div class="flex justify-between">
           <span>Guest</span>
@@ -180,10 +124,9 @@ export default function Dashboard() {
         </div>
       ),
     },
-    { header: "Room Type", accessor: "roomType" },
-    { header: "Room Number", accessor: "roomNumber" },
-    { header: "Check In", accessor: "checkIn" },
-    { header: "Check Out", accessor: "checkOut" },
+    { header: "Room Name", accessor: "roomName" },
+    { header: "Check In", accessor: "checkInDate" },
+    { header: "Check Out", accessor: "checkOutDate" },
     {
       header: "Status",
       accessor: (row) => (

@@ -12,7 +12,7 @@ export type Role = (typeof Role)[keyof typeof Role]
 
 export type User = PrismaUser;
 
-export const getUserEmailsByRole = query(async (role: Role) : Promise<string[]> => {
+export const getUserEmailsByRole = query(async (role: Role): Promise<string[]> => {
   "use server"
 
   const results = await prisma.user.findMany({
@@ -30,3 +30,26 @@ export const getUserEmailsByRole = query(async (role: Role) : Promise<string[]> 
 },
   "get-user-emails-by-role"
 );
+
+export const getUserByEmail = query(async (email: string): Promise<User> => {
+  "use server"
+
+  const result = await prisma.user.findFirst({
+    where: { email }
+  })
+
+  if (!result) {
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        name: email
+      }
+    })
+
+    return newUser;
+  }
+
+  return result;
+},
+  "get-user-by-email"
+)

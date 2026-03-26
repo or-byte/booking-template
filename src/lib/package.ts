@@ -40,6 +40,7 @@ export type PackageFormData = {
   numberOfGuests: number
   reservationDate?: Date
   eventDate: Date
+  durationInDays: number
   title?: string
   packageItems: PackageItemFormData[]
   overridePrice?: number
@@ -59,9 +60,11 @@ export type UpdatePackageFormData = {
   numberOfGuests?: number
   reservationDate?: Date
   eventDate?: Date
+  durationInDays?: number
   title?: string
   packageItems?: PackageItemFormData[]
   overridePrice?: number
+  startDate?: Date
 }
 
 export const getAllPackages = query(async (
@@ -205,6 +208,7 @@ export const createPackageAction = action(async (form: PackageFormData) => {
           contactEmail: form.contactEmail,
           numberOfGuests: form.numberOfGuests,
           eventDate: form.eventDate,
+          durationInDays: form.durationInDays,
           title: form.title ?? "Created Via Package Proposal Form",
           packageItems: {
             create: form.packageItems.map(item => ({
@@ -252,6 +256,7 @@ export const updatePackageAction = action(async (id: number, userId: string, for
         contactEmail: form.contactEmail,
         reservationDate: form.reservationDate,
         eventDate: form.eventDate,
+        durationInDays: form.durationInDays,
         title: form.title,
         ...(form.packageItems && {
           packageItems: {
