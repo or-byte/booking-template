@@ -20,6 +20,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   packageEvents PackageEvent[]
+  bookings      Booking[]
 }
 
 model Session {
@@ -97,6 +98,7 @@ model Package {
   contactEmail    String
   numberOfGuests  Int
   eventDate       DateTime
+  durationInDays  Int
   reservationDate DateTime?
 
   title         String
@@ -133,19 +135,34 @@ model PackageEvent {
 }
 
 model Room {
-  id        Int     @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
   capacity  Int
   productId Int
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  bookings  Booking[]
 }
 
 model Image {
-  id        Int     @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   title     String
   url       String
   productId Int
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+}
+
+model Booking {
+  id Int @id @default(autoincrement())
+
+  leadGuestId String
+  leadGuest   User   @relation(fields: [leadGuestId], references: [id])
+
+  datetimeRange Unsupported("tstzrange")
+
+  room   Room @relation(fields: [roomId], references: [id])
+  roomId Int
+
+  status  BookingStatus
 }
 
 enum Role {
@@ -161,4 +178,13 @@ enum PackageEventType {
   APPROVED
   REJECTED
   CANCELLED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CHECKEDIN
+  NOSHOW
+  CANCELLED
+  COMPLETED
 }
