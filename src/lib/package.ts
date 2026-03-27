@@ -116,7 +116,7 @@ export const createPackage = async (form: PackageFormData): Promise<Package> => 
     },
   });
 
-  if (result!) throw new Error("No result");
+  if (!result) throw new Error("No result");
 
   return formatPackage(result);
 }
@@ -155,7 +155,7 @@ export const updatePackage = async (id: number, form: UpdatePackageFormData): Pr
     },
   });
 
-  if (result!) throw new Error("No result");
+  if (!result) throw new Error("No result");
   
   return formatPackage(result);
 }
