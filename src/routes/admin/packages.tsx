@@ -96,7 +96,7 @@ export default function Packages() {
                       setSelectedPackage({
                         ...selectedPackage(),
                         description: e.currentTarget.value,
-                      })
+                      } as Package)
                     }
                   />
                 </label>
@@ -133,7 +133,7 @@ export default function Packages() {
                             setSelectedPackage({
                               ...selectedPackage(),
                               packageItems: updated,
-                            });
+                            } as Package);
                           }}
                         >
                           <option value="">Select product</option>
@@ -158,7 +158,7 @@ export default function Packages() {
                             setSelectedPackage({
                               ...selectedPackage(),
                               packageItems: updated,
-                            });
+                            } as Package);
                           }}
                         />
 
@@ -173,7 +173,7 @@ export default function Packages() {
                             setSelectedPackage({
                               ...selectedPackage(),
                               packageItems: updated,
-                            });
+                            } as Package);
                           }}
                         >
                           ✕
@@ -196,7 +196,7 @@ export default function Packages() {
                             price: 0,
                           },
                         ],
-                      });
+                      } as Package);
                     }}
                   >
                     + Add Item
@@ -217,7 +217,7 @@ export default function Packages() {
                       setSelectedPackage({
                         ...selectedPackage(),
                         overridePrice: value === "" ? 0 : parseFloat(value),
-                      });
+                      } as Package);
                     }}
                   />
                 </label>

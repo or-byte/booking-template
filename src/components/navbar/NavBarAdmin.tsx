@@ -16,8 +16,12 @@ export default function NavBarAdmin() {
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = createSignal(false);
-  const [exploreOpen, setExploreOpen] = createSignal(false);
   const [scrolled, setScrolled] = createSignal(false);
+
+  const navigateToPackages = (item) => {
+    search.setSelectedPackage(item);
+    navigate(`/admin/packages`)
+  }
 
   const goTo = (path: string) => {
     setOpen(false);
@@ -88,29 +92,26 @@ export default function NavBarAdmin() {
                 {(item) => (
                   <div
                     class="p-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => {
-                      search.setSelectedPackage(item);
-                      navigate(`/admin/packages`)
-                    }} >
+                    onClick={() => navigateToPackages(item)} >
                     {item.description}
                   </div>
                 )}
               </For>
             </SearchInput>
           </div>
-
-          <UserProfile image="https://i.pinimg.com/736x/2b/ad/95/2bad9595e795660c86a71b5716469f35.jpg" />
-
-          {/* Mobile button */}
-          <button
-            class={`
-              md:hidden text-2xl absolute right-4
-              ${scrolled() || open() || location.pathname !== "/" ? "text-black" : "text-white"}
-            `}
+          
+          {/* UserProfile — clicking opens mobile menu on mobile only */}
+          <div
+            class="md:hidden cursor-pointer"
             onClick={() => setOpen(!open())}
           >
-            {open() ? "✕" : "☰"}
-          </button>
+            <UserProfile image="https://i.pinimg.com/736x/2b/ad/95/2bad9595e795660c86a71b5716469f35.jpg" />
+          </div>
+
+          {/* UserProfile on desktop — no toggle */}
+          <div class="hidden md:block">
+            <UserProfile image="https://i.pinimg.com/736x/2b/ad/95/2bad9595e795660c86a71b5716469f35.jpg" />
+          </div>
         </div>
       </nav>
 
