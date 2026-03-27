@@ -4,6 +4,7 @@ import { Package, getAllPackages } from "~/lib/package";
 const [query, setQuery] = createSignal("");
 // Fetch packages globally
 const [packagesResource] = createResource<Package[]>(() => getAllPackages());
+const [selectedPackage, setSelectedPackage] = createSignal<Package | null>(null);
 
 const results = createMemo(() => {
   const q = query().toLowerCase();
@@ -14,8 +15,10 @@ const results = createMemo(() => {
   );
 });
 
-export const searchStore = {
+export const search = {
   query,
   setQuery,
   results,
+  selectedPackage,
+  setSelectedPackage,
 };

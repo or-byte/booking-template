@@ -3,6 +3,7 @@ import ProposalDetails from "~/components/admin/ProposalDetails";
 import { createResource, createSignal, For, Show } from "solid-js";
 import { createPackage, getAllPackages, Package, updatePackage } from "~/lib/package";
 import { getAllProducts, Product } from "~/lib/product";
+import { search } from "~/stores/search";
 
 export default function Packages() {
   // Products states
@@ -10,11 +11,9 @@ export default function Packages() {
 
   // Packages states
   const [packages, { refetch: refetchPackages }] = createResource(async () => getAllPackages())
-  const [selectedPackage, setSelectedPackage] = createSignal<Package | null>();
+  const selectedPackage = search.selectedPackage;
+  const setSelectedPackage = search.setSelectedPackage;
   const [isEditingPackage, setIsEditingPackage] = createSignal();
-
-  //search
-  const [searchPackage, setSearchPackage] = createSignal("");
 
   const toggleEditPackage = () => {
     setIsEditingPackage(!isEditingPackage());

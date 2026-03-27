@@ -1,10 +1,9 @@
 import { A } from "@solidjs/router";
-import { createSignal, For, onMount, onCleanup, Show, createEffect } from "solid-js";
+import { createSignal, For, onMount, onCleanup } from "solid-js";
 import { useNavigate, useLocation } from "@solidjs/router";
 import UserProfile from "../user/UserProfile";
-import Input from "../input/Input";
 import SearchInput from "../search/SearchInput";
-import { searchStore } from "~/stores/search";
+import { search } from "~/stores/search";
 
 const menuItems = [
   { href: "/admin", label: "Dashboard" },
@@ -13,7 +12,7 @@ const menuItems = [
 ];
 
 export default function NavBarAdmin() {
-  const results = searchStore.results;
+  const results = search.results;
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = createSignal(false);
@@ -80,15 +79,18 @@ export default function NavBarAdmin() {
           <div class="w-[50%]">
             <SearchInput
               placeholder="Search..."
-              value={searchStore.query()}
-              onInput={(e) => searchStore.setQuery(e.currentTarget.value)}
+              value={search.query()}
+              onInput={(e) => search.setQuery(e.currentTarget.value)}
               open={results().length > 0}
             >
               <For each={results()}>
                 {(item) => (
                   <div
                     class="p-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => { navigate(`/admin/packages`) }} >
+                    onClick={() => {
+                      search.setSelectedPackage(item);
+                      navigate(`/admin/packages`)
+                    }} >
                     {item.description}
                   </div>
                 )}
