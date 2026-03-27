@@ -1,8 +1,10 @@
 import { A } from "@solidjs/router";
-import { createSignal, For, onMount, onCleanup, Show } from "solid-js";
+import { createSignal, For, onMount, onCleanup, Show, createEffect } from "solid-js";
 import { useNavigate, useLocation } from "@solidjs/router";
 import UserProfile from "../user/UserProfile";
 import Input from "../input/Input";
+import SearchInput from "../search/SearchInput";
+import { searchStore } from "~/stores/search";
 
 const menuItems = [
   { href: "/admin", label: "Dashboard" },
@@ -11,6 +13,7 @@ const menuItems = [
 ];
 
 export default function NavBarAdmin() {
+  const results = searchStore.results;
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = createSignal(false);
@@ -75,8 +78,22 @@ export default function NavBarAdmin() {
           </div>
 
           <div class="w-[50%]">
-            <Input placeholder="Search packages...">
-            </Input>
+            <SearchInput
+              placeholder="Search..."
+              value={searchStore.query()}
+              onInput={(e) => searchStore.setQuery(e.currentTarget.value)}
+              open={results().length > 0}
+            >
+              <For each={results()}>
+                {(item) => (
+                  <div
+                    class="p-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => { navigate(`/admin/packages`) }} >
+                    {item.description}
+                  </div>
+                )}
+              </For>
+            </SearchInput>
           </div>
 
           <UserProfile image="https://i.pinimg.com/736x/2b/ad/95/2bad9595e795660c86a71b5716469f35.jpg" />
