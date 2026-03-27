@@ -1,18 +1,20 @@
-import { createSignal, createMemo, createResource } from "solid-js";
-import { Package, getAllPackages } from "~/lib/package";
+import { createSignal, createMemo } from "solid-js";
+import { getAllPackages, type Package } from "~/lib/package";
 
 const [query, setQuery] = createSignal("");
-// Fetch packages globally
-const [packagesResource] = createResource<Package[]>(() => getAllPackages());
 const [selectedPackage, setSelectedPackage] = createSignal<Package | null>(null);
+const [packages, setPackages] = createSignal<Package[]>([]);
+
+// Fetch packages and store them
+const loadPackages = async () => {
+  const data = await getAllPackages();
+  setPackages(data);
+};
 
 const results = createMemo(() => {
   const q = query().toLowerCase();
-  const pkgs = packagesResource() ?? [];
   if (!q) return [];
-  return pkgs.filter(p =>
-    p.description.toLowerCase().includes(q)
-  );
+  return packages().filter(p => p.description.toLowerCase().includes(q));
 });
 
 export const search = {
@@ -21,4 +23,5 @@ export const search = {
   results,
   selectedPackage,
   setSelectedPackage,
+  loadPackages,
 };

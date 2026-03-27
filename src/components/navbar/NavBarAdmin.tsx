@@ -29,6 +29,7 @@ export default function NavBarAdmin() {
   };
 
   onMount(() => {
+    search.loadPackages();
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
