@@ -6,38 +6,15 @@ import RoomsCard from "~/components/cards/RoomsCard";
 import AmenitiesSection from "~/components/amenities/AmenitiesSection";
 import ImageGallery from "~/components/gallery/ImageGallery";
 import { clientOnly } from "@solidjs/start";
+import { formatPrice } from "~/utils/price";
+import { createResource, Show } from "solid-js";
+import { getProductsByCategoryName } from "~/lib/product";
 
 const MapGoogle = clientOnly(() => import("~/components/map/MapGoogle"));
 
-const rooms = [
-  {
-    id: 1,
-    title: "Superior Room",
-    price: "$$$ per night",
-    image: "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-  },
-  {
-    id: 2,
-    title: "Deluxe",
-    price: "$$$ per night",
-    image: "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-  },
-  {
-    id: 3,
-    title: "Standard",
-    price: "$$$ per night",
-    image: "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-  },
-  {
-    id: 4,
-    title: "Dormitory",
-    price: "$$$ per night",
-    image: "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-  },
-];
-
-
 export default function Home() {
+    const [rooms] = createResource(() => getProductsByCategoryName("Room"));
+  
   return (
     <>
       <Title>The Waterfront Beach Resort</Title>
@@ -46,27 +23,32 @@ export default function Home() {
       <FeatureSection
         title="Rooms & Suites"
         description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-        linkHref="#"
+        linkHref="rooms"
         linkLabel="View More Rooms"
       >
-        <RoomsCard
-          items={rooms}
-          defaultActive={0}
-          expandedFlex={4}
-          collapsedFlex={1.6} // slightly wider small cards
-          renderContent={(room, isActive) => (
-            <div class="absolute bottom-6 left-6 text-white">
-              <p class="text-sm opacity-80">{room.price}</p>
-              <h2
-                class={`font-serif transition-all duration-500
+
+        {/* Room Cards */}
+        <Show when={!rooms.loading}>
+          <RoomsCard
+            items={rooms()}
+            defaultActive={0}
+            expandedFlex={4}
+            collapsedFlex={1.6} // slightly wider small cards
+            renderContent={(room, isActive) => (
+              <div class="absolute bottom-6 left-6 text-white">
+                <p class="text-sm opacity-80">{formatPrice(room.price)}</p>
+                <h2
+                  class={`font-serif transition-all duration-500
                 ${isActive ? "text-3xl" : "text-xl opacity-70"}
               `}
-              >
-                {room.title}
-              </h2>
-            </div>
-          )}
-        />
+                >
+                  {room.name}
+                </h2>
+              </div>
+            )}
+          />
+        </Show>
+
       </FeatureSection>
       <FeatureSection
         title="Relax and Dine"

@@ -99,5 +99,5 @@ ALTER TABLE "PackageItem" ADD CONSTRAINT "PackageItem_packageId_fkey" FOREIGN KE
 -- AddForeignKey
 ALTER TABLE "PackageItem" ADD CONSTRAINT "PackageItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- Ensure package item is non-negative 
-ALTER TABLE "Package Item" ADD CONSTRAINT product_quantity_check CHECK ("quantity" >= 0);
+-- Ensure package item quantity is non-negative 
+ALTER TABLE "PackageItem" ADD CONSTRAINT "package_quantity_check" CHECK ("quantity" >= 0);
