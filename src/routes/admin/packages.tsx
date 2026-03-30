@@ -1,19 +1,33 @@
 import { Title } from "@solidjs/meta";
 import ProposalDetails from "~/components/admin/ProposalDetails";
-import { createResource, createSignal, For, Show } from "solid-js";
+import { createResource, createSignal, For, Show, createEffect } from "solid-js";
 import { createPackage, getAllPackages, Package, updatePackage } from "~/lib/package";
 import { getAllProducts, Product } from "~/lib/product";
-import { search } from "~/stores/search";
+import { useSearchParams } from "@solidjs/router";
 
 export default function Packages() {
+  const [searchParams] = useSearchParams();
+
   // Products states
   const [allProducts] = createResource<Product[]>(() => getAllProducts());
 
   // Packages states
   const [packages, { refetch: refetchPackages }] = createResource(async () => getAllPackages())
-  const selectedPackage = search.selectedPackage;
-  const setSelectedPackage = search.setSelectedPackage;
+  const [selectedPackage, setSelectedPackage] = createSignal<Package | null>(null);
   const [isEditingPackage, setIsEditingPackage] = createSignal();
+
+  // Auto-select package from URL param
+  createEffect(() => {
+    const id = searchParams.id;
+    const pkgs = packages();
+    if (!id || !pkgs) return;
+
+    const pkg = pkgs.find(p => p.id === Number(id));
+    if (pkg) {
+      setSelectedPackage(pkg);
+      setIsEditingPackage(false);
+    }
+  });
 
   const toggleEditPackage = () => {
     setIsEditingPackage(!isEditingPackage());
@@ -49,7 +63,7 @@ export default function Packages() {
         });
       }
 
-      setSelectedPackage(undefined);
+      setSelectedPackage(null);
       refetchPackages();
     } catch (err) {
       console.error(err);
@@ -122,26 +136,19 @@ export default function Packages() {
                           onChange={(e) => {
                             const productId = Number(e.currentTarget.value);
                             const product = allProducts()?.find(p => p.id === productId);
-
-                            const updated = [...selectedPackage().packageItems];
+                            const updated = [...selectedPackage()!.packageItems];
                             updated[index()] = {
                               ...updated[index()],
                               productId,
                               price: Number(product?.price ?? 0),
                             };
-
-                            setSelectedPackage({
-                              ...selectedPackage(),
-                              packageItems: updated,
-                            } as Package);
+                            setSelectedPackage({ ...selectedPackage()!, packageItems: updated } as Package);
                           }}
                         >
                           <option value="">Select product</option>
                           <For each={allProducts()}>
                             {(p) => (
-                              <option value={p.id}>
-                                {p.name} (₱{p.price})
-                              </option>
+                              <option value={p.id}>{p.name} (₱{p.price})</option>
                             )}
                           </For>
                         </select>
@@ -152,13 +159,9 @@ export default function Packages() {
                           class="border p-1 rounded w-20 text-center"
                           value={item.quantity}
                           onInput={(e) => {
-                            const updated = [...selectedPackage().packageItems];
+                            const updated = [...selectedPackage()!.packageItems];
                             updated[index()].quantity = Number(e.currentTarget.value);
-
-                            setSelectedPackage({
-                              ...selectedPackage(),
-                              packageItems: updated,
-                            } as Package);
+                            setSelectedPackage({ ...selectedPackage()!, packageItems: updated } as Package);
                           }}
                         />
 
@@ -166,14 +169,8 @@ export default function Packages() {
                         <button
                           class="text-red-500 w-8"
                           onClick={() => {
-                            const updated = selectedPackage().packageItems.filter(
-                              (_, i) => i !== index()
-                            );
-
-                            setSelectedPackage({
-                              ...selectedPackage(),
-                              packageItems: updated,
-                            } as Package);
+                            const updated = selectedPackage()!.packageItems.filter((_, i) => i !== index());
+                            setSelectedPackage({ ...selectedPackage()!, packageItems: updated } as Package);
                           }}
                         >
                           ✕
@@ -187,14 +184,10 @@ export default function Packages() {
                     class="mt-2 bg-green-500 text-white px-3 py-1 rounded w-fit"
                     onClick={() => {
                       setSelectedPackage({
-                        ...selectedPackage(),
+                        ...selectedPackage()!,
                         packageItems: [
                           ...(selectedPackage()?.packageItems || []),
-                          {
-                            productId: 0,
-                            quantity: 1,
-                            price: 0,
-                          },
+                          { productId: 0, quantity: 1, price: 0 },
                         ],
                       } as Package);
                     }}
@@ -215,7 +208,7 @@ export default function Packages() {
                     onInput={(e) => {
                       const value = e.currentTarget.value;
                       setSelectedPackage({
-                        ...selectedPackage(),
+                        ...selectedPackage()!,
                         overridePrice: value === "" ? 0 : parseFloat(value),
                       } as Package);
                     }}
@@ -231,7 +224,7 @@ export default function Packages() {
                   </button>
                   <button
                     class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 flex-1"
-                    onClick={() => setSelectedPackage(undefined)}
+                    onClick={() => setSelectedPackage(null)}
                   >
                     Cancel
                   </button>
@@ -241,17 +234,13 @@ export default function Packages() {
           </Show>
         </Show>
 
-        {/* Packages List */}
         <For each={packages()}>
           {(p) => {
-            const status = p.approvedBy ? "Approved" : p.reviewedBy ? "Reviewed" : "Needs review"
-
+            const status = p.approvedBy ? "Approved" : p.reviewedBy ? "Reviewed" : "Needs review";
             return (
-              <div
-                class={`p-2 border-b border-gray-200 ${selectedPackage()?.id === p.id ? "cursor-default" : "cursor-pointer"} hover:bg-gray-100 grid grid-cols-2`}
-              >
+              <div class={`p-2 border-b border-gray-200 ${selectedPackage()?.id === p.id ? "cursor-default" : "cursor-pointer"} hover:bg-gray-100 grid grid-cols-2`}>
                 <div onClick={() => {
-                  setSelectedPackage(p)
+                  setSelectedPackage(p);
                   setIsEditingPackage(false);
                 }}>
                   <div class="font-medium">{p.id} {p.createdBy.fullName}</div>
@@ -259,16 +248,18 @@ export default function Packages() {
                   <div class="text-sm text-gray-600">Status: {status}</div>
                 </div>
                 <div>
-                  <div class="self-center justify-self-end cursor-pointer"
+                  <div
+                    class="self-center justify-self-end cursor-pointer"
                     onClick={() => {
                       setSelectedPackage(p);
                       setIsEditingPackage(true);
-                    }}>
+                    }}
+                  >
                     Edit
                   </div>
                 </div>
               </div>
-            )
+            );
           }}
         </For>
       </Show>

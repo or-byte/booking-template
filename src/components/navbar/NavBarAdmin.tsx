@@ -1,9 +1,10 @@
 import { A } from "@solidjs/router";
-import { createSignal, For, onMount, onCleanup } from "solid-js";
+import { createSignal, For, onMount, onCleanup, createResource } from "solid-js";
 import { useNavigate, useLocation } from "@solidjs/router";
 import UserProfile from "../user/UserProfile";
 import SearchInput from "../search/SearchInput";
-import { search } from "~/stores/search";
+import { getAllPackages } from "~/lib/package";
+import { Package } from "@prisma/client";
 
 const menuItems = [
   { href: "/admin", label: "Dashboard" },
@@ -12,15 +13,17 @@ const menuItems = [
 ];
 
 export default function NavBarAdmin() {
-  const results = search.results;
+  const [search, setSearch] = createSignal("");
+  const [packages] = createResource(search, (s) => getAllPackages(s));
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = createSignal(false);
   const [scrolled, setScrolled] = createSignal(false);
 
-  const navigateToPackages = (item) => {
-    search.setSelectedPackage(item);
-    navigate(`/admin/packages`)
+  const navigateToPackages = (item: Package) => {
+    console.log("nav");
+    
+    navigate(`/admin/packages?id=${item.id}`)
   }
 
   const goTo = (path: string) => {
@@ -33,13 +36,14 @@ export default function NavBarAdmin() {
   };
 
   onMount(() => {
-    search.loadPackages();
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
 
     window.addEventListener("scroll", handleScroll);
     onCleanup(() => window.removeEventListener("scroll", handleScroll));
+
+
   });
 
   return (
@@ -84,14 +88,15 @@ export default function NavBarAdmin() {
           <div class="w-[50%]">
             <SearchInput
               placeholder="Search..."
-              value={search.query()}
-              onInput={(e) => search.setQuery(e.currentTarget.value)}
-              open={results().length > 0}
+              value={search()}
+              onInput={(e) => setSearch(e.currentTarget.value)}
+              open={packages()?.length ?? 0}
             >
-              <For each={results()}>
+              <For each={packages()}>
                 {(item) => (
                   <div
-                    class="p-2 hover:bg-gray-100 cursor-pointer"
+                    class="p-2 hover:bg-gray-100 cursor-pointer w-full"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => navigateToPackages(item)} >
                     {item.description}
                   </div>
@@ -99,7 +104,7 @@ export default function NavBarAdmin() {
               </For>
             </SearchInput>
           </div>
-          
+
           {/* UserProfile — clicking opens mobile menu on mobile only */}
           <div
             class="md:hidden cursor-pointer"

@@ -48,10 +48,16 @@ export type UpdatePackageFormData = {
   overridePrice?: number
 }
 
-export const getAllPackages = async (): Promise<Package[]> => {
+export const getAllPackages = async (search?: string): Promise<Package[]> => {
   "use server"
 
   const results = await prisma.package.findMany({
+    where: search ? {
+      description: {
+        contains: search,
+        mode: "insensitive",
+      },
+    } : undefined,
     include: {
       packageItems: {
         include: { product: true },
