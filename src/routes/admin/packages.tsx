@@ -4,6 +4,7 @@ import { createResource, createSignal, For, Show, createEffect } from "solid-js"
 import { createPackage, getAllPackages, Package, updatePackage } from "~/lib/package";
 import { getAllProducts, Product } from "~/lib/product";
 import { useSearchParams } from "@solidjs/router";
+import PackageCard from "~/components/cards/PackageCard";
 
 export default function Packages() {
   const [searchParams] = useSearchParams();
@@ -15,6 +16,15 @@ export default function Packages() {
   const [packages, { refetch: refetchPackages }] = createResource(async () => getAllPackages())
   const [selectedPackage, setSelectedPackage] = createSignal<Package | null>(null);
   const [isEditingPackage, setIsEditingPackage] = createSignal();
+
+  //Status for package
+  type PackageStatus = "Created" | "Approved" | "Archived" | "Pending";
+  const statusStyles: Record<PackageStatus, string> = {
+    Created: "bg-gray-100 text-gray-600",
+    Approved: "bg-green-100 text-green-700",
+    Archived: "bg-yellow-100 text-yellow-700",
+    Pending: "bg-blue-100 text-blue-700",
+  };
 
   // Auto-select package from URL param
   createEffect(() => {
@@ -88,6 +98,16 @@ export default function Packages() {
           </button>
         </div>
       </div>
+      <PackageCard name="Package">
+        <div class="flex items-center gap-2">
+          <p>Status: </p>
+          <span
+            class={`rounded-full px-3 py-0.5 text-sm font-medium ${statusStyles["Archived"]}`}
+          >
+            {"Archived"}
+          </span>
+        </div>
+      </PackageCard>
       <Show when={!packages.loading}>
         {/* Package Description */}
         <Show when={selectedPackage() !== undefined}>
