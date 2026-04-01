@@ -8,12 +8,12 @@ interface PackageCardProps {
   children?: JSX.Element;
   onEdit?: () => void;
   onDelete?: () => void;
-  onViewDetails?: () => void;
+  onClick?: () => void;
 }
 
 export default function PackageCard(props: PackageCardProps) {
   return (
-    <div class="flex items-start justify-between bg-white px-6 py-5">
+    <div class="flex items-start justify-between px-6 py-5 hover:cursor-pointer" onClick={props.onClick}>
       {/* Left content */}
       <div class="flex flex-col gap-2">
         <p class="subheader-1 text-left">{props.name}</p>
@@ -21,14 +21,6 @@ export default function PackageCard(props: PackageCardProps) {
         <div class="flex items-center gap-2 text-sm text-gray-500">
           {props.children}
         </div>
-
-        <button
-          onClick={props.onViewDetails}
-          class="flex w-fit items-center gap-1 text-sm font-medium text-sky-500 hover:text-sky-600 transition-colors"
-        >
-          View More Details
-          <MdFillArrow_forward/>
-        </button>
       </div>
 
       {/* Right actions */}
@@ -36,10 +28,10 @@ export default function PackageCard(props: PackageCardProps) {
         {/* Edit */}
         <button
           onClick={props.onEdit}
-          class="hover:text-[var(--color-c)] transition-colors"
+          class="hover:text-[var(--color-accent-1)] transition-colors"
           aria-label="Edit"
         >
-          <MdFillEdit />
+          <MdFillEdit size={20}/>
         </button>
 
         {/* Delete */}
@@ -48,7 +40,7 @@ export default function PackageCard(props: PackageCardProps) {
           class="hover:text-red-500 transition-colors"
           aria-label="Delete"
         >
-          <MdFillDelete />
+          <MdFillDelete size={20}/>
         </button>
       </div>
     </div>
