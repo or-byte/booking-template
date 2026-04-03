@@ -84,6 +84,21 @@ export default function Packages() {
     }
   };
 
+  const onSelectProduct = (e, index: any) => {
+    const productId = Number(e.currentTarget.value);
+    const product = allProducts()?.find(p => p.id === productId);
+    const updated = [...selectedPackage()!.packageItems];
+
+    console.log(product);
+
+    updated[index] = {
+      ...updated[index],
+      productId,
+      price: Number(product?.price ?? 0),
+    };
+    setSelectedPackage({ ...selectedPackage()!, packageItems: updated } as Package);
+  }
+
   return (
     <main class="py-8">
       <Title>Packages</Title>
@@ -103,7 +118,7 @@ export default function Packages() {
           </Button>
         </div>
       </div>
-      <div class="flex gap-3">
+      <div class="flex gap-3 items-start">
         <Show when={!packages.loading}>
           <div class="border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)] w-full">
             <For each={packages()}>
@@ -136,6 +151,10 @@ export default function Packages() {
                     onEdit={() => {
                       setSelectedPackage(p);
                       setIsEditingPackage(true)
+                    }}
+                    onClick={() => {
+                      setSelectedPackage(p)
+                      setIsEditingPackage(false);
                     }}
                   >
                     <div class="flex items-center gap-2">
@@ -196,8 +215,8 @@ export default function Packages() {
                         <div class="flex gap-2 items-center mb-2">
 
                           {/* Select Product */}
-                          {/* <select
-                            class="border p-1 rounded flex-1"
+                          <select
+                            class="border border-slate-200 p-3 rounded-[10px] w-full appearance-none hover:cursor-pointer"
                             value={item.productId}
                             onChange={(e) => {
                               const productId = Number(e.currentTarget.value);
@@ -217,35 +236,9 @@ export default function Packages() {
                                 <option value={p.id}>{p.name} (₱{p.price})</option>
                               )}
                             </For>
-                          </select> */}
-                          <div class="w-full">
-                            <SearchInput
-                              placeholder={"Select Product"}
-                              open={allProducts()?.length ?? 0}
-                            >
-                              <For each={allProducts()}>
-                                {(p) => (
-                                  <div
-                                    class="p-2 hover:bg-gray-100 cursor-pointer w-full text-left"
-                                    onMouseDown={(e) => e.preventDefault()} >
-                                    {p.name} (₱{p.price})
-                                  </div>
-                                )}
-                              </For>
-                            </SearchInput>
-                          </div>
+                          </select>
 
                           {/* Quantity */}
-                          {/* <input
-                            type="number"
-                            class="border p-1 rounded w-20 text-center"
-                            value={item.quantity}
-                            onInput={(e) => {
-                              const updated = [...selectedPackage()!.packageItems];
-                              updated[index()].quantity = Number(e.currentTarget.value);
-                              setSelectedPackage({ ...selectedPackage()!, packageItems: updated } as Package);
-                            }}
-                          /> */}
                           <div>
                             <Input
                               type="number"
@@ -260,7 +253,7 @@ export default function Packages() {
 
                           {/* Remove */}
                           <Button
-                            class="text-red-500 w-8"
+                            class="text-red-500 w-8 hover:cursor-pointer"
                             onClick={() => {
                               const updated = selectedPackage()!.packageItems.filter((_, i) => i !== index());
                               setSelectedPackage({ ...selectedPackage()!, packageItems: updated } as Package);
