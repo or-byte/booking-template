@@ -8,15 +8,66 @@ datasource db {
 }
 
 model User {
-  id               Int       @id @default(autoincrement())
-  fullName         String
-  email            String    @unique
-  role             Role
-  createdAt        DateTime  @default(now())
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  role          Role     @default(CUSTOMER)
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
   createdPackages  Package[] @relation("PackageCreatedBy")
   reviewedPackages Package[] @relation("PackageReviewedBy")
   approvedPackages Package[] @relation("PackageApprovedBy")
   updatedPackaged  Package[] @relation("PackageUpdatedBy")
+  sessions         Session[]
+  accounts         Account[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
 }
 
 model Category {
@@ -44,17 +95,17 @@ model Product {
 model Package {
   id Int @id @default(autoincrement())
 
-  createdById Int
-  createdBy   User @relation(name: "PackageCreatedBy", fields: [createdById], references: [id])
+  createdById String
+  createdBy   User   @relation(name: "PackageCreatedBy", fields: [createdById], references: [id])
 
-  reviewedById Int?
-  reviewedBy   User? @relation(name: "PackageReviewedBy", fields: [reviewedById], references: [id])
+  reviewedById String?
+  reviewedBy   User?   @relation(name: "PackageReviewedBy", fields: [reviewedById], references: [id])
 
-  approvedById Int?
-  approvedBy   User? @relation(name: "PackageApprovedBy", fields: [approvedById], references: [id])
+  approvedById String?
+  approvedBy   User?   @relation(name: "PackageApprovedBy", fields: [approvedById], references: [id])
 
-  updatedById Int?
-  updatedBy   User? @relation(name: "PackageUpdatedBy", fields: [updatedById], references: [id])
+  updatedById String?
+  updatedBy   User?   @relation(name: "PackageUpdatedBy", fields: [updatedById], references: [id])
 
   description   String
   overridePrice Decimal? @db.Decimal(10, 2)
