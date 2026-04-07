@@ -1,7 +1,7 @@
 import type { JSX } from "solid-js";
 
 type InputProps = {
-  label: string;
+  label?: string;
   class?: string;
 } & JSX.InputHTMLAttributes<HTMLInputElement>;
 

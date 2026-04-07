@@ -1,8 +1,9 @@
 import { MetaProvider, Title } from "@solidjs/meta";
 import { Router, useLocation } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { Suspense } from "solid-js";
+import { Suspense, Show } from "solid-js";
 import NavBar from "~/components/navbar/NavBar";
+import NavBarAdmin from "~/components/navbar/NavBarAdmin";
 import Footer from "./components/footer/FooterSection";
 import "./app.css";
 
@@ -14,9 +15,13 @@ function Layout(props: { children: any }) {
   return (
     <MetaProvider>
       <Title>The Waterfront Beach Resort</Title>
-      {!hideLayout && <NavBar />}
+      <Show when={hideLayout} fallback={<NavBar />}>
+        <NavBarAdmin />
+      </Show>
       <Suspense>{props.children}</Suspense>
-      {!hideLayout && <Footer />}
+      <Show when={!hideLayout}>
+        <Footer />
+      </Show>
     </MetaProvider>
   );
 }
