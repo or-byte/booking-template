@@ -115,7 +115,7 @@ export default function Packages() {
           </Button>
         </div>
       </div>
-      <div class="flex gap-3 items-start">
+      <div class="flex flex-col sm:flex-row gap-3 items-start">
         <Show when={!packages.loading}>
           <div class="border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)] w-full">
             <For each={packages()}>
