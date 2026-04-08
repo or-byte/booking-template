@@ -58,14 +58,43 @@ async function main() {
     }
   });
 
-  const dormitory = await prisma.product.create({
+  const loft = await prisma.product.create({
     data: {
-      name: "Dormitory",
-      description: "Our Dormitory Room accommodates up to 12 people with 2 bathrooms and 2 walk-in showers rooms.",
-      price: 12000.00,
+      name: "Loft",
+      description: "Our Dormitory Room accommodates up to 20 people with 2 bathrooms and 2 walk-in showers rooms.",
+      price: 11200.00,
       categoryId: room.id
     }
   });
+
+
+  const dormOld = await prisma.product.create({
+    data: {
+      name: "Dormitory Old",
+      description: "Our Dormitory Room accommodates up to 20 people with 2 bathrooms and 2 walk-in showers rooms.",
+      price: 17200.00,
+      categoryId: room.id
+    }
+  });
+
+  const dormNew = await prisma.product.create({
+    data: {
+      name: "Dormitory New",
+      description: "Our Dormitory Room accommodates up to 20 people with 2 bathrooms and 2 walk-in showers rooms.",
+      price: 21100.00,
+      categoryId: room.id
+    }
+  });
+
+  const excessPerson = await prisma.product.create({
+    data: {
+      name: "Excess Person",
+      description: "Extra person",
+      price: 1000.00,
+      categoryId: room.id
+    }
+  })
+
 
   await prisma.room.createMany({
     data: [
@@ -101,13 +130,13 @@ async function main() {
       },
       {
         name: "DORMITORY 1",
-        productId: deluxe.id,
-        capacity: 12
+        productId: dormOld.id,
+        capacity: 20
       },
       {
         name: "DORMITORY 2",
-        productId: deluxe.id,
-        capacity: 12
+        productId: dormOld.id,
+        capacity: 20
       },
     ]
   })
