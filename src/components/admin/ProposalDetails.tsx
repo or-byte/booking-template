@@ -6,6 +6,7 @@ export type ProposalDetailsProps = {
   package: Package | null
   onUpdate?: () => void
   onEdit?: () => void
+  onCancel?: () => void
 }
 
 export default function ProposalDetails(props: ProposalDetailsProps) {
@@ -21,13 +22,13 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
   };
 
   // All about them prices
-  const calculatedPrice = props.package ? calculatePrice(props.package) : 0;
-  const overridePrice = props.package?.overridePrice ?? 0;
-  const totalPrice = overridePrice > 0 ? overridePrice : calculatedPrice;
+  const calculatedPrice = () => props.package ? calculatePrice(props.package) : 0;
+  const overridePrice = () => props.package?.overridePrice ?? 0;
+  const totalPrice = () => overridePrice() > 0 ? overridePrice() : calculatedPrice();
 
   // Difference only if overridePrice is set
-  const priceDiff = overridePrice > 0 ? overridePrice - calculatedPrice : 0;
-  const diffColor = priceDiff > 0 ? "text-red-600" : priceDiff < 0 ? "text-green-600" : "text-gray-600";
+  const priceDiff = () => overridePrice() > 0 ? overridePrice() - calculatedPrice() : 0;
+  const diffColor = () => priceDiff() > 0 ? "text-red-600" : priceDiff() < 0 ? "text-green-600" : "text-gray-600";
 
   const handleReview = async () => {
     submitUpdate({
@@ -63,7 +64,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
         </div>
 
         <div class="flex justify-between border-b py-1 border-[var(--color-border-1)]" />
-        <div class="space-y-2 mb-3">
+        <div class="space-y-2 my-3">
           <For each={props.package?.packageItems}>
             {(p) => (
               <div class="flex justify-between text-gray-700">
@@ -79,16 +80,16 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
             <div class="flex justify-between text-gray-600">
               <p class="body-2">Calculated Price:</p>
               <p class="body-2">
-                {calculatedPrice.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
+                {calculatedPrice().toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
               </p>
             </div>
 
             {/* Show override/package price if set */}
-            <Show when={overridePrice > 0}>
+            <Show when={overridePrice() > 0}>
               <div class="flex justify-between text-gray-600">
                 <p class="body-2">Package Price:</p>
                 <p class="body-2 font-bold">
-                  {overridePrice.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
+                  {overridePrice().toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
                 </p>
               </div>
 
@@ -96,8 +97,8 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
               <div class={`flex justify-between font-semibold ${diffColor}`}>
                 <p class="body-2">Difference:</p>
                 <p class="body-2 font-bold">
-                  {Math.abs(priceDiff).toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
-                  {priceDiff > 0 ? " ↑" : priceDiff < 0 ? " ↓" : ""}
+                  {Math.abs(priceDiff()).toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
+                  {priceDiff() > 0 ? " ↑" : priceDiff() < 0 ? " ↓" : ""}
                 </p>
               </div>
             </Show>
@@ -106,7 +107,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
             <div class="flex justify-between font-bold text-gray-800">
               <p class="body-1 font-bold">Total:</p>
               <p class="body-1 font-bold">
-                {totalPrice.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
+                {totalPrice().toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
               </p>
             </div>
           </div>
@@ -128,14 +129,14 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
 
         {/* REVIEWED => Show Approve / Deny */}
         <Show when={props.package?.status === PackageStatus.REVIEWED}>
-          <div class="flex gap-2 flex-1">
+          <div class="flex gap-2 flex-col">
             <Button
-              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
+              class="btn"
               onClick={handleApprove}
             >
               Approve
             </Button>
-            <Button class="bg-blue-300 text-white px-4 py-2 rounded hover:bg-blue-400 flex-1 text-center">
+            <Button class="py-2 px-6 bg-[#D6D6D6] rounded-[10px] hover:cursor-pointer hover:bg-[#E3E3E3]" onClick={props.onCancel}>
               Deny
             </Button>
           </div>
