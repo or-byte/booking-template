@@ -1,6 +1,7 @@
 import { createSignal, For, Match, Show, Switch } from "solid-js";
 import { PackageStatus, Package, updatePackage, UpdatePackageFormData, calculatePrice } from "~/lib/package";
 import Button from "../button/Button";
+import { useSession } from "~/lib/auth";
 
 export type ProposalDetailsProps = {
   package: Package | null
@@ -10,6 +11,8 @@ export type ProposalDetailsProps = {
 }
 
 export default function ProposalDetails(props: ProposalDetailsProps) {
+  const session = useSession();
+
   const submitUpdate = async (form: UpdatePackageFormData) => {
     if (!props.package) return;
 
@@ -31,14 +34,26 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
   const diffColor = () => priceDiff() > 0 ? "text-red-600" : priceDiff() < 0 ? "text-green-600" : "text-gray-600";
 
   const handleReview = async () => {
+    const userId = session().data?.user.id;
+
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+
     submitUpdate({
-      reviewedById: 1, //TODO session user
+      reviewedById: userId
     });
   }
 
   const handleApprove = async () => {
+    const userId = session().data?.user.id;
+
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+
     submitUpdate({
-      approvedById: 1 //TODO session user
+      approvedById: userId
     })
   }
 
@@ -47,8 +62,25 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
       <div class="p-4 border border-[var(--color-border-1)] rounded-[10px] bg-white shadow w-full sm:max-w-md text-left">
         <div class="flex flex-col gap-2">
           <p class="subtitle-1 font-bold">
-            Package #{props.package?.id} - {props.package?.createdBy.fullName}
+            Package #{props.package?.id} - {props.package?.companyName}
           </p>
+
+          <div class="space-y-2 my-3">
+            <p class="body-3 text-[#666666]">
+              Contact Number: <span class="font-medium">{props.package?.contactNumber ?? "N/A"}</span>
+            </p>
+            <p class="body-3 text-[#666666]">
+              Contact Email: <span class="font-medium">{props.package?.contactEmail ?? "N/A"}</span>
+            </p>
+            <p class="body-3 text-[#666666]">
+              Event Date : <span class="font-medium">{props.package?.eventDate.toDateString() ?? "N/A"}</span>
+            </p>
+            <p class="body-3 text-[#666666]">
+              Number of Guests: <span class="font-medium">{props.package?.numberOfGuests ?? "N/A"}</span>
+            </p>
+          </div>
+
+          <div class="flex justify-between border-b py-1 border-[var(--color-border-1)]" />
           <p class="body-3 text-[#666666]">
             Status: {props.package?.status === "APPROVED" ?
               (<span class="text-green-600 font-bold">APPROVED!</span>) :
@@ -56,10 +88,13 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
             }
           </p>
           <p class="body-3 text-[#666666]">
-            Reviewed by: <span class="font-medium">{props.package?.reviewedBy?.fullName ?? "not yet reviewed"}</span>
+            Created by: <span class="font-medium">{props.package?.createdBy?.name ?? "Unknown"}</span>
           </p>
           <p class="body-3 text-[#666666]">
-            Approved by: <span class="font-medium">{props.package?.approvedBy?.fullName ?? "not yet approved"}</span>
+            Reviewed by: <span class="font-medium">{props.package?.reviewedBy?.name ?? "not yet reviewed"}</span>
+          </p>
+          <p class="body-3 text-[#666666]">
+            Approved by: <span class="font-medium">{props.package?.approvedBy?.name ?? "not yet approved"}</span>
           </p>
         </div>
 

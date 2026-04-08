@@ -55,6 +55,7 @@ export default function PackageForm(props: Props) {
         <label class="text-left">
           <p class="body-2 font-bold pb-2">Company Name:</p>
           <Input
+            value={pkg().companyName ?? ""}
             onInput={(e) => setField({ companyName: e.currentTarget.value })}
           />
         </label>
@@ -63,6 +64,7 @@ export default function PackageForm(props: Props) {
         <label class="text-left">
           <p class="body-2 font-bold pb-2">Contact Number:</p>
           <Input
+            value={pkg().contactNumber ?? ""}
             onInput={(e) => setField({ contactNumber: e.currentTarget.value })}
           />
         </label>
@@ -71,6 +73,7 @@ export default function PackageForm(props: Props) {
         <label class="text-left">
           <p class="body-2 font-bold pb-2">Contact Email:</p>
           <Input
+            value={pkg().contactEmail ?? ""}
             onInput={(e) => setField({ contactEmail: e.currentTarget.value })}
           />
         </label>
@@ -81,6 +84,7 @@ export default function PackageForm(props: Props) {
           <p class="body-2 font-bold pb-2">Number of Guests:</p>
           <Input
             type="number"
+            value={pkg().number ?? ""}
             onInput={(e) => setField({ numberOfGuests: Number(e.currentTarget.value) })}
           />
         </label>
