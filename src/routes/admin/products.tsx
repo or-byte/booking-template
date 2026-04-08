@@ -2,6 +2,9 @@ import { Title } from "@solidjs/meta";
 import { createEffect, createResource, createSignal, For, Show } from "solid-js";
 import { Category, createNewCategory, getCategories } from "~/lib/category";
 import { createNewProduct, deleteProduct, EditableProduct, getAllProducts, Product, updateProduct } from "~/lib/product";
+import Button from "~/components/button/Button";
+import PackageCard from "~/components/cards/PackageCard";
+import ProductForm from "~/components/forms/ProductForm";
 
 export default function Products() {
   // Categories states
@@ -106,40 +109,35 @@ export default function Products() {
   return (
     <main class="py-8">
       <Title>Products</Title>
-
-      <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <p class="title text-left my-5">Products</p>
+      <div class="mb-4 flex flex-col gap-2">
         <div class="flex gap-2">
-          <button
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          <Button
+            class="btn"
             onClick={[setCategoryModalOpen, true]}
           >
             + New Category
-          </button>
+          </Button>
 
-          <button
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          <Button
+            class="btn"
             onClick={[setSelectedProduct, createNewProductTemplate]}
           >
             + New Product
-          </button>
+          </Button>
         </div>
 
         {/* Category Filter */}
-        <div class="flex items-center gap-2">
-          <label class="font-semibold">Filter by category:</label>
-          <select
-            class="border p-1 rounded"
-            value={selectedCategoryId()}
-            onChange={(e) => {
-              setSelectedCategoryId(e.currentTarget.value);
-              setSelectedProduct(undefined);
-            }}
-          >
-            <option value="All">All</option>
+        <div class="flex flex-col gap-5 my-5">
+          <p class="subheader-1 text-left">Categories</p>
+          <div class="flex gap-2">
             <For each={allCategories()}>
-              {(cat) => <option value={cat.id}>{cat.name}</option>}
+              {(cat) =>
+                <Button class="btn-outline">
+                  {cat.name}
+                </Button>}
             </For>
-          </select>
+          </div>
         </div>
       </div>
 
@@ -148,126 +146,43 @@ export default function Products() {
         <div>Loading products...</div>
       </Show>
 
-      <Show when={!allProducts.loading && visibleProducts()}>
-        <For each={visibleProducts()}>
-          {(p) => (
-            <div
-              class="p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100"
-              onClick={[setSelectedProduct, p]}
-            >
-              <div class="font-medium">{p.name}</div>
-              <div class="text-sm text-gray-600">SKU: {p.sku}</div>
-            </div>
-          )}
-        </For>
-      </Show>
-
-      {/* Product Editor */}
-      <Show when={selectedProduct()}>
-        {(product) => (
-          <div class="mt-6 p-4 border rounded bg-white shadow w-full sm:max-w-md">
-            <h2 class="text-lg font-semibold mb-2">
-              {product().id ? "Edit Product" : "New Product"}: {product().name || "(unnamed)"}
-            </h2>
-            <div class="flex flex-col gap-3">
-              <label>
-                Name:
-                <input
-                  type="text"
-                  class="border p-1 rounded w-full"
-                  value={product().name}
-                  onInput={(e) =>
-                    setSelectedProduct({ ...selectedProduct(), name: e.currentTarget.value })
-                  }
-                />
-              </label>
-              <label>
-                SKU:
-                <input
-                  type="text"
-                  class="border p-1 rounded w-full"
-                  value={selectedProduct().sku}
-                  onInput={(e) =>
-                    setSelectedProduct({ ...selectedProduct(), sku: e.currentTarget.value })
-                  }
-                />
-              </label>
-              <label>
-                Price:
-                <input
-                  type="number"
-                  step="0.01"
-                  class="border p-1 rounded w-full"
-                  value={selectedProduct().price}
-                  onInput={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct(),
-                      price: parseFloat(e.currentTarget.value),
-                    })
-                  }
-                />
-              </label>
-              <label>
-                Description:
-                <textarea
-                  class="border p-1 rounded w-full"
-                  value={selectedProduct().description}
-                  onInput={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct(),
-                      description: e.currentTarget.value,
-                    })
-                  }
-                />
-              </label>
-              <label>
-                Category:
-                <select
-                  class="border p-1 rounded w-full"
-                  value={selectedProduct().categoryId}
-                  onChange={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct(),
-                      categoryId: Number(e.currentTarget.value),
-                    })
-                  }
-                >
-                  <option value="" disabled>
-                    Select category
-                  </option>
-                  <For each={allCategories()}>
-                    {(cat) => <option value={cat.id}>{cat.name}</option>}
-                  </For>
-                </select>
-              </label>
-
-              <div class="flex flex-col sm:flex-row gap-2 mt-2">
-                <button
-                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1"
-                  onClick={handleSaveProduct}
-                >
-                  Save Product
-                </button>
-                <button
-                  class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 flex-1"
-                  onClick={() => setSelectedProduct(undefined)}
-                >
-                  Cancel
-                </button>
-                {selectedProduct()?.id && (
-                  <button
-                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex-1"
-                    onClick={handleDeleteProduct}
-                  >
-                    Delete Product
-                  </button>
-                )}
-              </div>
-            </div>
+      <div class="flex gap-3 items-start">
+        <Show when={!allProducts.loading && visibleProducts()}>
+          <div class="border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)] w-full">
+            <For each={visibleProducts()}>
+              {(p) => (
+                // <div
+                //   class="p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100"
+                //   onClick={[setSelectedProduct, p]}
+                // >
+                //   <div class="font-medium">{p.name}</div>
+                //   <div class="text-sm text-gray-600">SKU: {p.sku}</div>
+                // </div>
+                <PackageCard
+                  name={p.name}
+                  onClick={[setSelectedProduct, p]}>
+                  <div class="flex items-center gap-2">
+                    <p>Description: </p>
+                    <p>{p.description}</p>
+                  </div>
+                </PackageCard>
+              )}
+            </For>
           </div>
-        )
-        }
-      </Show>
+        </Show>
+
+        {/* Product Editor */}
+        <Show when={selectedProduct()}>
+          <ProductForm
+            product={selectedProduct()!}
+            allCategories={allCategories()}
+            onSave={handleSaveProduct}
+            onCancel={() => setSelectedProduct(undefined)}
+            onDelete={selectedProduct()?.id ? handleDeleteProduct : undefined}
+            onProductChange={setSelectedProduct}
+          />
+        </Show>
+      </div>
 
       {/* Category Modal */}
       <Show when={categoryModalOpen()}>
