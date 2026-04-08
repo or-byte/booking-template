@@ -3,7 +3,7 @@ import prisma from "~/lib/prisma";
 async function main() {
   await prisma.user.create({
     data: {
-      fullName: "Ark Faith Lumacad",
+      name: "Ark Faith Lumacad",
       email: "arkclumacad@gmail.com",
       role: "ADMIN"
     }
