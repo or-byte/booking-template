@@ -95,6 +95,13 @@ model Product {
 model Package {
   id Int @id @default(autoincrement())
 
+  companyName     String
+  contactNumber   String
+  contactEmail    String
+  numberOfGuests  Int
+  eventDate       DateTime
+  reservationDate DateTime?
+
   createdById String
   createdBy   User   @relation(name: "PackageCreatedBy", fields: [createdById], references: [id])
 
