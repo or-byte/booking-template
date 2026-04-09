@@ -1,8 +1,20 @@
 import { Title } from "@solidjs/meta";
-import { createSignal, Show } from "solid-js";
+import { createSignal, For, Match, Show, Switch } from "solid-js";
+import InputNumberStepper from "~/components/input/InputNumberStepper";
 import { useSession } from "~/lib/auth";
 import { createPackage, PackageFormData } from "~/lib/package";
 import { ProductRoomsRequestForm } from "~/lib/product";
+
+type RoomKey = keyof ProductRoomsRequestForm;
+
+const rooms: { key: RoomKey; label: string }[] = [
+  { key: "deluxe", label: "Deluxe" },
+  { key: "superior", label: "Superior" },
+  { key: "standard", label: "Standard" },
+  { key: "loft", label: "Loft 8pax" },
+  { key: "dormOld", label: "Dorm 20pax" },
+  { key: "dormNew", label: "Dorm 26pax" }
+];
 
 export default function BookingRequest() {
   const session = useSession();
@@ -25,7 +37,7 @@ export default function BookingRequest() {
     loft: 0,
     dormOld: 0,
     dormNew: 0
-  })  
+  })
 
   const roomAccommodations = () => {
     const deluxe = 4 * (requestedRooms()?.deluxe ?? 0);
@@ -38,8 +50,7 @@ export default function BookingRequest() {
   }
 
   const excessPersons = () => {
-    const extra = (form()?.numberOfGuests ?? 0) - roomAccommodations(); 
-    return extra >= 0 ? extra : 0;
+    return (form()?.numberOfGuests ?? 0) - roomAccommodations();
   }
 
   const handleSubmitForm = async () => {
@@ -96,7 +107,7 @@ export default function BookingRequest() {
     }
 
     try {
-      const pkg = await createPackage(packageForm);      
+      const pkg = await createPackage(packageForm);
       alert(`Package creation success: \nPackage #${pkg.id}`)
     }
     catch (err) {
@@ -166,80 +177,33 @@ export default function BookingRequest() {
         </label>
 
         <h2>Room Accommodation</h2>
-        <Show when={excessPersons() > 0}>
-          <div>Excess persons: {excessPersons()}</div>
-          <div>Accomodate them by adding rooms.</div>
-        </Show>
-        <div class=""></div>
-        <label>
-          Deluxe Room Quantity:
-          <input
-            type="number"
-            class="border p-1 rounded w-full"
-            value={0}
-            onInput={(e) =>
-              setRequestedRooms({ ...requestedRooms(), deluxe: Number(e.currentTarget.value)})
-            }
-          />
-        </label>
-        <label>
-          Superior Room Quantity:
-          <input
-            type="number"
-            class="border p-1 rounded w-full"
-            value={0}
-            onInput={(e) =>
-              setRequestedRooms({ ...requestedRooms(), superior: Number(e.currentTarget.value) })
-            }
-          />
-        </label>
-        <label>
-          Standard Room Quantity:
-          <input
-            type="number"
-            class="border p-1 rounded w-full"
-            value={0}
-            onInput={(e) =>
-              setRequestedRooms({ ...requestedRooms(), standard: Number(e.currentTarget.value) })
-            }
-          />
-        </label>
-        <label>
-          Loft 8pax/unit:
-          <input
-            type="number"
-            class="border p-1 rounded w-full"
-            value={0}
-            onInput={(e) =>
-              setRequestedRooms({ ...requestedRooms(), loft: Number(e.currentTarget.value) })
-            }
-          />
-        </label>
-        <label>
-          Dormitory Room 20pax:
-          <input
-            type="number"
-            class="border p-1 rounded w-full"
-            value={0}
-            onInput={(e) =>
-              setRequestedRooms({ ...requestedRooms(), dormOld: Number(e.currentTarget.value) })
-            }
-          />
-        </label>
-        <label>
-          Dorm New 26pax:
-          <input
-            type="number"
-            class="border p-1 rounded w-full"
-            value={0}
-            onInput={(e) =>
-              setRequestedRooms({ ...requestedRooms(), dormNew: Number(e.currentTarget.value) })
-            }
-          />
-        </label>
+        <Switch>
+          <Match when={excessPersons() > 0}>
+            <div>Excess persons: {excessPersons()}</div>
+            <div>Accomodate them by adding rooms.</div>
+          </Match>
+          <Match when={excessPersons() < 0}>
+            <div>Excess beds: {Math.abs(excessPersons())}</div>
+          </Match>
+        </Switch>
+        <div class="flex gap-6 flex-wrap">
+          <For each={rooms}>
+            {(room) => (
+              <InputNumberStepper
+                label={room.label}
+                value={requestedRooms()[room.key]}
+                onChange={(v) =>
+                  setRequestedRooms((prev) => ({
+                    ...prev,
+                    [room.key]: v
+                  }))
+                }
+              />
+            )}
+          </For>
+        </div>
+
       </div>
-
-
       <button class="border rounded" onClick={handleSubmitForm}>Submit</button>
     </main>
   )
