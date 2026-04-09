@@ -79,6 +79,7 @@ export default function Packages() {
       }
 
       setSelectedPackage(null);
+      setPackageMode(null);
       refetchPackages();
     } catch (err) {
       console.error(err);
@@ -97,7 +98,7 @@ export default function Packages() {
     setPackageMode(null);
   };
   return (
-    <main class="py-8">
+    <main class="py-10">
       <Title>Packages</Title>
 
       <p class="title text-left">Packages</p>
@@ -148,26 +149,35 @@ export default function Packages() {
           </div>
           {/* Package Description */}
 
-          <Switch>
-            <Match when={packageMode() === "readonly"}>
-              <ProposalDetails
-                package={selectedPackage()!}
-                onUpdate={refetchAndSync}
-                onEdit={toggleEditPackage}
-                onCancel={() => setSelectedPackage(null)} />
-            </Match>
-            <Match when={packageMode() === "edit" || packageMode() === "create"}>
-              {/* Package Editor */}
-              <PackageForm
-                package={selectedPackage()}
-                mode={packageMode() as "create" | "edit"}
-                allProducts={allProducts()}
-                onSave={handleSavePackage}
-                onPackageChange={setSelectedPackage}
-                onCancel={closePanel}
-              />
-            </Match>
-          </Switch>
+          <Show when={packageMode() !== null}>
+            <div
+              class="fixed inset-0 bg-black/50 flex items-center justify-center z-60 px-5"
+              onClick={closePanel}
+            >
+              <div class="w-full max-w-md max-h-[90vh] overflow-y-auto px-5" onClick={(e) => e.stopPropagation()}>
+                <Switch>
+                  <Match when={packageMode() === "readonly"}>
+                    <ProposalDetails
+                      package={selectedPackage()!}
+                      onUpdate={refetchAndSync}
+                      onEdit={toggleEditPackage}
+                      onCancel={() => setSelectedPackage(null)}
+                    />
+                  </Match>
+                  <Match when={packageMode() === "edit" || packageMode() === "create"}>
+                    <PackageForm
+                      package={selectedPackage()}
+                      mode={packageMode() as "create" | "edit"}
+                      allProducts={allProducts()}
+                      onSave={handleSavePackage}
+                      onPackageChange={setSelectedPackage}
+                      onCancel={closePanel}
+                    />
+                  </Match>
+                </Switch>
+              </div>
+            </div>
+          </Show>
         </Show>
       </div>
     </main>
