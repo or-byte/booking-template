@@ -13,6 +13,15 @@ export type ProductFormData = {
 
 export type EditableProduct = Partial<Product> & { id?: number; categoryId?: number }
 
+export type ProductRoomsRequestForm = {
+  deluxe: number
+  superior: number
+  standard: number
+  loft: number
+  dormOld: number
+  dormNew: number
+}
+
 export const getAllProducts = query(
   async (): Promise<Product[]> => {
     "use server"

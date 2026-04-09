@@ -24,7 +24,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
     }
   };
 
-  // All about them prices
+  // Calculated price is based on product price
   const calculatedPrice = () => props.package ? calculatePrice(props.package) : 0;
   const overridePrice = () => props.package?.overridePrice ?? 0;
   const totalPrice = () => overridePrice() > 0 ? overridePrice() : calculatedPrice();
