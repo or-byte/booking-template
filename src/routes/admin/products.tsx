@@ -1,10 +1,11 @@
 import { Title } from "@solidjs/meta";
-import { createEffect, createResource, createSignal, For, Show } from "solid-js";
+import { createEffect, createResource, createSignal, For, Show, Switch, Match } from "solid-js";
 import { Category, createNewCategory, getCategories } from "~/lib/category";
 import { createNewProduct, deleteProduct, EditableProduct, getAllProducts, Product, updateProduct } from "~/lib/product";
 import Button from "~/components/button/Button";
 import PackageCard from "~/components/cards/PackageCard";
 import ProductForm from "~/components/forms/ProductForm";
+import CategoryForm from "~/components/forms/CategoryForm";
 
 export default function Products() {
   // Categories states
@@ -20,6 +21,10 @@ export default function Products() {
   const [categoryModalOpen, setCategoryModalOpen] = createSignal(false);
   const [newCategoryName, setNewCategoryName] = createSignal("");
   const [newCategoryDesc, setNewCategoryDesc] = createSignal("");
+
+  //Forms mode
+  type ProductForm = "new-category" | "new-product" | "edit";
+  const [formMode, setFormMode] = createSignal<ProductForm | null>(null);
 
   createEffect(() => {
     const products = allProducts();
@@ -106,6 +111,11 @@ export default function Products() {
     }
   };
 
+  const onClickCard = (product: Product, mode: ProductForm) => {
+    setSelectedProduct(product);
+    setFormMode(mode);
+  }
+
   return (
     <main class="py-8">
       <Title>Products</Title>
@@ -114,7 +124,7 @@ export default function Products() {
         <div class="flex gap-2">
           <Button
             class="btn"
-            onClick={[setCategoryModalOpen, true]}
+            onClick={[setFormMode, "new-category"]}
           >
             + New Category
           </Button>
@@ -146,21 +156,14 @@ export default function Products() {
         <div>Loading products...</div>
       </Show>
 
-      <div class="flex gap-3 items-start">
+      <div class="flex flex-col sm:flex-row gap-3 items-start">
         <Show when={!allProducts.loading && visibleProducts()}>
           <div class="border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)] w-full">
             <For each={visibleProducts()}>
               {(p) => (
-                // <div
-                //   class="p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100"
-                //   onClick={[setSelectedProduct, p]}
-                // >
-                //   <div class="font-medium">{p.name}</div>
-                //   <div class="text-sm text-gray-600">SKU: {p.sku}</div>
-                // </div>
                 <PackageCard
                   name={p.name}
-                  onClick={[setSelectedProduct, p]}>
+                  onClick={() => onClickCard(p, "edit")}>
                   <div class="flex items-center gap-2">
                     <p>Description: </p>
                     <p>{p.description}</p>
@@ -171,54 +174,26 @@ export default function Products() {
           </div>
         </Show>
 
-        {/* Product Editor */}
-        <Show when={selectedProduct()}>
-          <ProductForm
-            product={selectedProduct()!}
-            allCategories={allCategories()}
-            onSave={handleSaveProduct}
-            onCancel={() => setSelectedProduct(undefined)}
-            onDelete={selectedProduct()?.id ? handleDeleteProduct : undefined}
-            onProductChange={setSelectedProduct}
-          />
-        </Show>
+        <Switch>
+          <Match when={formMode() === "new-category"}>
+            <CategoryForm
+              onConfirm={(name, desc) => handleCreateCategory(name, desc)}
+              onCancel={() => setFormMode(null)}
+            />
+          </Match>
+          <Match when={formMode() === "edit" || formMode() === "new-product"}>
+            {/* Product Editor */}
+            <ProductForm
+              product={selectedProduct()!}
+              allCategories={allCategories()}
+              onSave={handleSaveProduct}
+              onCancel={() => setSelectedProduct(undefined)}
+              onDelete={selectedProduct()?.id ? handleDeleteProduct : undefined}
+              onProductChange={setSelectedProduct}
+            />
+          </Match>
+        </Switch>
       </div>
-
-      {/* Category Modal */}
-      <Show when={categoryModalOpen()}>
-        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-30">
-          <div class="bg-white p-6 rounded shadow-md w-full max-w-sm">
-            <h2 class="text-lg font-semibold mb-4">Create New Category</h2>
-            <input
-              type="text"
-              placeholder="Category name"
-              class="border p-2 rounded w-full mb-2"
-              value={newCategoryName()}
-              onInput={(e) => setNewCategoryName(e.currentTarget.value)}
-            />
-            <textarea
-              placeholder="Description (optional)"
-              class="border p-2 rounded w-full mb-4"
-              value={newCategoryDesc()}
-              onInput={(e) => setNewCategoryDesc(e.currentTarget.value)}
-            />
-            <div class="flex justify-end gap-2">
-              <button
-                class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
-                onClick={[setCategoryModalOpen, false]}
-              >
-                Cancel
-              </button>
-              <button
-                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                onClick={handleCreateCategory}
-              >
-                Create
-              </button>
-            </div>
-          </div>
-        </div>
-      </Show>
     </main>
   );
 }
