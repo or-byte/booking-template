@@ -14,6 +14,15 @@ export type ProductFormData = {
 
 export type EditableProduct = Partial<Product> & { id?: number; categoryId?: number }
 
+export type ProductRoomsRequestForm = {
+  deluxe: number
+  superior: number
+  standard: number
+  loft: number
+  dormOld: number
+  dormNew: number
+}
+
 // This function fetches all products except of category Room. For fetching rooms, use `getProductsByCategory`
 export const getAllProducts = query(
   async (): Promise<Product[]> => {
