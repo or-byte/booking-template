@@ -127,6 +127,7 @@ export default function Packages() {
 
   return (
     <main class="py-10">
+    <main class="py-10">
       <Title>Packages</Title>
 
       <p class="title text-left">Packages</p>
@@ -201,7 +202,7 @@ export default function Packages() {
                     <PackageForm
                       package={selectedPackage()}
                       mode={packageMode() as "create" | "edit"}
-                      allProducts={allProducts() ?? []}
+                      allProducts={allProducts()}
                       onSave={handleSavePackage}
                       onPackageChange={setSelectedPackage}
                       onCancel={closePanel}
