@@ -84,7 +84,7 @@ export default function PackageForm(props: Props) {
           <p class="body-2 font-bold pb-2">Number of Guests:</p>
           <Input
             type="number"
-            value={pkg().number ?? ""}
+            value={pkg().numberOfGuests ?? ""}
             onInput={(e) => setField({ numberOfGuests: Number(e.currentTarget.value) })}
           />
         </label>
