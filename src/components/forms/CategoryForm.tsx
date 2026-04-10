@@ -1,56 +1,56 @@
 import { createSignal } from "solid-js";
+import Input from "../input/Input";
+import Button from "../button/Button";
 
 type Props = {
-  onConfirm: (name: string, description: string) => void;
+  name: string;
+  description: string;
+  onNameChange: (value: string) => void;
+  onDescriptionChange: (value: string) => void;
+  onConfirm: () => void;
   onCancel: () => void;
 };
 
 export default function CategoryForm(props: Props) {
-  const [name, setName] = createSignal("");
-  const [description, setDescription] = createSignal("");
-
   const handleConfirm = () => {
-    props.onConfirm(name(), description());
-    setName("");
-    setDescription("");
+    props.onConfirm();
+    props.onNameChange("");
+    props.onDescriptionChange("");
   };
-
   return (
     <div class="p-4 border border-[var(--color-border-1)] rounded-[10px] bg-white shadow w-full sm:max-w-md">
-      <p class="subheader-1 font-bold pb-2 text-left">New Category</p>
-      <div class="flex flex-col gap-3">
+      <p class="subheader-1 font-bold py-3 mb-4 text-left">New Category</p>
+      <div class="flex flex-col gap-3 text-left">
         <label>
-          Name:
-          <input
+          <p class="body-2 font-bold pb-2">Name:</p>
+          <Input
             type="text"
             placeholder="Category name"
-            class="border p-2 rounded w-full"
-            value={name()}
-            onInput={(e) => setName(e.currentTarget.value)}
+            value={props.name}
+            onInput={(e) => props.onNameChange(e.currentTarget.value)}
           />
         </label>
         <label>
-          Description:
-          <textarea
+          <p class="body-2 font-bold pb-2">Description:</p>
+          <Input
             placeholder="Description (optional)"
-            class="border p-2 rounded w-full"
-            value={description()}
-            onInput={(e) => setDescription(e.currentTarget.value)}
+            value={props.description}
+            onInput={(e) => props.onDescriptionChange(e.currentTarget.value)}
           />
         </label>
-        <div class="flex gap-2 mt-2">
-          <button
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1"
+        <div class="flex flex-col gap-2 mt-2">
+          <Button
+            class="btn"
             onClick={handleConfirm}
           >
             Create
-          </button>
-          <button
-            class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 flex-1"
+          </Button>
+          <Button
+            class="bg-gray-300 text-gray-800 px-4 py-2 rounded-[10px] hover:bg-gray-400"
             onClick={props.onCancel}
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -41,7 +41,7 @@ export default function PackageCard(props: PackageCardProps) {
         <Show when={props.onEditShow}>
           <button
             onClick={onEditEvent}
-            class="hover:text-[var(--color-accent-1)] transition-colors"
+            class="hover:text-[var(--color-accent-1)] hover:cursor-pointer transition-colors"
             aria-label="Edit"
           >
             <MdFillEdit size={20} />

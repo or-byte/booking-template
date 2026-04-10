@@ -127,7 +127,6 @@ export default function Packages() {
 
   return (
     <main class="py-10">
-    <main class="py-10">
       <Title>Packages</Title>
 
       <p class="title text-left">Packages</p>
@@ -157,6 +156,7 @@ export default function Packages() {
                   return (
                     <PackageCard
                       name={p.description}
+                      onEditShow={true}
                       onEdit={() => {
                         setSelectedPackage(p);
                         setPackageMode("edit")

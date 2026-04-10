@@ -10,7 +10,7 @@ import CategoryForm from "~/components/forms/CategoryForm";
 export default function Products() {
   // Categories states
   const [allCategories, { mutate: setAllCategories }] = createResource<Category[]>(() => getCategories());
-  const [selectedCategoryId, setSelectedCategoryId] = createSignal("All");
+  const [selectedCategoryId, setSelectedCategoryId] = createSignal(null);
 
   // Products states
   const [allProducts] = createResource<Product[]>(() => getAllProducts());
@@ -18,7 +18,6 @@ export default function Products() {
   const [selectedProduct, setSelectedProduct] = createSignal<EditableProduct | undefined>();
 
   // Create category modal
-  const [categoryModalOpen, setCategoryModalOpen] = createSignal(false);
   const [newCategoryName, setNewCategoryName] = createSignal("");
   const [newCategoryDesc, setNewCategoryDesc] = createSignal("");
 
@@ -103,7 +102,7 @@ export default function Products() {
       setSelectedCategoryId(newCat.id);
       setNewCategoryName("");
       setNewCategoryDesc("");
-      setCategoryModalOpen(false);
+      setFormMode(null);
       alert("Category created successfully!");
     } catch (err) {
       console.error(err);
@@ -114,6 +113,10 @@ export default function Products() {
   const onClickCard = (product: Product, mode: ProductForm) => {
     setSelectedProduct(product);
     setFormMode(mode);
+  }
+
+  const closePanel = () => {
+    setFormMode(null);
   }
 
   return (
@@ -131,7 +134,10 @@ export default function Products() {
 
           <Button
             class="btn"
-            onClick={[setSelectedProduct, createNewProductTemplate]}
+            onClick={() => {
+              setSelectedProduct(createNewProductTemplate());
+              setFormMode("new-product");
+            }}
           >
             + New Product
           </Button>
@@ -143,7 +149,10 @@ export default function Products() {
           <div class="flex gap-2">
             <For each={allCategories()}>
               {(cat) =>
-                <Button class="btn-outline">
+                <Button class="btn-outline" onClick={() => {
+                  setSelectedCategoryId(String(cat.id))
+                  setSelectedProduct(undefined);
+                }}>
                   {cat.name}
                 </Button>}
             </For>
@@ -157,7 +166,7 @@ export default function Products() {
       </Show>
 
       <div class="flex flex-col sm:flex-row gap-3 items-start">
-        <Show when={!allProducts.loading && visibleProducts()}>
+        <Show when={!allProducts.loading && visibleProducts() && selectedCategoryId() !== null}>
           <div class="border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)] w-full">
             <For each={visibleProducts()}>
               {(p) => (
@@ -174,25 +183,38 @@ export default function Products() {
           </div>
         </Show>
 
-        <Switch>
-          <Match when={formMode() === "new-category"}>
-            <CategoryForm
-              onConfirm={(name, desc) => handleCreateCategory(name, desc)}
-              onCancel={() => setFormMode(null)}
-            />
-          </Match>
-          <Match when={formMode() === "edit" || formMode() === "new-product"}>
-            {/* Product Editor */}
-            <ProductForm
-              product={selectedProduct()!}
-              allCategories={allCategories()}
-              onSave={handleSaveProduct}
-              onCancel={() => setSelectedProduct(undefined)}
-              onDelete={selectedProduct()?.id ? handleDeleteProduct : undefined}
-              onProductChange={setSelectedProduct}
-            />
-          </Match>
-        </Switch>
+        <Show when={formMode() !== null}>
+          <div
+            class="fixed inset-0 bg-black/50 flex items-center justify-center z-60 px-5"
+            onClick={closePanel}
+          >
+            <div class="w-full max-w-md max-h-[90vh] overflow-y-auto px-5" onClick={(e) => e.stopPropagation()}>
+              <Switch>
+                <Match when={formMode() === "new-category"}>
+                  <CategoryForm
+                    name={newCategoryName()}
+                    description={newCategoryDesc()}
+                    onNameChange={setNewCategoryName}
+                    onDescriptionChange={setNewCategoryDesc}
+                    onConfirm={handleCreateCategory}
+                    onCancel={closePanel}
+                  />
+                </Match>
+                <Match when={formMode() === "edit" || formMode() === "new-product"}>
+                  {/* Product Editor */}
+                  <ProductForm
+                    product={selectedProduct()!}
+                    allCategories={allCategories()}
+                    onSave={handleSaveProduct}
+                    onCancel={closePanel}
+                    onDelete={selectedProduct()?.id ? handleDeleteProduct : undefined}
+                    onProductChange={setSelectedProduct}
+                  />
+                </Match>
+              </Switch>
+            </div>
+          </div>
+        </Show>
       </div>
     </main>
   );
