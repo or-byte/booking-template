@@ -39,7 +39,7 @@ export default function Packages() {
     const pkgs = packages();
     if (!id || !pkgs) return;
 
-    const pkg = pkgs.find(p => p.id === Number(id));
+    const pkg = pkgs.data.find(p => p.id === Number(id));
     if (pkg) {
       setSelectedPackage(pkg);
       setPackageMode("readonly");
@@ -82,7 +82,7 @@ export default function Packages() {
 
       setSelectedPackage(null);
       setPackageMode(null);
-      refetchPackages();
+      await refetchPackages();
     } catch (err) {
       console.error(err);
       alert("Failed to save package");
@@ -91,7 +91,7 @@ export default function Packages() {
 
   const refetchAndSync = async () => {
     await refetchPackages();
-    const updated = packages()?.find(p => p.id === selectedPackage()?.id);
+    const updated = packages()?.data.find(p => p.id === selectedPackage()?.id);
     if (updated) setSelectedPackage(updated);
   };
 
@@ -109,10 +109,20 @@ export default function Packages() {
         setSelectedPackage(null);
         setPackageMode(null);
       }
-    } catch (error) {
+    } catch (err) {
       console.error(err);
       alert("Failed to delete package");
     }
+  const handleSetPage = (page: number) => {
+    setPage(page);
+  }
+
+  const handleNextPage = () => {
+    handleSetPage(page() + 1);
+  }
+
+  const handlePrevPage = () => {
+    handleSetPage(page() - 1);
   }
 
   return (
@@ -134,6 +144,8 @@ export default function Packages() {
           </Button>
         </div>
       </div>
+
+      {/* Package List */}
       <div class="flex flex-col sm:flex-row gap-3 items-start">
         <Show when={!packages.loading}>
           <Show when={packages()?.data.length}>
@@ -201,12 +213,15 @@ export default function Packages() {
           </Show>
         </Show>
       </div>
+
+      {/* Page */}
       <Show when={packages()?.meta}>
         <div class="flex justify-center items-center gap-4 mt-6">
 
           <Button
+            class="btn hover:underline hover:cursor-pointer"
             disabled={page() === 1}
-            onClick={() => setPage(page() - 1)}
+            onClick={handlePrevPage}
           >
             Prev
           </Button>
@@ -216,8 +231,9 @@ export default function Packages() {
           </span>
 
           <Button
-            disabled={page() === packages()?.meta.totalPages}
-            onClick={() => setPage(page() + 1)}
+            class="btn hover:underline hover:cursor-pointer"
+            disabled={page() === packages()?.meta?.totalPages}
+            onClick={handleNextPage}
           >
             Next
           </Button>
