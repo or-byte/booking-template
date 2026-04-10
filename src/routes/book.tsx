@@ -6,9 +6,9 @@ import Input from "~/components/input/Input";
 import InputNumberStepper from "~/components/input/InputNumberStepper";
 import { useSession } from "~/lib/auth";
 import { createPackage, PackageFormData } from "~/lib/package";
-import { ProductRoomsRequestForm } from "~/lib/product";
+import { ProductRoomsRequestCounter } from "~/lib/product";
 
-type RoomKey = keyof ProductRoomsRequestForm;
+type RoomKey = keyof ProductRoomsRequestCounter;
 
 const rooms: { key: RoomKey; label: string }[] = [
   { key: "deluxe", label: "Deluxe" },
@@ -34,7 +34,7 @@ export default function BookingRequest() {
     packageItems: []
   });
 
-  const [requestedRooms, setRequestedRooms] = createSignal<ProductRoomsRequestForm>({
+  const [requestedRooms, setRequestedRooms] = createSignal<ProductRoomsRequestCounter>({
     deluxe: 0,
     superior: 0,
     standard: 0,
