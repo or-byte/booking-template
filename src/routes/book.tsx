@@ -1,5 +1,8 @@
 import { Title } from "@solidjs/meta";
+import { useNavigate } from "@solidjs/router";
 import { createSignal, For, Match, Show, Switch } from "solid-js";
+import Button from "~/components/button/Button";
+import Input from "~/components/input/Input";
 import InputNumberStepper from "~/components/input/InputNumberStepper";
 import { useSession } from "~/lib/auth";
 import { createPackage, PackageFormData } from "~/lib/package";
@@ -18,13 +21,14 @@ const rooms: { key: RoomKey; label: string }[] = [
 
 export default function BookingRequest() {
   const session = useSession();
+  const navigate = useNavigate();
 
   const [form, setForm] = createSignal<PackageFormData>({
     companyName: "",
     numberOfGuests: 0,
     contactNumber: "",
     contactEmail: "",
-    eventDate: new Date,
+    eventDate: new Date(),
     createdById: "",
     description: "",
     packageItems: []
@@ -115,96 +119,85 @@ export default function BookingRequest() {
     }
   }
 
+  const handleNavigate = () => {
+    navigate("/login");
+  }
+
   return (
     <main>
       <Title>Package Proposal Form</Title>
       <h1>Hello, {session().data?.user.name || "Customer!"} </h1>
 
-      <div class="flex flex-col gap-3">
-        <h2> Info</h2>
-        <label>
-          Company Name:
-          <input
-            type="text"
-            class="border p-1 rounded w-full"
-            onInput={(e) =>
-              setForm({ ...form(), companyName: e.currentTarget.value })
-            }
-          >
-          </input>
-        </label>
-        <label>
-          Contact Email:
-          <input
-            type="text"
-            class="border p-1 rounded w-full"
-            onInput={(e) =>
-              setForm({ ...form(), contactEmail: e.currentTarget.value })
-            }
-          />
-        </label>
-        <label>
-          Contact Number:
-          <input
-            type="text"
-            class="border p-1 rounded w-full"
-            onInput={(e) =>
-              setForm({ ...form(), contactNumber: e.currentTarget.value })
-            }
-          >
-          </input>
-        </label>
-        <label>
-          Number of Guests:
-          <input
-            type="number"
-            class="border p-1 rounded w-full"
-            value={0}
-            onInput={(e) =>
-              setForm({ ...form(), numberOfGuests: Number(e.currentTarget.value) })
-            }
-          />
-        </label>
-        <label>
-          Event Date:
-          <input
-            type="date"
-            class="border p-1 rounded w-full"
-            onInput={(e) =>
-              setForm({ ...form(), eventDate: new Date(e.currentTarget.value) })
-            }
-          />
-        </label>
+      <Show when={session().data?.user}
+        fallback={
+          <Button class="btn" onClick={handleNavigate}>Login to book</Button>
+        }>
+        <div class="flex flex-col gap-3">
+          <h2> Info</h2>
+          <label class="text-left">
+            <p class="body-2 font-bold pb-2">Company Name:</p>
+            <Input
+              onInput={(e) => setForm({ ...form(), companyName: e.currentTarget.value })}
+            />
+          </label>
+          <label class="text-left">
+            <p class="body-2 font-bold pb-2">Contact Number:</p>
+            <Input
+              onInput={(e) => setForm({ ...form(), contactNumber: e.currentTarget.value })}
+            />
+          </label>
+          <label class="text-left">
+            <p class="body-2 font-bold pb-2">Contact Email:</p>
+            <Input
+              onInput={(e) => setForm({ ...form(), contactEmail: e.currentTarget.value })}
+            />
+          </label>
+          <label class="text-left">
+            <p class="body-2 font-bold pb-2">Number of Guests:</p>
+            <Input
+              type="number"
+              value={0}
+              onInput={(e) => setForm({ ...form(), numberOfGuests: Number(e.currentTarget.value) })}
+            />
+          </label>
+          <label class="text-left">
+            <p class="body-2 font-bold pb-2">Event Date:</p>
+            <input
+              type="date"
+              value={new Date().toISOString().split("T")[0]}
+              onInput={(e) => setForm({ ...form(), eventDate: new Date(e.currentTarget.value) })}
+            />
+          </label>
 
-        <h2>Room Accommodation</h2>
-        <Switch>
-          <Match when={excessPersons() > 0}>
-            <div>Excess persons: {excessPersons()}</div>
-            <div>Accomodate them by adding rooms.</div>
-          </Match>
-          <Match when={excessPersons() < 0}>
-            <div>Excess beds: {Math.abs(excessPersons())}</div>
-          </Match>
-        </Switch>
-        <div class="flex gap-6 flex-wrap">
-          <For each={rooms}>
-            {(room) => (
-              <InputNumberStepper
-                label={room.label}
-                value={requestedRooms()[room.key]}
-                onChange={(v) =>
-                  setRequestedRooms((prev) => ({
-                    ...prev,
-                    [room.key]: v
-                  }))
-                }
-              />
-            )}
-          </For>
+          <h2>Room Accommodation</h2>
+          <Switch>
+            <Match when={excessPersons() > 0}>
+              <div>Excess persons: {excessPersons()}</div>
+              <div>Accomodate them by adding rooms.</div>
+            </Match>
+            <Match when={excessPersons() < 0}>
+              <div>Excess beds from current accomodation: {Math.abs(excessPersons())}</div>
+            </Match>
+          </Switch>
+          <div class="flex gap-6 flex-wrap">
+            <For each={rooms}>
+              {(room) => (
+                <InputNumberStepper
+                  label={room.label}
+                  value={requestedRooms()[room.key]}
+                  onChange={(v) =>
+                    setRequestedRooms((prev) => ({
+                      ...prev,
+                      [room.key]: v
+                    }))
+                  }
+                />
+              )}
+            </For>
+          </div>
         </div>
-
-      </div>
-      <button class="border rounded" onClick={handleSubmitForm}>Submit</button>
+        <Button class="btn" onClick={handleSubmitForm}>Submit</Button>
+      </Show>
     </main>
   )
 }
