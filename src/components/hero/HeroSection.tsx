@@ -36,7 +36,7 @@ export default function Hero() {
           pb-5
           pt-5
         ">
-          Experience Waterfront Luxury
+          Soak up the sunshine on our Waterfront Oasis
         </h1>
 
         <p class="
@@ -48,7 +48,8 @@ export default function Hero() {
           mb-8 md:mb-10
           max-w-2xl
         ">
-          Discover elegant rooms, breathtaking views, and unforgettable stays.
+          Treat yourself to a luxurious vacation you've been longing for and experience an exclusive, serene getaway at
+          The Waterfront Beach Resort.
         </p>
 
         <Button

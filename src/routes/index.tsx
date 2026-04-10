@@ -13,8 +13,8 @@ import { getProductsByCategoryName } from "~/lib/product";
 const MapGoogle = clientOnly(() => import("~/components/map/MapGoogle"));
 
 export default function Home() {
-    const [rooms] = createResource(() => getProductsByCategoryName("Room"));
-  
+  const [rooms] = createResource(() => getProductsByCategoryName("Room"));
+
   return (
     <>
       <Title>The Waterfront Beach Resort</Title>
@@ -22,7 +22,7 @@ export default function Home() {
       <Hero />
       <FeatureSection
         title="Rooms & Suites"
-        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+        description="You will find comfort & will feel relaxed at our 2 story and bungalow buildings with spacious rooms, balconies and views of the marginal sea of the Western Pacific Ocean."
         linkHref="rooms"
         linkLabel="View More Rooms"
       >
@@ -52,7 +52,7 @@ export default function Home() {
       </FeatureSection>
       <FeatureSection
         title="Relax and Dine"
-        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+        description="Kick off your morning with breakfast and a cup of coffee, while enjoying the beautiful sunrise in the shoreline of Morong and indulge later your favorite drink from the restaurant and bar before catching the sunset at dinner."
         linkHref="#"
         linkLabel="Go to El Mar"
       >
@@ -68,7 +68,7 @@ export default function Home() {
       </FeatureSection>
       <FeatureSection
         title="Explore Bataan"
-        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+        description={" With limitless things to do & adventures to encounter, there are plenty of beach activities for every interest, age and curiosity.  Families will enjoy the turquoise waters ofwhile sport lovers will enjoy the opportunity to snorkel, fish and the many different boat rides, whether they be for fun rides or for tour rides nearby the resort.  Our swimming pool is open year round for you to always enjoy a day with the whole family!"}
         linkHref="#"
         linkLabel="View More Details"
       >
@@ -83,8 +83,11 @@ export default function Home() {
         </div>
       </FeatureSection>
       <FeatureSection
-        title="Where to Find Us"
-        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit.">
+        title="Where to Find Us">
+        <p class="max-w-2xl mb-6">
+          <strong>The Waterfront Beach Resort </strong>
+          <span class="text-gray-600 ">is located approximately less than 18km from Subic Safari & Ocean Adventure and is approximately 47km away from Dambana ng Kagitingan (Mt. Samat) going north. We offer guests the convenience of outdoor parking with in-and-out privileges. The resort has approximately 1800 sq. feet of parking area exclusive for resort guests only.</span>
+        </p>
         <MapGoogle
           origin="NAIA Terminal 1, Pasay, Metro Manila"
           destination="Waterfront Beach Resort, Bataan"
