@@ -14,7 +14,9 @@ export default function Packages() {
   const [allProducts] = createResource<Product[]>(() => getAllProducts());
 
   // Packages states
-  const [packages, { refetch: refetchPackages }] = createResource(async () => getAllPackages())
+  const [page, setPage] = createSignal(1);
+  const pageSize = 5;
+  const [packages, { refetch: refetchPackages }] = createResource(page, async (page) => (await getAllPackages(page, pageSize)))
   const [selectedPackage, setSelectedPackage] = createSignal<Package | null>(null);
 
   //Forms mode
@@ -134,9 +136,9 @@ export default function Packages() {
       </div>
       <div class="flex flex-col sm:flex-row gap-3 items-start">
         <Show when={!packages.loading}>
-          <Show when={packages()?.length}>
+          <Show when={packages()?.data.length}>
             <div class="border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)] w-full">
-              <For each={packages()}>
+              <For each={packages()?.data}>
                 {(p) => {
                   const status = p.approvedBy ? "Approved" : p.reviewedBy ? "Reviewed" : "Created";
                   return (
@@ -199,6 +201,29 @@ export default function Packages() {
           </Show>
         </Show>
       </div>
+      <Show when={packages()?.meta}>
+        <div class="flex justify-center items-center gap-4 mt-6">
+
+          <Button
+            disabled={page() === 1}
+            onClick={() => setPage(page() - 1)}
+          >
+            Prev
+          </Button>
+
+          <span class="text-sm">
+            Page {packages()?.meta.page} of {packages()?.meta.totalPages}
+          </span>
+
+          <Button
+            disabled={page() === packages()?.meta.totalPages}
+            onClick={() => setPage(page() + 1)}
+          >
+            Next
+          </Button>
+
+        </div>
+      </Show>
     </main>
   );
 }
