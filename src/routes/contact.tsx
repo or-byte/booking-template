@@ -39,16 +39,13 @@ export default function Contact() {
         <div class="flex flex-col w-full lg:w-[30%] gap-8 items-center lg:items-start">
           <div class="flex flex-col gap-4 body-2 items-center lg:items-start">
             <h2 class="text-2xl font-bold">Contact Us</h2>
-            <p class="text-[#5D5D5D] text-center text-justify">Lorem ipsum dolor sit amet,
-              consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
           </div>
 
           <div class="flex text-[#5D5D5D] body-3 items-center lg:items-start">
             <div class="flex flex-col gap-[15px]">
               <div class="flex gap-2 items-center">
                 <MdFillEmail />
-                <p>Marketing@thewaterfrontbeachresort.com</p>
+                <p>marketing@thewaterfrontbeachresort.com</p>
               </div>
               <div class="flex gap-2 items-center">
                 <MdFillLocal_phone />
