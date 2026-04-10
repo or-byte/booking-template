@@ -42,7 +42,6 @@ export default function Products() {
 
   const createNewProductTemplate = (): EditableProduct => ({
     name: "",
-    sku: "",
     description: "",
     price: 0,
     stockQty: 0,

@@ -9,12 +9,9 @@ export type CategoryFormData = {
   description: string
 }
 
-/// getCategories fetches all except Room
-// Room is a category but it is used separately
 export const getCategories = async (): Promise<Category[]> => {
   "use server"
   const categories = await prisma.category.findMany({
-    where: { name: { not: "Room" } },
     include: {
       _count: { select: { products: true } }
     }
