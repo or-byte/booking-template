@@ -48,15 +48,15 @@ export default function Contact() {
             <div class="flex flex-col gap-[15px]">
               <div class="flex gap-2 items-center">
                 <MdFillEmail />
-                <p>sampleemail@gmail.com</p>
+                <p>Marketing@thewaterfrontbeachresort.com</p>
               </div>
               <div class="flex gap-2 items-center">
                 <MdFillLocal_phone />
-                <p>+63123456789</p>
+                <p>0917-137-9848</p>
               </div>
               <div class="flex gap-2 items-center">
                 <MdFillLocal_phone />
-                <p>+63123456789</p>
+                <p>0917-137-4375</p>
               </div>
               <div class="flex gap-2 items-center">
                 <TbOutlineWorld />
