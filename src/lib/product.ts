@@ -14,7 +14,7 @@ export type ProductFormData = {
 
 export type EditableProduct = Partial<Product> & { id?: number; categoryId?: number }
 
-export type ProductRoomsRequestForm = {
+export type ProductRoomsRequestCounter = {
   deluxe: number
   superior: number
   standard: number
