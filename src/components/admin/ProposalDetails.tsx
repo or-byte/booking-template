@@ -1,10 +1,12 @@
 import { createSignal, For, Match, Show, Switch } from "solid-js";
-import { PackageStatus, Package, updatePackage, UpdatePackageFormData, calculatePrice } from "~/lib/package"
+import { PackageStatus, Package, updatePackage, UpdatePackageFormData, calculatePrice } from "~/lib/package";
+import Button from "../button/Button";
 
 export type ProposalDetailsProps = {
   package: Package | null
   onUpdate?: () => void
   onEdit?: () => void
+  onCancel?: () => void
 }
 
 export default function ProposalDetails(props: ProposalDetailsProps) {
@@ -20,13 +22,13 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
   };
 
   // All about them prices
-  const calculatedPrice = props.package ? calculatePrice(props.package) : 0;
-  const overridePrice = props.package?.overridePrice ?? 0;
-  const totalPrice = overridePrice > 0 ? overridePrice : calculatedPrice;
+  const calculatedPrice = () => props.package ? calculatePrice(props.package) : 0;
+  const overridePrice = () => props.package?.overridePrice ?? 0;
+  const totalPrice = () => overridePrice() > 0 ? overridePrice() : calculatedPrice();
 
   // Difference only if overridePrice is set
-  const priceDiff = overridePrice > 0 ? overridePrice - calculatedPrice : 0;
-  const diffColor = priceDiff > 0 ? "text-red-600" : priceDiff < 0 ? "text-green-600" : "text-gray-600";
+  const priceDiff = () => overridePrice() > 0 ? overridePrice() - calculatedPrice() : 0;
+  const diffColor = () => priceDiff() > 0 ? "text-red-600" : priceDiff() < 0 ? "text-green-600" : "text-gray-600";
 
   const handleReview = async () => {
     submitUpdate({
@@ -42,29 +44,27 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
 
   return (
     <Show when={props.package}>
-      <div class="mt-6 p-4 border rounded bg-white shadow w-full sm:max-w-md">
-        <div class="text-lg font-semibold">
-          Package #{props.package?.id} - {props.package?.createdBy.fullName}
-        </div>
-        <div class="text-sm text-gray-600">
-          Status: {props.package?.status === "APPROVED" ?
-            (<span class="text-green-600 font-bold">APPROVED!</span>) :
-            <span class="font-medium">{props.package?.status}</span>
-          }
-        </div>
-        <div class="text-sm text-gray-700">
-          Description: {props.package?.description}
-        </div>
-        <div class="text-sm text-gray-600">
-          Reviewed by: <span class="font-medium">{props.package?.reviewedBy?.fullName ?? "not yet reviewed"}</span>
-        </div>
-        <div class="text-sm text-gray-600">
-          Approved by: <span class="font-medium">{props.package?.approvedBy?.fullName ?? "not yet approved"}</span>
+      <div class="p-4 border border-[var(--color-border-1)] rounded-[10px] bg-white shadow w-full sm:max-w-md text-left">
+        <div class="flex flex-col gap-2">
+          <p class="subtitle-1 font-bold">
+            Package #{props.package?.id} - {props.package?.createdBy.fullName}
+          </p>
+          <p class="body-3 text-[#666666]">
+            Status: {props.package?.status === "APPROVED" ?
+              (<span class="text-green-600 font-bold">APPROVED!</span>) :
+              <span class="font-medium">{props.package?.status}</span>
+            }
+          </p>
+          <p class="body-3 text-[#666666]">
+            Reviewed by: <span class="font-medium">{props.package?.reviewedBy?.fullName ?? "not yet reviewed"}</span>
+          </p>
+          <p class="body-3 text-[#666666]">
+            Approved by: <span class="font-medium">{props.package?.approvedBy?.fullName ?? "not yet approved"}</span>
+          </p>
         </div>
 
-        <div class="flex justify-between border-b py-1 text-gray-700" />
-
-        <div class="space-y-2">
+        <div class="flex justify-between border-b py-1 border-[var(--color-border-1)]" />
+        <div class="space-y-2 my-3">
           <For each={props.package?.packageItems}>
             {(p) => (
               <div class="flex justify-between text-gray-700">
@@ -75,68 +75,70 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
           </For>
 
           {/* Price */}
-          <div class="flex flex-col space-y-1 border-t pt-2">
+          <div class="flex flex-col space-y-1 border-t border-[var(--color-border-1)] pt-2">
             {/* Calculated/base price */}
             <div class="flex justify-between text-gray-600">
-              <span>Calculated Price:</span>
-              <span class="font-semibold">
-                {calculatedPrice.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
-              </span>
+              <p class="body-2">Calculated Price:</p>
+              <p class="body-2">
+                {calculatedPrice().toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
+              </p>
             </div>
 
             {/* Show override/package price if set */}
-            <Show when={overridePrice > 0}>
+            <Show when={overridePrice() > 0}>
               <div class="flex justify-between text-gray-600">
-                <span>Package Price:</span>
-                <span class="font-semibold">
-                  {overridePrice.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
-                </span>
+                <p class="body-2">Package Price:</p>
+                <p class="body-2 font-bold">
+                  {overridePrice().toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
+                </p>
               </div>
 
               {/* Difference colored */}
               <div class={`flex justify-between font-semibold ${diffColor}`}>
-                <span>Difference:</span>
-                <span>
-                  {Math.abs(priceDiff).toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
-                  {priceDiff > 0 ? " ↑" : priceDiff < 0 ? " ↓" : ""}
-                </span>
+                <p class="body-2">Difference:</p>
+                <p class="body-2 font-bold">
+                  {Math.abs(priceDiff()).toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
+                  {priceDiff() > 0 ? " ↑" : priceDiff() < 0 ? " ↓" : ""}
+                </p>
               </div>
             </Show>
 
             {/* Total */}
             <div class="flex justify-between font-bold text-gray-800">
-              <span>Total:</span>
-              <span>
-                {totalPrice.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
-              </span>
+              <p class="body-1 font-bold">Total:</p>
+              <p class="body-1 font-bold">
+                {totalPrice().toLocaleString("en-PH", { style: "currency", currency: "PHP" })}
+              </p>
             </div>
           </div>
         </div>
 
         {/* CREATED / MODIFIED => Show Review + Edit */}
         <Show when={props.package?.status === PackageStatus.CREATED || props.package?.status === PackageStatus.MODIFIED}>
-          <div class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
-            onClick={handleReview}>
-            Submit Review
-          </div>
-          <div class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
-            onClick={props.onEdit}>
-            Edit
+          <div class="w-full flex flex-col gap-3">
+            <Button class="btn"
+              onClick={handleReview}>
+              Submit Review
+            </Button>
+            <Button class="bg-[#FEBE66] px-4 py-2 rounded hover:bg-[#FFD7A1] text-center rounded-[10px]"
+              onClick={props.onEdit}>
+              Edit
+            </Button>
           </div>
         </Show>
 
         {/* REVIEWED => Show Approve / Deny */}
         <Show when={props.package?.status === PackageStatus.REVIEWED}>
-          <div class="flex gap-2 flex-1">
-            <div
-              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
+          <div class="flex gap-2 flex-col">
+            <Button
+              class="btn"
               onClick={handleApprove}
             >
               Approve
-            </div>
-            <div class="bg-blue-300 text-white px-4 py-2 rounded hover:bg-blue-400 flex-1 text-center">
+            </Button>
+            <Button class="py-2 px-6 bg-[#D6D6D6] rounded-[10px] hover:cursor-pointer hover:bg-[#E3E3E3]" onClick={props.onCancel}>
               Deny
-            </div>
+            </Button>
           </div>
         </Show>
       </div>

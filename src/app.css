@@ -129,6 +129,10 @@ p {
     @apply hidden md:flex gap-4 items-center rounded-[20px] bg-[var(--color-bg-2)] py-[20px] px-[30px]
   }
 
+  .title {
+    @apply font-bold text-2xl;
+  }
+
   .subheader-1 {
     @apply font-bold text-base;
   }
