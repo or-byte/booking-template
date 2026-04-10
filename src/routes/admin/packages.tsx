@@ -1,7 +1,7 @@
 import { Title } from "@solidjs/meta";
 import ProposalDetails from "~/components/admin/ProposalDetails";
 import { createResource, createSignal, For, Show, createEffect, Switch, Match } from "solid-js";
-import { createPackage, getAllPackages, Package, updatePackage, calculatePrice } from "~/lib/package";
+import { createPackage, getAllPackages, Package, updatePackage, deletePackage } from "~/lib/package";
 import { getAllProducts, Product } from "~/lib/product";
 import { useSearchParams } from "@solidjs/router";
 import PackageCard from "~/components/cards/PackageCard";
@@ -97,6 +97,22 @@ export default function Packages() {
     setSelectedPackage(null);
     setPackageMode(null);
   };
+
+  const onHandleDelete = async (p: Package) => {
+    try {
+      await deletePackage(p?.id);
+      await refetchPackages();
+
+      if (selectedPackage()?.id === p.id) {
+        setSelectedPackage(null);
+        setPackageMode(null);
+      }
+    } catch (error) {
+      console.error(err);
+      alert("Failed to delete package");
+    }
+  }
+
   return (
     <main class="py-10">
       <Title>Packages</Title>
@@ -118,35 +134,38 @@ export default function Packages() {
       </div>
       <div class="flex flex-col sm:flex-row gap-3 items-start">
         <Show when={!packages.loading}>
-          <div class="border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)] w-full">
-            <For each={packages()}>
-              {(p) => {
-                const status = p.approvedBy ? "Approved" : p.reviewedBy ? "Reviewed" : "Created";
-                return (
-                  <PackageCard
-                    name={p.description}
-                    onEdit={() => {
-                      setSelectedPackage(p);
-                      setPackageMode("edit")
-                    }}
-                    onClick={() => {
-                      setSelectedPackage(p)
-                      setPackageMode("readonly");
-                    }}
-                  >
-                    <div class="flex items-center gap-2">
-                      <p>Status: </p>
-                      <span
-                        class={`rounded-full px-3 py-0.5 text-sm font-medium ${statusStyles[status]}`}
-                      >
-                        {status}
-                      </span>
-                    </div>
-                  </PackageCard>
-                );
-              }}
-            </For>
-          </div>
+          <Show when={packages()?.length}>
+            <div class="border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)] w-full">
+              <For each={packages()}>
+                {(p) => {
+                  const status = p.approvedBy ? "Approved" : p.reviewedBy ? "Reviewed" : "Created";
+                  return (
+                    <PackageCard
+                      name={p.description}
+                      onEdit={() => {
+                        setSelectedPackage(p);
+                        setPackageMode("edit")
+                      }}
+                      onClick={() => {
+                        setSelectedPackage(p)
+                        setPackageMode("readonly");
+                      }}
+                      onDelete={() => onHandleDelete(p)}
+                    >
+                      <div class="flex items-center gap-2">
+                        <p>Status: </p>
+                        <span
+                          class={`rounded-full px-3 py-0.5 text-sm font-medium ${statusStyles[status]}`}
+                        >
+                          {status}
+                        </span>
+                      </div>
+                    </PackageCard>
+                  );
+                }}
+              </For>
+            </div>
+          </Show>
           {/* Package Description */}
 
           <Show when={packageMode() !== null}>
@@ -168,7 +187,7 @@ export default function Packages() {
                     <PackageForm
                       package={selectedPackage()}
                       mode={packageMode() as "create" | "edit"}
-                      allProducts={allProducts()}
+                      allProducts={allProducts() ?? []}
                       onSave={handleSavePackage}
                       onPackageChange={setSelectedPackage}
                       onCancel={closePanel}

@@ -10,7 +10,7 @@ export default function Input(props: InputProps) {
 
   let inputRef: HTMLInputElement | undefined;
 
-  // 👇 force sync value → DOM
+  // Force sync value → DOM
   createEffect(() => {
     if (inputRef && local.value !== inputRef.value) {
       inputRef.value = (local.value as string) ?? "";

@@ -39,7 +39,7 @@ export default function PackageCard(props: PackageCardProps) {
         {/* Edit */}
         <button
           onClick={onEditEvent}
-          class="hover:text-[var(--color-accent-1)] transition-colors"
+          class="hover:text-[var(--color-accent-1)] hover:cursor-pointer transition-colors"
           aria-label="Edit"
         >
           <MdFillEdit size={20} />
@@ -48,7 +48,7 @@ export default function PackageCard(props: PackageCardProps) {
         {/* Delete */}
         <button
           onClick={onDeleteEvent}
-          class="hover:text-red-500 transition-colors"
+          class="hover:text-red-500 hover:cursor-pointer transition-colors"
           aria-label="Delete"
         >
           <MdFillDelete size={20} />

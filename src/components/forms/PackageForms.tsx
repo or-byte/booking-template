@@ -9,7 +9,7 @@ type PanelMode = "create" | "edit";
 type Props = {
   package: Package | null;
   mode: PanelMode;
-  allProducts: Product[] | undefined;
+  allProducts: Product[];
   onSave: () => void;
   onCancel: () => void;
   onPackageChange: (pkg: Package) => void;
