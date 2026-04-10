@@ -13,15 +13,11 @@ export default function About() {
           </h2>
 
           <p class="text-neutral-700 leading-relaxed text-justify">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-            eget nisl nec urna fermentum tincidunt. Integer sit amet
-            malesuada erat. Vestibulum ante ipsum primis in faucibus orci
-            luctus et ultrices posuere cubilia curae.
+            <strong>The Waterfront Beach Resort</strong> is an enchanting place set in the picturesque town of Morong, Bataan Peninsula where you will find everything you need to help you recharge and get in touch with nature, again and again. It is a fascinating gem of the province's western horizon luxuriates in a long stretch of natural, powdery fine beach sand where both children and adults alike will surely enjoy acquiring a healthy tan or simple unwinding from sunup to sundown.
           </p>
 
           <p class="text-neutral-700 leading-relaxed text-justify">
-            Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-            accusantium doloremque laudantium, totam rem aperiam.
+            During the summer, you can always count on our gorgeous sunsets that light up Bataan's sky providing a beautiful canvass with the best aerial photos without obstructions or disruptive sounds of the city. Between the months of August and February, female marine turtles, of Pawikan as we call them, go back to the shores of Morong, Bataan to lay their eggs. If your fortunate enough, you will be able to experience them hatch their eggs at the shoreline of the resort.
           </p>
         </div>
 
