@@ -18,7 +18,8 @@ type Props = {
 };
 
 export default function ProductForm(props: Props) {
-  const isEditing = () => !props.product.id;
+  /// HACK: forces props.product.id to be truthy
+  const isEditing = () => !!props.product.id;
   const setField = (patch: Partial<Product>) =>
     props.onProductChange({ ...props.product, ...patch });
 
