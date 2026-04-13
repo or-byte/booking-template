@@ -48,31 +48,63 @@ export type UpdatePackageFormData = {
   overridePrice?: number
 }
 
-export const getAllPackages = async (search?: string): Promise<Package[]> => {
+export const getAllPackages = async (
+  page: number = 1,
+  pageSize: number = 5,
+  search?: string
+): Promise<{
+  data: Package[],
+  meta: {
+    page: number,
+    pageSize: number,
+    total: number,
+    totalPages: number
+  }
+}> => {
   "use server"
 
-  const results = await prisma.package.findMany({
-    where: search ? {
+  const safePage = Math.max(page, 1);
+  const skip = (safePage - 1) * pageSize;
+
+  const where = search
+    ? {
       description: {
         contains: search,
-        mode: "insensitive",
+        mode: "insensitive" as const,
       },
-    } : undefined,
-    include: {
-      packageItems: {
-        include: { product: true },
-      },
-      createdBy: true,
-      reviewedBy: true,
-      approvedBy: true,
-      updatedBy: true
-    },
-    orderBy: {
-      id: "asc"
     }
-  });
+    : undefined;
 
-  return results.map((p) => formatPackage(p));
+  const [results, total] = await Promise.all([
+    prisma.package.findMany({
+      where,
+      skip,
+      take: pageSize,
+      include: {
+        packageItems: {
+          include: { product: true },
+        },
+        createdBy: true,
+        reviewedBy: true,
+        approvedBy: true,
+        updatedBy: true,
+      },
+      orderBy: {
+        id: "asc"
+      },
+    }),
+    prisma.package.count({ where })
+  ]);
+
+  return {
+    data: results.map((p) => formatPackage(p)),
+    meta: {
+      page,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+    }
+  };
 }
 
 export const getPackageById = async (id: number) => {
@@ -162,7 +194,7 @@ export const updatePackage = async (id: number, form: UpdatePackageFormData): Pr
   });
 
   if (!result) throw new Error("No result");
-  
+
   return formatPackage(result);
 }
 
