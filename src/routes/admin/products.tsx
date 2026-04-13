@@ -6,11 +6,18 @@ import Button from "~/components/button/Button";
 import PackageCard from "~/components/cards/PackageCard";
 import ProductForm from "~/components/forms/ProductForm";
 import CategoryForm from "~/components/forms/CategoryForm";
+import ConfirmationModal from "~/components/modal/ConfirmationModal";
 
 export default function Products() {
   // Categories states
   const [allCategories, { mutate: setAllCategories }] = createResource<Category[]>(() => getCategories());
   const [selectedCategoryId, setSelectedCategoryId] = createSignal(null);
+
+  //Confirm Delete modal state
+  const [isOpen, setIsOpen] = createSignal(false);
+
+  //success message state for add, update, and delete
+  const [message, setMessage] = createSignal<{ text: string; type: "success" | "error" } | null>(null);
 
   // Products states
   const [allProducts] = createResource<Product[]>(() => getAllProducts());
@@ -64,11 +71,12 @@ export default function Products() {
         setSelectedCategoryId(String(product.categoryId))
         setVisibleProducts((prev) => [...prev, savedProduct]);
       }
-      alert(`Product ${product.id ? "updated" : "created"} successfully!`);
+      showMessage(`Product ${product.id ? "updated" : "created"} successfully!`);
       setFormMode(null);
     } catch (err) {
       console.error(err);
-      alert("Failed to save product.");
+      showMessage("Something went wrong. Please try again.", "error");
+      setFormMode(null);
     }
   };
 
@@ -76,18 +84,19 @@ export default function Products() {
     const product = selectedProduct();
     if (!product) return;
 
-    if (confirm("Are you sure you want to delete this product?")) {
-      try {
-        await deleteProduct(product.id);
-        setVisibleProducts((prev) =>
-          prev.filter((p) => p.id !== product.id)
-        );
-        setSelectedProduct(null);
-        alert("Product deleted successfully!");
-      } catch (err) {
-        console.error(err);
-        alert("Failed to delete product.");
-      }
+    try {
+      await deleteProduct(product.id);
+      setVisibleProducts((prev) =>
+        prev.filter((p) => p.id !== product.id)
+      );
+      setFormMode(null);
+      setSelectedProduct(undefined);
+      onToggleOpen();
+      showMessage("Product deleted successfully!");
+    } catch (err) {
+      console.error(err);
+      showMessage("Something went wrong. Please try again.", "error");
+      setFormMode(null);
     }
   };
 
@@ -103,10 +112,11 @@ export default function Products() {
       setNewCategoryName("");
       setNewCategoryDesc("");
       setFormMode(null);
-      alert("Category created successfully!");
+      showMessage("Category created successfully!");
     } catch (err) {
       console.error(err);
-      alert("Failed to create category.");
+      showMessage("Something went wrong. Please try again.", "error");
+      setFormMode(null);
     }
   };
 
@@ -125,16 +135,30 @@ export default function Products() {
     setFormMode(mode);
   }
 
+  const onToggleOpen = () => {
+    setIsOpen(!isOpen())
+  }
+
+  const onClickDeleteModal = (product: Product) => {
+    setSelectedProduct(product);
+    onToggleOpen();
+  }
+
   const closePanel = () => {
     setFormMode(null);
   }
+
+  const showMessage = (text: string, type: "success" | "error" = "success") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 3000);
+  };
 
   return (
     <main class="py-8">
       <Title>Products</Title>
       <p class="title text-left my-5">Products</p>
       <div class="mb-4 flex flex-col gap-2">
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <Button
             class="btn"
             onClick={[setFormMode, "new-category"]}
@@ -150,21 +174,31 @@ export default function Products() {
           </Button>
         </div>
 
+        <Show when={message()}>
+          <div
+            class={`mt-4 p-3 rounded-[10px] text-sm text-left ${message()?.type === "error"
+              ? "bg-red-100 text-red-700"
+              : "bg-green-100 text-green-700"
+              }`}
+          >
+            {message()?.text}
+          </div>
+        </Show>
+
         {/* Category Filter */}
         <div class="flex flex-col gap-5 my-5">
           <p class="subheader-1 text-left">Categories</p>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
             <For each={allCategories()}>
-              {(cat) => {
-                return (
-                  <Button
-                    class={`btn-outline`}
-                    classList={{ active: String(cat.id) === selectedCategoryId() }}
-                    onClick={() => onClickCategory(String(cat.id))}>
-                    {cat.name}
-                  </Button>
-                )
-              }}
+              {(cat) => (
+                <Button
+                  class="btn-outline"
+                  classList={{ active: String(cat.id) === selectedCategoryId() }}
+                  onClick={() => onClickCategory(String(cat.id))}
+                >
+                  {cat.name}
+                </Button>
+              )}
             </For>
           </div>
         </div>
@@ -176,13 +210,14 @@ export default function Products() {
       </Show>
 
       <div class="flex flex-col sm:flex-row gap-3 items-start">
-        <Show when={!allProducts.loading && visibleProducts() && selectedCategoryId() !== null}>
-          <div class="border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)] w-full">
+        <Show when={!allProducts.loading && selectedCategoryId() !== null}>
+          <div class={`w-full ${visibleProducts().length > 0 ? "border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)]" : ""}`}>
             <For each={visibleProducts()}>
               {(p) => (
                 <PackageCard
                   name={p.name}
-                  onClick={() => onClickCard(p, "edit")}>
+                  onClick={() => onClickCard(p, "edit")}
+                  onDelete={() => onClickDeleteModal(p)}>
                   <div class="flex items-center gap-2">
                     <p>Description: </p>
                     <p>{p.description}</p>
@@ -226,6 +261,15 @@ export default function Products() {
           </div>
         </Show>
       </div>
+      <ConfirmationModal
+        isOpen={isOpen()}
+        title="Delete Item?"
+        message="Are you sure you want to delete this item? This action cannot be undone."
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        onConfirm={handleDeleteProduct}
+        onCancel={onToggleOpen}
+      />
     </main>
   );
 }
