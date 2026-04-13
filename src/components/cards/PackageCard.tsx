@@ -1,10 +1,11 @@
 
 
 import { MdFillDelete, MdFillEdit, MdFillArrow_forward } from 'solid-icons/md';
-import { JSX } from 'solid-js';
+import { JSX, Show } from 'solid-js';
 
 interface PackageCardProps {
   name: string;
+  onEditShow: boolean;
   children?: JSX.Element;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -37,13 +38,15 @@ export default function PackageCard(props: PackageCardProps) {
       {/* Right actions */}
       <div class="flex items-center gap-3 text-gray-400">
         {/* Edit */}
-        <button
-          onClick={onEditEvent}
-          class="hover:text-[var(--color-accent-1)] hover:cursor-pointer transition-colors"
-          aria-label="Edit"
-        >
-          <MdFillEdit size={20} />
-        </button>
+        <Show when={props.onEditShow}>
+          <button
+            onClick={onEditEvent}
+            class="hover:text-[var(--color-accent-1)] hover:cursor-pointer transition-colors"
+            aria-label="Edit"
+          >
+            <MdFillEdit size={20} />
+          </button>
+        </Show>
 
         {/* Delete */}
         <button

@@ -1,12 +1,23 @@
 import { Title } from "@solidjs/meta";
-import { createEffect, createResource, createSignal, For, Show } from "solid-js";
+import { createEffect, createResource, createSignal, For, Show, Switch, Match } from "solid-js";
 import { Category, createNewCategory, getCategories } from "~/lib/category";
 import { createNewProduct, deleteProduct, EditableProduct, getAllProducts, Product, updateProduct } from "~/lib/product";
+import Button from "~/components/button/Button";
+import PackageCard from "~/components/cards/PackageCard";
+import ProductForm from "~/components/forms/ProductForm";
+import CategoryForm from "~/components/forms/CategoryForm";
+import ConfirmationModal from "~/components/modal/ConfirmationModal";
 
 export default function Products() {
   // Categories states
   const [allCategories, { mutate: setAllCategories }] = createResource<Category[]>(() => getCategories());
-  const [selectedCategoryId, setSelectedCategoryId] = createSignal("All");
+  const [selectedCategoryId, setSelectedCategoryId] = createSignal(null);
+
+  //Confirm Delete modal state
+  const [isOpen, setIsOpen] = createSignal(false);
+
+  //success message state for add, update, and delete
+  const [message, setMessage] = createSignal<{ text: string; type: "success" | "error" } | null>(null);
 
   // Products states
   const [allProducts] = createResource<Product[]>(() => getAllProducts());
@@ -14,9 +25,12 @@ export default function Products() {
   const [selectedProduct, setSelectedProduct] = createSignal<EditableProduct | undefined>();
 
   // Create category modal
-  const [categoryModalOpen, setCategoryModalOpen] = createSignal(false);
   const [newCategoryName, setNewCategoryName] = createSignal("");
   const [newCategoryDesc, setNewCategoryDesc] = createSignal("");
+
+  //Forms mode
+  type ProductForm = "new-category" | "new-product" | "edit";
+  const [formMode, setFormMode] = createSignal<ProductForm | null>(null);
 
   createEffect(() => {
     const products = allProducts();
@@ -35,7 +49,6 @@ export default function Products() {
 
   const createNewProductTemplate = (): EditableProduct => ({
     name: "",
-    sku: "",
     description: "",
     price: 0,
     stockQty: 0,
@@ -55,13 +68,15 @@ export default function Products() {
         );
       } else {
         savedProduct = await createNewProduct(product);
+        setSelectedCategoryId(String(product.categoryId))
         setVisibleProducts((prev) => [...prev, savedProduct]);
       }
-      alert(`Product ${product.id ? "updated" : "created"} successfully!`);
-      setSelectedProduct(null);
+      showMessage(`Product ${product.id ? "updated" : "created"} successfully!`);
+      setFormMode(null);
     } catch (err) {
       console.error(err);
-      alert("Failed to save product.");
+      showMessage("Something went wrong. Please try again.", "error");
+      setFormMode(null);
     }
   };
 
@@ -69,18 +84,19 @@ export default function Products() {
     const product = selectedProduct();
     if (!product) return;
 
-    if (confirm("Are you sure you want to delete this product?")) {
-      try {
-        await deleteProduct(product.id);
-        setVisibleProducts((prev) =>
-          prev.filter((p) => p.id !== product.id)
-        );
-        setSelectedProduct(null);
-        alert("Product deleted successfully!");
-      } catch (err) {
-        console.error(err);
-        alert("Failed to delete product.");
-      }
+    try {
+      await deleteProduct(product.id);
+      setVisibleProducts((prev) =>
+        prev.filter((p) => p.id !== product.id)
+      );
+      setFormMode(null);
+      setSelectedProduct(undefined);
+      onToggleOpen();
+      showMessage("Product deleted successfully!");
+    } catch (err) {
+      console.error(err);
+      showMessage("Something went wrong. Please try again.", "error");
+      setFormMode(null);
     }
   };
 
@@ -92,54 +108,99 @@ export default function Products() {
         description: newCategoryDesc(),
       });
       setAllCategories((prev) => [...(prev || []), newCat]);
-      setSelectedCategoryId(newCat.id);
+      setSelectedCategoryId(String(newCat.id));
       setNewCategoryName("");
       setNewCategoryDesc("");
-      setCategoryModalOpen(false);
-      alert("Category created successfully!");
+      setFormMode(null);
+      showMessage("Category created successfully!");
     } catch (err) {
       console.error(err);
-      alert("Failed to create category.");
+      showMessage("Something went wrong. Please try again.", "error");
+      setFormMode(null);
     }
+  };
+
+  const onClickNewProduct = () => {
+    setSelectedProduct(createNewProductTemplate());
+    setFormMode("new-product");
+  };
+
+  const onClickCategory = (id: string) => {
+    setSelectedCategoryId(id);
+    setSelectedProduct(undefined);
+  }
+
+  const onClickCard = (product: Product, mode: ProductForm) => {
+    setSelectedProduct(product);
+    setFormMode(mode);
+  }
+
+  const onToggleOpen = () => {
+    setIsOpen(!isOpen())
+  }
+
+  const onClickDeleteModal = (product: Product) => {
+    setSelectedProduct(product);
+    onToggleOpen();
+  }
+
+  const closePanel = () => {
+    setFormMode(null);
+  }
+
+  const showMessage = (text: string, type: "success" | "error" = "success") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 3000);
   };
 
   return (
     <main class="py-8">
       <Title>Products</Title>
-
-      <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div class="flex gap-2">
-          <button
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            onClick={[setCategoryModalOpen, true]}
+      <p class="title text-left my-5">Products</p>
+      <div class="mb-4 flex flex-col gap-2">
+        <div class="flex flex-wrap gap-2">
+          <Button
+            class="btn"
+            onClick={[setFormMode, "new-category"]}
           >
             + New Category
-          </button>
+          </Button>
 
-          <button
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            onClick={[setSelectedProduct, createNewProductTemplate]}
+          <Button
+            class="btn"
+            onClick={onClickNewProduct}
           >
             + New Product
-          </button>
+          </Button>
         </div>
 
-        {/* Category Filter */}
-        <div class="flex items-center gap-2">
-          <label class="font-semibold">Filter by category:</label>
-          <select
-            class="border p-1 rounded"
-            value={selectedCategoryId()}
-            onChange={(e) => {
-              setSelectedCategoryId(e.currentTarget.value);
-              setSelectedProduct(undefined);
-            }}
+        <Show when={message()}>
+          <div
+            class={`mt-4 p-3 rounded-[10px] text-sm text-left ${message()?.type === "error"
+              ? "bg-red-100 text-red-700"
+              : "bg-green-100 text-green-700"
+              }`}
           >
-            <option value="All">All</option>
+            {message()?.text}
+          </div>
+        </Show>
+
+        {/* Category Filter */}
+        <div class="flex flex-col gap-5 my-5">
+          <p class="subheader-1 text-left">Categories</p>
+          <div class="flex flex-wrap gap-2">
             <For each={allCategories()}>
-              {(cat) => <option value={cat.id}>{cat.name}</option>}
+              {(cat) => (
+                <Button
+                  class="btn-outline"
+                  classList={{ active: String(cat.id) === selectedCategoryId() }}
+                  onClick={() => onClickCategory(String(cat.id))}
+                >
+                  {cat.name}
+                </Button>
+              )}
             </For>
-          </select>
+          </div>
         </div>
       </div>
 
@@ -148,162 +209,67 @@ export default function Products() {
         <div>Loading products...</div>
       </Show>
 
-      <Show when={!allProducts.loading && visibleProducts()}>
-        <For each={visibleProducts()}>
-          {(p) => (
-            <div
-              class="p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100"
-              onClick={[setSelectedProduct, p]}
-            >
-              <div class="font-medium">{p.name}</div>
-              <div class="text-sm text-gray-600">SKU: {p.sku}</div>
-            </div>
-          )}
-        </For>
-      </Show>
+      <div class="flex flex-col sm:flex-row gap-3 items-start">
+        <Show when={!allProducts.loading && selectedCategoryId() !== null}>
+          <div class={`w-full ${visibleProducts().length > 0 ? "border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)]" : ""}`}>
+            <For each={visibleProducts()}>
+              {(p) => (
+                <PackageCard
+                  name={p.name}
+                  onClick={() => onClickCard(p, "edit")}
+                  onDelete={() => onClickDeleteModal(p)}>
+                  <div class="flex items-center gap-2">
+                    <p>Description: </p>
+                    <p>{p.description}</p>
+                  </div>
+                </PackageCard>
+              )}
+            </For>
+          </div>
+        </Show>
 
-      {/* Product Editor */}
-      <Show when={selectedProduct()}>
-        {(product) => (
-          <div class="mt-6 p-4 border rounded bg-white shadow w-full sm:max-w-md">
-            <h2 class="text-lg font-semibold mb-2">
-              {product().id ? "Edit Product" : "New Product"}: {product().name || "(unnamed)"}
-            </h2>
-            <div class="flex flex-col gap-3">
-              <label>
-                Name:
-                <input
-                  type="text"
-                  class="border p-1 rounded w-full"
-                  value={product().name}
-                  onInput={(e) =>
-                    setSelectedProduct({ ...selectedProduct(), name: e.currentTarget.value })
-                  }
-                />
-              </label>
-              <label>
-                SKU:
-                <input
-                  type="text"
-                  class="border p-1 rounded w-full"
-                  value={selectedProduct().sku}
-                  onInput={(e) =>
-                    setSelectedProduct({ ...selectedProduct(), sku: e.currentTarget.value })
-                  }
-                />
-              </label>
-              <label>
-                Price:
-                <input
-                  type="number"
-                  step="0.01"
-                  class="border p-1 rounded w-full"
-                  value={selectedProduct().price}
-                  onInput={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct(),
-                      price: parseFloat(e.currentTarget.value),
-                    })
-                  }
-                />
-              </label>
-              <label>
-                Description:
-                <textarea
-                  class="border p-1 rounded w-full"
-                  value={selectedProduct().description}
-                  onInput={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct(),
-                      description: e.currentTarget.value,
-                    })
-                  }
-                />
-              </label>
-              <label>
-                Category:
-                <select
-                  class="border p-1 rounded w-full"
-                  value={selectedProduct().categoryId}
-                  onChange={(e) =>
-                    setSelectedProduct({
-                      ...selectedProduct(),
-                      categoryId: Number(e.currentTarget.value),
-                    })
-                  }
-                >
-                  <option value="" disabled>
-                    Select category
-                  </option>
-                  <For each={allCategories()}>
-                    {(cat) => <option value={cat.id}>{cat.name}</option>}
-                  </For>
-                </select>
-              </label>
-
-              <div class="flex flex-col sm:flex-row gap-2 mt-2">
-                <button
-                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1"
-                  onClick={handleSaveProduct}
-                >
-                  Save Product
-                </button>
-                <button
-                  class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 flex-1"
-                  onClick={() => setSelectedProduct(undefined)}
-                >
-                  Cancel
-                </button>
-                {selectedProduct()?.id && (
-                  <button
-                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex-1"
-                    onClick={handleDeleteProduct}
-                  >
-                    Delete Product
-                  </button>
-                )}
-              </div>
+        <Show when={formMode() !== null}>
+          <div
+            class="fixed inset-0 bg-black/50 flex items-center justify-center z-60 px-5"
+            onClick={closePanel}
+          >
+            <div class="w-full max-w-md max-h-[90vh] overflow-y-auto px-5" onClick={(e) => e.stopPropagation()}>
+              <Switch>
+                <Match when={formMode() === "new-category"}>
+                  <CategoryForm
+                    name={newCategoryName()}
+                    description={newCategoryDesc()}
+                    onNameChange={setNewCategoryName}
+                    onDescriptionChange={setNewCategoryDesc}
+                    onConfirm={handleCreateCategory}
+                    onCancel={closePanel}
+                  />
+                </Match>
+                <Match when={formMode() === "edit" || formMode() === "new-product"}>
+                  {/* Product Editor */}
+                  <ProductForm
+                    product={selectedProduct()!}
+                    allCategories={allCategories()}
+                    onSave={handleSaveProduct}
+                    onCancel={closePanel}
+                    onDelete={selectedProduct()?.id ? handleDeleteProduct : undefined}
+                    onProductChange={setSelectedProduct}
+                  />
+                </Match>
+              </Switch>
             </div>
           </div>
-        )
-        }
-      </Show>
-
-      {/* Category Modal */}
-      <Show when={categoryModalOpen()}>
-        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-30">
-          <div class="bg-white p-6 rounded shadow-md w-full max-w-sm">
-            <h2 class="text-lg font-semibold mb-4">Create New Category</h2>
-            <input
-              type="text"
-              placeholder="Category name"
-              class="border p-2 rounded w-full mb-2"
-              value={newCategoryName()}
-              onInput={(e) => setNewCategoryName(e.currentTarget.value)}
-            />
-            <textarea
-              placeholder="Description (optional)"
-              class="border p-2 rounded w-full mb-4"
-              value={newCategoryDesc()}
-              onInput={(e) => setNewCategoryDesc(e.currentTarget.value)}
-            />
-            <div class="flex justify-end gap-2">
-              <button
-                class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
-                onClick={[setCategoryModalOpen, false]}
-              >
-                Cancel
-              </button>
-              <button
-                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                onClick={handleCreateCategory}
-              >
-                Create
-              </button>
-            </div>
-          </div>
-        </div>
-      </Show>
+        </Show>
+      </div>
+      <ConfirmationModal
+        isOpen={isOpen()}
+        title="Delete Item?"
+        message="Are you sure you want to delete this item? This action cannot be undone."
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        onConfirm={handleDeleteProduct}
+        onCancel={onToggleOpen}
+      />
     </main>
   );
 }

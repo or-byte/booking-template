@@ -8,6 +8,14 @@ async function main() {
       role: "ADMIN"
     }
   })
+
+  const room = await prisma.category.create({
+    data: {
+      name: "Room",
+      description: "Types of room"
+    }
+  })
+
   const hygiene = await prisma.category.create({
     data: {
       name: "Hygiene",
@@ -22,35 +30,9 @@ async function main() {
     }
   })
 
-  const room = await prisma.category.create({
-    data: {
-      name: "Room",
-      description: "Types of room"
-    }
-  })
-
-  await prisma.product.createMany({
-    data: [
-      {
-        sku: "HYG-001-DK",
-        name: "Dental Kit",
-        description: "Toothbrush plus toothpaste",
-        price: 50.00,
-        categoryId: hygiene.id
-      },
-      {
-        sku: "CLO-001-SLPR",
-        name: "Slippers",
-        description: "Room friendly slipper",
-        price: 67.00,
-        categoryId: clothing.id
-      },
-    ]
-  });
 
   const deluxe = await prisma.product.create({
     data: {
-      sku: "ROOM-001-DLX",
       name: "Deluxe",
       description: "Our fully air-conditioned Deluxe Room features one queen bed, one double bed, bathroom with walk-in shower, and balcony of our Partial View Seascape. This is a non-smoking room. Included: Free breakfast for four.",
       price: 5400.00,
@@ -60,7 +42,6 @@ async function main() {
 
   const superior = await prisma.product.create({
     data: {
-      sku: "ROOM-002-SUP",
       name: "Superior",
       description: "Our Superior Room features two double beds and bathroom with walk-in shower, as well as, a wall out balcony of our partial view seascape. Included: Free breakfast for four persons.",
       price: 5000.00,
@@ -70,7 +51,6 @@ async function main() {
 
   const standard = await prisma.product.create({
     data: {
-      sku: "ROOM-003-STD",
       name: "Standard",
       description: "Our Standard Room has a partial overlook of the ocean featuring one double bed with a walk-in bathroom & shower, with free breakfast for two.",
       price: 2800.00,
@@ -80,7 +60,6 @@ async function main() {
 
   const dormitory = await prisma.product.create({
     data: {
-      sku: "ROOM-004-DORM",
       name: "Dormitory",
       description: "Our Dormitory Room accommodates up to 12 people with 2 bathrooms and 2 walk-in showers rooms.",
       price: 12000.00,
@@ -132,6 +111,23 @@ async function main() {
       },
     ]
   })
+
+  await prisma.product.createMany({
+    data: [
+      {
+        name: "Dental Kit",
+        description: "Toothbrush plus toothpaste",
+        price: 50.00,
+        categoryId: hygiene.id
+      },
+      {
+        name: "Slippers",
+        description: "Room friendly slipper",
+        price: 67.00,
+        categoryId: clothing.id
+      },
+    ]
+  });
 }
 
 main()

@@ -5,7 +5,6 @@ import { query } from "@solidjs/router";
 export type Product = Omit<PrismaProduct, "price"> & { price: number };
 
 export type ProductFormData = {
-  sku: string;
   name: string;
   description: string;
   price: number;
@@ -14,20 +13,11 @@ export type ProductFormData = {
 
 export type EditableProduct = Partial<Product> & { id?: number; categoryId?: number }
 
-// This function fetches all products except of category Room. For fetching rooms, use `getProductsByCategory`
 export const getAllProducts = query(
   async (): Promise<Product[]> => {
     "use server"
 
-    const products = await prisma.product.findMany({
-      where: {
-        category: {
-          name: {
-            not: "Room",
-          },
-        },
-      },
-    });
+    const products = await prisma.product.findMany();
 
     return products.map(mapProduct);
   },
@@ -63,7 +53,6 @@ export const createNewProduct = async (form: ProductFormData): Promise<Product> 
   const product = await prisma.product.create({
     data: {
       name: form.name,
-      sku: form.sku,
       description: form.description,
       price: form.price,
       categoryId: form.categoryId,
@@ -79,7 +68,6 @@ export const updateProduct = async (form: ProductFormData & { id: number }): Pro
     where: { id: form.id },
     data: {
       name: form.name,
-      sku: form.sku,
       description: form.description,
       price: form.price,
       categoryId: form.categoryId,
