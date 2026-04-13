@@ -61,10 +61,11 @@ export default function Products() {
         );
       } else {
         savedProduct = await createNewProduct(product);
+        setSelectedCategoryId(String(product.categoryId))
         setVisibleProducts((prev) => [...prev, savedProduct]);
       }
       alert(`Product ${product.id ? "updated" : "created"} successfully!`);
-      setSelectedProduct(null);
+      setFormMode(null);
     } catch (err) {
       console.error(err);
       alert("Failed to save product.");
@@ -98,7 +99,7 @@ export default function Products() {
         description: newCategoryDesc(),
       });
       setAllCategories((prev) => [...(prev || []), newCat]);
-      setSelectedCategoryId(newCat.id);
+      setSelectedCategoryId(String(newCat.id));
       setNewCategoryName("");
       setNewCategoryDesc("");
       setFormMode(null);
@@ -108,6 +109,16 @@ export default function Products() {
       alert("Failed to create category.");
     }
   };
+
+  const onClickNewProduct = () => {
+    setSelectedProduct(createNewProductTemplate());
+    setFormMode("new-product");
+  };
+
+  const onClickCategory = (id: string) => {
+    setSelectedCategoryId(id);
+    setSelectedProduct(undefined);
+  }
 
   const onClickCard = (product: Product, mode: ProductForm) => {
     setSelectedProduct(product);
@@ -133,10 +144,7 @@ export default function Products() {
 
           <Button
             class="btn"
-            onClick={() => {
-              setSelectedProduct(createNewProductTemplate());
-              setFormMode("new-product");
-            }}
+            onClick={onClickNewProduct}
           >
             + New Product
           </Button>
@@ -147,13 +155,16 @@ export default function Products() {
           <p class="subheader-1 text-left">Categories</p>
           <div class="flex gap-2">
             <For each={allCategories()}>
-              {(cat) =>
-                <Button class="btn-outline" onClick={() => {
-                  setSelectedCategoryId(String(cat.id))
-                  setSelectedProduct(undefined);
-                }}>
-                  {cat.name}
-                </Button>}
+              {(cat) => {
+                return (
+                  <Button
+                    class={`btn-outline`}
+                    classList={{ active: String(cat.id) === selectedCategoryId() }}
+                    onClick={() => onClickCategory(String(cat.id))}>
+                    {cat.name}
+                  </Button>
+                )
+              }}
             </For>
           </div>
         </div>

@@ -126,7 +126,11 @@ p {
   }
 
   .btn-outline {
-    @apply py-2 px-6 rounded-[10px] border border-[var(--color-border-1)]; 
+    @apply py-2 px-6 rounded-[10px] border border-[var(--color-border-1)];
+  }
+
+  .btn-outline.active {
+    @apply border-[var(--color-accent-1)];
   }
 
   .btn-outline:hover {

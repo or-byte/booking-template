@@ -33,7 +33,7 @@ export default function ProductForm(props: Props) {
           />
         </label>
 
-        <div class="flex justify-between gap-2">
+        <div class="flex flex flex-col sm:flex-row justify-between gap-2">
           <label class="w-full">
             <p class="body-2 font-bold pb-2 text-left">Price:</p>
             <Input
