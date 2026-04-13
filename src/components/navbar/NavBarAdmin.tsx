@@ -3,8 +3,7 @@ import { createSignal, For, onMount, onCleanup, createResource } from "solid-js"
 import { useNavigate, useLocation } from "@solidjs/router";
 import UserProfile from "../user/UserProfile";
 import SearchInput from "../search/SearchInput";
-import { getAllPackages } from "~/lib/package";
-import { Package } from "@prisma/client";
+import { Package, getAllPackages } from "~/lib/package";
 
 const menuItems = [
   { href: "/admin", label: "Dashboard" },
@@ -14,7 +13,7 @@ const menuItems = [
 
 export default function NavBarAdmin() {
   const [search, setSearch] = createSignal("");
-  const [packages] = createResource(search, (s) => getAllPackages(s));
+  const [packages] = createResource(search, async (s) => await getAllPackages(1, 5, s));
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = createSignal(false);
@@ -22,7 +21,7 @@ export default function NavBarAdmin() {
 
   const navigateToPackages = (item: Package) => {
     console.log("nav");
-    
+
     navigate(`/admin/packages?id=${item.id}`)
   }
 
@@ -42,7 +41,6 @@ export default function NavBarAdmin() {
 
     window.addEventListener("scroll", handleScroll);
     onCleanup(() => window.removeEventListener("scroll", handleScroll));
-
 
   });
 
@@ -90,9 +88,9 @@ export default function NavBarAdmin() {
               placeholder="Search..."
               value={search()}
               onInput={(e) => setSearch(e.currentTarget.value)}
-              open={packages()?.length ?? 0}
+              open={packages()?.data.length ?? 0}
             >
-              <For each={packages()}>
+              <For each={packages()?.data}>
                 {(item) => (
                   <div
                     class="p-2 hover:bg-gray-100 cursor-pointer w-full"
