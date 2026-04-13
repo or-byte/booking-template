@@ -113,6 +113,8 @@ export default function Packages() {
       console.error(err);
       alert("Failed to delete package");
     }
+  }
+  
   const handleSetPage = (page: number) => {
     setPage(page);
   }
@@ -156,6 +158,7 @@ export default function Packages() {
                   return (
                     <PackageCard
                       name={p.description}
+                      onEditShow={true}
                       onEdit={() => {
                         setSelectedPackage(p);
                         setPackageMode("edit")
@@ -201,7 +204,7 @@ export default function Packages() {
                     <PackageForm
                       package={selectedPackage()}
                       mode={packageMode() as "create" | "edit"}
-                      allProducts={allProducts() ?? []}
+                      allProducts={allProducts()}
                       onSave={handleSavePackage}
                       onPackageChange={setSelectedPackage}
                       onCancel={closePanel}
