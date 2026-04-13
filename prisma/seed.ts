@@ -30,6 +30,29 @@ async function main() {
     }
   })
 
+  const extra = await prisma.category.create({
+    data: {
+      name: "Extra",
+      description: "Additional payments"
+    }
+  })
+
+  await prisma.product.createMany({
+    data: [
+      {
+        name: "Dental Kit",
+        description: "Toothbrush plus toothpaste",
+        price: 50.00,
+        categoryId: hygiene.id
+      },
+      {
+        name: "Slippers",
+        description: "Room friendly slipper",
+        price: 67.00,
+        categoryId: clothing.id
+      },
+    ]
+  });
 
   const deluxe = await prisma.product.create({
     data: {
@@ -91,7 +114,7 @@ async function main() {
       name: "Excess Person",
       description: "Extra person",
       price: 1000.00,
-      categoryId: room.id
+      categoryId: extra.id
     }
   })
 

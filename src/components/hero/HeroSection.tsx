@@ -3,7 +3,7 @@ import { useNavigate } from "@solidjs/router";
 
 export default function Hero() {
   const navigate = useNavigate();
-  const goToRooms = () => navigate("/rooms");
+  const goToRooms = () => navigate("/booking");
 
   return (
     <section
@@ -61,6 +61,7 @@ export default function Hero() {
             hover:bg-white/15
             transition-all duration-300
             rounded-[10px]
+            cursor-pointer
           "
           onClick={goToRooms}
         >

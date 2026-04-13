@@ -35,7 +35,6 @@ export default function Packages() {
     Pending: "bg-blue-100 text-blue-700",
   };
 
-
   // Auto-select package from URL param
   createEffect(() => {
     const id = searchParams.id;
