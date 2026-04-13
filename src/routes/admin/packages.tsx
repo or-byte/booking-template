@@ -53,12 +53,14 @@ export default function Packages() {
   }
 
   const handleSavePackage = async () => {
+    const data = session().data;
+    if (!data) return;
 
-    const userId = session().data?.user?.id;
+    const user = data.user;
+    if (!user) return;
 
-    if (!userId) {
-      throw new Error("User not authenticated");
-    }
+    const userId = user.id;
+    if (!userId) return;
 
     try {
       const pkg = selectedPackage();

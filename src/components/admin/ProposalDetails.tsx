@@ -34,11 +34,14 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
   const diffColor = () => priceDiff() > 0 ? "text-red-600" : priceDiff() < 0 ? "text-green-600" : "text-gray-600";
 
   const handleReview = async () => {
-    const userId = session().data?.user.id;
+    const data = session().data;
+    if (!data) return;
 
-    if (!userId) {
-      throw new Error("User not authenticated");
-    }
+    const user = data.user;
+    if (!user) return;
+
+    const userId = user.id;
+    if (!userId) return;
 
     submitUpdate({
       reviewedById: userId
@@ -46,11 +49,14 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
   }
 
   const handleApprove = async () => {
-    const userId = session().data?.user.id;
+    const data = session().data;
+    if (!data) return;
 
-    if (!userId) {
-      throw new Error("User not authenticated");
-    }
+    const user = data.user;
+    if (!user) return;
+
+    const userId = user.id;
+    if (!userId) return;
 
     submitUpdate({
       approvedById: userId
