@@ -8,6 +8,7 @@ import PackageCard from "~/components/cards/PackageCard";
 import Button from "~/components/button/Button";
 import PackageForm from "~/components/forms/PackageForms";
 import { useSession } from "~/lib/auth";
+import { sendEmail } from "~/lib/google/email";
 
 export default function Packages() {
   const session = useSession();
@@ -111,6 +112,16 @@ export default function Packages() {
     setPackageMode(null);
   };
 
+  const handleOnUpdate = async () => {
+    await refetchPackages();
+    const updated = packages()?.data.find(p => p.id === selectedPackage()?.id);
+    if (updated) {
+      setSelectedPackage(updated);
+      await sendEmail(updated);
+    }
+    closePanel();
+  };
+
   const onHandleDelete = async (p: Package) => {
     try {
       await deletePackage(p?.id);
@@ -205,7 +216,7 @@ export default function Packages() {
                   <Match when={packageMode() === "readonly"}>
                     <ProposalDetails
                       package={selectedPackage()!}
-                      onUpdate={refetchAndSync}
+                      onUpdate={handleOnUpdate}
                       onEdit={toggleEditPackage}
                       onCancel={() => setSelectedPackage(null)}
                     />

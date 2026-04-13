@@ -40,7 +40,7 @@ export async function getAccessToken() {
 
 export const bodyTemplate = (pkg: Package) => {
   let status: keyof typeof PackageStatus = pkg.status;
-  let updatedBy = pkg.createdBy.fullName;
+  let updatedBy = pkg.createdBy.name;
 
   const statusTextMap = {
     CREATED: "created",
@@ -108,18 +108,21 @@ export const bodyTemplate = (pkg: Package) => {
 };
 
 export const sendEmail = async (
-  recipient: string,
-  subject: string,
   pkg: Package
 ) => {
   "use server"
   const accessToken = await getAccessToken();
+  if (!accessToken) throw new Error("Missing acess token");
 
+  
+  const recipient = pkg.createdBy.email;
+  
+  console.log("sending email to ", recipient);
   const body = bodyTemplate(pkg);
 
   const message = [
     `To: ${recipient}`,
-    `Subject: ${subject}`,
+    `Subject: The Waterfront Beach Resort Package Update`, 
     "Content-Type: text/html; charset=UTF-8",
     "",
     body
