@@ -113,6 +113,8 @@ export default function Packages() {
       console.error(err);
       alert("Failed to delete package");
     }
+  }
+  
   const handleSetPage = (page: number) => {
     setPage(page);
   }
