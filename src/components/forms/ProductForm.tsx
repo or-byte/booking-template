@@ -18,7 +18,7 @@ type Props = {
 };
 
 export default function ProductForm(props: Props) {
-  const isEditing = () => !!props.product.id;
+  const isEditing = () => !props.product.id;
   const setField = (patch: Partial<Product>) =>
     props.onProductChange({ ...props.product, ...patch });
 
