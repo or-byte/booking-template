@@ -29,6 +29,13 @@ async function main() {
     }
   })
 
+  const extra = await prisma.category.create({
+    data: {
+      name: "Extra",
+      description: "Additional payments"
+    }
+  })
+
   await prisma.product.createMany({
     data: [
       {
@@ -115,7 +122,7 @@ async function main() {
       name: "Excess Person",
       description: "Extra person",
       price: 1000.00,
-      categoryId: room.id
+      categoryId: extra.id
     }
   })
 
