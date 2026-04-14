@@ -234,10 +234,6 @@ export const addItemsToPackage = async (packageId: number, items: PackageItemFor
 export const deletePackage = async (id: number) => {
   "use server"
 
-  await prisma.packageItem.deleteMany({
-    where: { packageId: id },
-  });
-
   await prisma.package.delete({
     where: { id },
   });
