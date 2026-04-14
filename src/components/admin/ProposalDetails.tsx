@@ -99,7 +99,8 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
 
           {/* Package Events */}
           <div class="flex justify-between border-b py-1 border-[var(--color-border-1)]" />
-          <div class="w-full">
+
+          <div class="w-full max-h-[250px] overflow-y-auto pr-2">
             <div class="relative border-gray-200 ml-2">
 
               <Show when={!packageEvents.loading}>
@@ -112,10 +113,8 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
 
                         {/* Icon column */}
                         <div class="relative flex flex-col items-center">
-                          {/* Line connector */}
                           <div class="absolute top-5 bottom-[-24px] w-px bg-gray-200"></div>
 
-                          {/* Icon */}
                           <div
                             class={`flex items-center justify-center w-5 h-5 rounded-full border z-10
                   ${isLatest
@@ -126,7 +125,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
                           </div>
                         </div>
 
-                        {/* Content column */}
+                        {/* Content */}
                         <div class="flex-1 leading-relaxed">
                           <div class="text-xs text-gray-500 mb-1">
                             {e.createdAt.toLocaleString()}
@@ -137,7 +136,8 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
                           </div>
 
                           <div class="text-sm text-gray-600">
-                            {e.description}
+                            {e.description} <br />
+                            by {e.createdBy.name}
                           </div>
                         </div>
 

@@ -1,7 +1,7 @@
 import { Title } from "@solidjs/meta";
 import ProposalDetails from "~/components/admin/ProposalDetails";
 import { createResource, createSignal, For, Show, createEffect, Switch, Match } from "solid-js";
-import { createPackageAction, getAllPackages, Package, deletePackage, updatePackageAction } from "~/lib/package";
+import { createPackageAction, getAllPackages, Package, deletePackage, updatePackageAction, UpdatePackageFormData } from "~/lib/package";
 import { getAllProducts, Product } from "~/lib/product";
 import { useAction, useSearchParams } from "@solidjs/router";
 import PackageCard from "~/components/cards/PackageCard";
@@ -66,6 +66,11 @@ export default function Packages() {
       // UPDATE
       if (pkg.id) {
         await updatePackage(pkg.id, userId, {
+          companyName: pkg.companyName,
+          contactNumber: pkg.contactNumber,
+          contactEmail: pkg.contactEmail,
+          numberOfGuests: pkg.numberOfGuests,
+          eventDate: pkg.eventDate,
           description: pkg.description ?? "",
           packageItems: formattedItems,
           overridePrice: pkg.overridePrice,
