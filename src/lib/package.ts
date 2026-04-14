@@ -15,6 +15,15 @@ export const PackageEventType = {
 
 export type PackageEventType = (typeof PackageEventType)[keyof typeof PackageEventType];
 
+export const PACKAGE_EVENT_DESCRIPTION = {
+  create: "Package proposal created",
+  modify: "Package proposal has been modified",
+  review: "Package proposal has been reviewed",
+  approve: "Package proposal has been approved",
+  reject: "Package proposal has been rejected",
+  cancel: "Package proposal has been cancelled"
+}
+
 export type PackageEvent = Omit<PrismaPackageEvent, "packageId"> & {
   createdBy: User
 };
@@ -26,6 +35,7 @@ export type PackageItem = Omit<PrismaPackageItem, "price"> & {
 
 export type Package = Omit<PrismaPackage, "overridePrice"> & {
   packageItems: PackageItem[]
+  packageEvents: PackageEvent[]
   overridePrice?: number
   status: PackageEventType
 }
@@ -204,7 +214,7 @@ export const createPackageAction = action(async (form: PackageFormData) => {
           packageId: pkg.id,
           type: PackageEventType.CREATED,
           createdById: form.userId,
-          description: "Package proposal created"
+          description: PACKAGE_EVENT_DESCRIPTION.create
         }
       });
     });
@@ -250,7 +260,7 @@ export const updatePackageAction = action(async (id: number, userId: string, for
         packageId: updatedPkg.id,
         type: PackageEventType.MODIFIED,
         createdById: userId,
-        description: "Package proposal has been modified"
+        description: PACKAGE_EVENT_DESCRIPTION.modify
       }
     });
 
@@ -271,7 +281,7 @@ export const reviewPackageAction = action(async (packageId: number, userId: stri
       packageId,
       type: PackageEventType.REVIEWED,
       createdById: userId,
-      description: `Package proposal has been reviewed`
+      description: PACKAGE_EVENT_DESCRIPTION.review
     }
   })
 },
@@ -286,7 +296,7 @@ export const approvePackageAction = action(async (packageId: number, userId: str
       packageId,
       type: PackageEventType.APPROVED,
       createdById: userId,
-      description: `Package proposal has been approved`
+      description: PACKAGE_EVENT_DESCRIPTION.approve
     }
   });
 },
@@ -301,7 +311,7 @@ export const rejectPackageAction = action(async (packageId: number, userId: stri
       packageId,
       type: PackageEventType.REJECTED,
       createdById: userId,
-      description: `Package proposal has been rejected`
+      description: PACKAGE_EVENT_DESCRIPTION.reject
     }
   });
 },
@@ -316,7 +326,7 @@ export const cancelPackageAction = action(async (packageId: number, userId: stri
       packageId,
       type: PackageEventType.CANCELLED,
       createdById: userId,
-      description: `Package proposal has been cancelled`
+      description: PACKAGE_EVENT_DESCRIPTION.cancel
     }
   });
 },

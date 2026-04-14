@@ -52,10 +52,23 @@ export default function Packages() {
     setPackageMode("edit");
   }
 
-  const refetchAndSync = async () => {
+    const closePanel = () => {
+    setSelectedPackage(null);
+    setPackageMode(null);
+  };
+
+  const handleOnUpdate = async () => {
     await refetchPackages();
     const updated = packages()?.data.find(p => p.id === selectedPackage()?.id);
-    if (updated) setSelectedPackage(updated);
+    if (updated) {
+      setSelectedPackage(updated);
+      
+      try {
+        await sendEmail(updated);
+      } catch (err) {
+        console.error("Failed to send email updates:", err);
+      }
+    }
     closePanel();
   };
 
@@ -100,26 +113,10 @@ export default function Packages() {
           userId
         });
       }
-      await refetchAndSync();
     } catch (err) {
       console.error(err);
       alert("Failed to save package");
     }
-  };
-
-  const closePanel = () => {
-    setSelectedPackage(null);
-    setPackageMode(null);
-  };
-
-  const handleOnUpdate = async () => {
-    await refetchPackages();
-    const updated = packages()?.data.find(p => p.id === selectedPackage()?.id);
-    if (updated) {
-      setSelectedPackage(updated);
-      await sendEmail(updated);
-    }
-    closePanel();
   };
 
   const onHandleDelete = async (p: Package) => {

@@ -30,7 +30,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
 
   // Difference only if overridePrice is set
   const priceDiff = () => overridePrice() > 0 ? overridePrice() - calculatedPrice() : 0;
-  const diffColor = () => priceDiff() > 0 ? "text-red-600" : priceDiff() < 0 ? "text-green-600" : "text-gray-600";
+  const diffColor = () => priceDiff() > 0 ? "text-red-600" : priceDiff() < 0 ? "text-green-600" : "text-gray-600";  
 
   const handleReview = async () => {
     if (!props.package) return;
@@ -42,7 +42,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
       await reviewPackage(props.package.id, userId);
 
       if (!props.onUpdate) return;
-      props.onUpdate?.();
+      props.onUpdate?.(props.package);
     } catch (err) {
       console.error(err);
     }
@@ -58,7 +58,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
       await approvePackage(props.package.id, userId);
 
       if (!props.onUpdate) return;
-      props.onUpdate?.();
+      props.onUpdate?.(props.package);
     } catch (err) {
       console.log(err);
     }
@@ -74,7 +74,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
       await rejectPackage(props.package.id, userId);
 
       if (!props.onUpdate) return;
-      props.onUpdate?.();
+      props.onUpdate?.(props.package);
     } catch (err) {
       console.log(err);
     }
