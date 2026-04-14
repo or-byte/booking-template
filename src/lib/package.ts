@@ -24,11 +24,17 @@ export type Package = Omit<PrismaPackage, "overridePrice"> & {
   updatedBy: User | null
   overridePrice?: number
   status: PackageStatus
-};
+}
 
 export type PackageFormData = {
-  createdById: number
-  description: string
+  companyName: string
+  contactNumber: string
+  contactEmail: string
+  numberOfGuests: number
+  reservationDate?: Date
+  eventDate: Date
+  createdById: string
+  description?: string
   packageItems: PackageItemFormData[]
   overridePrice?: number
 }
@@ -40,10 +46,16 @@ export type PackageItemFormData = {
 }
 
 export type UpdatePackageFormData = {
+  companyName?: string
+  contactEmail?: string
+  contactNumber?: string
+  numberOfGuests?: number
+  reservationDate?: Date
+  eventDate?: Date
   description?: string
-  reviewedById?: number | null
-  approvedById?: number | null
-  updatedById?: number | null
+  reviewedById?: string | null
+  approvedById?: string | null
+  updatedById?: string | null
   packageItems?: PackageItemFormData[]
   overridePrice?: number
 }
@@ -133,8 +145,13 @@ export const createPackage = async (form: PackageFormData): Promise<Package> => 
 
   const result = await prisma.package.create({
     data: {
+      companyName: form.companyName,
+      contactNumber: form.contactNumber,
+      contactEmail: form.contactEmail,
+      numberOfGuests: form.numberOfGuests,
+      eventDate: form.eventDate,
       createdById: form.createdById,
-      description: form.description,
+      description: form.description ?? "Created Via Package Proposal Form",
       packageItems: {
         create: form.packageItems.map(item => ({
           productId: item.productId,
@@ -167,6 +184,9 @@ export const updatePackage = async (id: number, form: UpdatePackageFormData): Pr
   const result = await prisma.package.update({
     where: { id },
     data: {
+      companyName: form.companyName,
+      contactNumber: form.contactNumber,
+      contactEmail: form.contactEmail,
       description: form.description,
       reviewedById: form.reviewedById,
       approvedById: form.approvedById,
