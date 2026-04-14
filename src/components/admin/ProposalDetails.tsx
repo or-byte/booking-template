@@ -1,5 +1,5 @@
-import { createSignal, For, Match, Show, Switch } from "solid-js";
-import { PackageEventType, Package, UpdatePackageFormData, calculatePrice, reviewPackageAction, approvePackageAction, rejectPackageAction } from "~/lib/package";
+import { createResource, For, Show } from "solid-js";
+import { PackageEventType, Package, calculatePrice, reviewPackageAction, approvePackageAction, rejectPackageAction, getPackageEvents } from "~/lib/package";
 import Button from "../button/Button";
 import { useSession } from "~/lib/auth";
 import { useAction } from "@solidjs/router";
@@ -14,6 +14,9 @@ export type ProposalDetailsProps = {
 export default function ProposalDetails(props: ProposalDetailsProps) {
   const session = useSession();
   const getUserId = () => session().data?.user.id;
+
+  // Package Events states
+  const [packageEvents] = createResource(props.package?.id, (packageId) => getPackageEvents(packageId));
 
   // Package actions
   const reviewPackage = useAction(reviewPackageAction);
@@ -94,13 +97,58 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
             </p>
           </div>
 
+          {/* Package Events */}
           <div class="flex justify-between border-b py-1 border-[var(--color-border-1)]" />
-          <p class="body-3 text-[#666666]">
-            Status: {props.package?.status === "APPROVED" ?
-              (<span class="text-green-600 font-bold">APPROVED!</span>) :
-              <span class="font-medium">{props.package?.status}</span>
-            }
-          </p>
+          <div class="w-full">
+            <div class="relative border-gray-200 ml-2">
+
+              <Show when={!packageEvents.loading}>
+                <For each={[...(packageEvents() ?? [])].reverse()}>
+                  {(e, i) => {
+                    const isLatest = i() === 0;
+
+                    return (
+                      <div class="flex gap-3 mb-6 relative">
+
+                        {/* Icon column */}
+                        <div class="relative flex flex-col items-center">
+                          {/* Line connector */}
+                          <div class="absolute top-5 bottom-[-24px] w-px bg-gray-200"></div>
+
+                          {/* Icon */}
+                          <div
+                            class={`flex items-center justify-center w-5 h-5 rounded-full border z-10
+                  ${isLatest
+                                ? "bg-green-500 text-white border-green-500 text-[10px]"
+                                : "bg-white text-gray-400 border-gray-300"}`}
+                          >
+                            {isLatest ? "✓" : ""}
+                          </div>
+                        </div>
+
+                        {/* Content column */}
+                        <div class="flex-1 leading-relaxed">
+                          <div class="text-xs text-gray-500 mb-1">
+                            {e.createdAt.toLocaleString()}
+                          </div>
+
+                          <div class={`text-sm font-semibold mb-1 ${isLatest ? "text-green-600" : "text-gray-700"}`}>
+                            {e.type}
+                          </div>
+
+                          <div class="text-sm text-gray-600">
+                            {e.description}
+                          </div>
+                        </div>
+
+                      </div>
+                    );
+                  }}
+                </For>
+              </Show>
+
+            </div>
+          </div>
         </div>
 
         <div class="flex justify-between border-b py-1 border-[var(--color-border-1)]" />

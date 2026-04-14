@@ -1,6 +1,7 @@
 import { Package as PrismaPackage, PackageItem as PrismaPackageItem, PackageEvent as PrismaPackageEvent } from "@prisma/client"
 import prisma from "./prisma";
 import { action, query } from "@solidjs/router";
+import { User } from "./user";
 
 // This mirrors `PackageEventType` enum from schema
 export const PackageEventType = {
@@ -14,7 +15,9 @@ export const PackageEventType = {
 
 export type PackageEventType = (typeof PackageEventType)[keyof typeof PackageEventType];
 
-export type PackageEvent = PrismaPackageEvent;
+export type PackageEvent = Omit<PrismaPackageEvent, "packageId"> & {
+  createdBy: User
+};
 
 export type PackageItem = Omit<PrismaPackageItem, "price"> & {
   name: string
@@ -132,7 +135,8 @@ export const getAllPackages = query(async (
   "get-all-packages"
 );
 
-export const getPackageById = query(async (id: number) => {
+
+export const getPackageById = query(async (id: number): Promise<Package> => {
   "use server"
 
   const result = prisma.package.findUnique({
@@ -150,6 +154,21 @@ export const getPackageById = query(async (id: number) => {
 },
   "get-package-by-id"
 );
+
+export const getPackageEvents = query(async (packageId: number) => {
+  "use server"
+
+  const result = await prisma.packageEvent.findMany({
+    where: { packageId },
+    include: {
+      createdBy: true
+    }
+  });
+
+  return result;
+},
+  "get-package-events"
+)
 
 export const createPackageAction = action(async (form: PackageFormData) => {
   "use server"

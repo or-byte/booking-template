@@ -85,10 +85,7 @@ export default function Packages() {
           userId
         });
       }
-
-      setSelectedPackage(null);
-      setPackageMode(null);
-      await refetchPackages();
+      await refetchAndSync();
     } catch (err) {
       console.error(err);
       alert("Failed to save package");
