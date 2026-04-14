@@ -4,7 +4,7 @@ import Button from "~/components/button/Button";
 import Input from "~/components/input/Input";
 import InputNumberStepper from "~/components/input/InputNumberStepper";
 import { signInWithGoogle, useSession } from "~/lib/auth";
-import { createPackage, PackageFormData } from "~/lib/package";
+import { createPackageAction, PackageFormData } from "~/lib/package";
 import { ProductRoomsRequestCounter } from "~/lib/product";
 
 type RoomKey = keyof ProductRoomsRequestCounter;
@@ -117,7 +117,7 @@ export default function BookingRequest() {
     }
 
     try {
-      const pkg = await createPackage(packageForm);
+      const pkg = await createPackageAction(packageForm);
       alert(`Package creation success: \nPackage #${pkg.id}`)
     }
     catch (err) {

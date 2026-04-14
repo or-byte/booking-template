@@ -1,7 +1,8 @@
 import { createSignal, For, Match, Show, Switch } from "solid-js";
-import { PackageStatus, Package, updatePackage, UpdatePackageFormData, calculatePrice } from "~/lib/package";
+import { PackageEventType, Package, UpdatePackageFormData, calculatePrice, reviewPackageAction, approvePackageAction, rejectPackageAction } from "~/lib/package";
 import Button from "../button/Button";
 import { useSession } from "~/lib/auth";
+import { useAction } from "@solidjs/router";
 
 export type ProposalDetailsProps = {
   package: Package | null
@@ -12,17 +13,12 @@ export type ProposalDetailsProps = {
 
 export default function ProposalDetails(props: ProposalDetailsProps) {
   const session = useSession();
+  const getUserId = () => session().data?.user.id;
 
-  const submitUpdate = async (form: UpdatePackageFormData) => {
-    if (!props.package) return;
-
-    try {
-      await updatePackage(props.package!.id, form);
-      props.onUpdate?.();
-    } catch (err) {
-      throw new Error(`Proposal update failed: ${err}`)
-    }
-  };
+  // Package actions
+  const reviewPackage = useAction(reviewPackageAction);
+  const approvePackage = useAction(approvePackageAction);
+  const rejectPackage = useAction(rejectPackageAction);
 
   // Calculated price is based on product price
   const calculatedPrice = () => props.package ? calculatePrice(props.package) : 0;
@@ -34,33 +30,45 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
   const diffColor = () => priceDiff() > 0 ? "text-red-600" : priceDiff() < 0 ? "text-green-600" : "text-gray-600";
 
   const handleReview = async () => {
-    const data = session().data;
-    if (!data) return;
+    if (!props.package) return;
 
-    const user = data.user;
-    if (!user) return;
-
-    const userId = user.id;
+    const userId = getUserId();
     if (!userId) return;
 
-    submitUpdate({
-      reviewedById: userId
-    });
+    try {
+      await reviewPackage(props.package.id, userId);
+      props.onUpdate?.();
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   const handleApprove = async () => {
-    const data = session().data;
-    if (!data) return;
+    if (!props.package) return;
 
-    const user = data.user;
-    if (!user) return;
-
-    const userId = user.id;
+    const userId = getUserId();
     if (!userId) return;
 
-    submitUpdate({
-      approvedById: userId
-    })
+    try {
+      await approvePackage(props.package.id, userId);
+      props.onUpdate?.();
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const handleReject = async () => {
+    if (!props.package) return;
+
+    const userId = getUserId();
+    if (!userId) return;
+
+    try {
+      await rejectPackage(props.package.id, userId);
+      props.onUpdate?.();
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return (
@@ -92,15 +100,6 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
               (<span class="text-green-600 font-bold">APPROVED!</span>) :
               <span class="font-medium">{props.package?.status}</span>
             }
-          </p>
-          <p class="body-3 text-[#666666]">
-            Created by: <span class="font-medium">{props.package?.createdBy?.name ?? "Unknown"}</span>
-          </p>
-          <p class="body-3 text-[#666666]">
-            Reviewed by: <span class="font-medium">{props.package?.reviewedBy?.name ?? "not yet reviewed"}</span>
-          </p>
-          <p class="body-3 text-[#666666]">
-            Approved by: <span class="font-medium">{props.package?.approvedBy?.name ?? "not yet approved"}</span>
           </p>
         </div>
 
@@ -155,7 +154,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
         </div>
 
         {/* CREATED / MODIFIED => Show Review + Edit */}
-        <Show when={props.package?.status === PackageStatus.CREATED || props.package?.status === PackageStatus.MODIFIED}>
+        <Show when={props.package?.status === PackageEventType.CREATED || props.package?.status === PackageEventType.MODIFIED}>
           <div class="w-full flex flex-col gap-3">
             <Button class="btn"
               onClick={handleReview}>
@@ -168,8 +167,8 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
           </div>
         </Show>
 
-        {/* REVIEWED => Show Approve / Deny */}
-        <Show when={props.package?.status === PackageStatus.REVIEWED}>
+        {/* REVIEWED => Show Approve / Reject */}
+        <Show when={props.package?.status === PackageEventType.REVIEWED}>
           <div class="flex gap-2 flex-col">
             <Button
               class="btn"
@@ -177,8 +176,9 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
             >
               Approve
             </Button>
-            <Button class="py-2 px-6 bg-[#D6D6D6] rounded-[10px] hover:cursor-pointer hover:bg-[#E3E3E3]" onClick={props.onCancel}>
-              Deny
+            <Button class="py-2 px-6 bg-[#D6D6D6] rounded-[10px] hover:cursor-pointer hover:bg-[#E3E3E3]"
+              onClick={handleReject}>
+              Reject
             </Button>
           </div>
         </Show>
