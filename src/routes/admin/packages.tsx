@@ -7,7 +7,10 @@ import { useSearchParams } from "@solidjs/router";
 import PackageCard from "~/components/cards/PackageCard";
 import Button from "~/components/button/Button";
 import PackageForm from "~/components/forms/PackageForms";
+import { useSession } from "~/lib/auth";
+
 export default function Packages() {
+  const session = useSession();
   const [searchParams] = useSearchParams();
 
   // Products states
@@ -32,7 +35,6 @@ export default function Packages() {
     Pending: "bg-blue-100 text-blue-700",
   };
 
-
   // Auto-select package from URL param
   createEffect(() => {
     const id = searchParams.id;
@@ -51,6 +53,15 @@ export default function Packages() {
   }
 
   const handleSavePackage = async () => {
+    const data = session().data;
+    if (!data) return;
+
+    const user = data.user;
+    if (!user) return;
+
+    const userId = user.id;
+    if (!userId) return;
+
     try {
       const pkg = selectedPackage();
       if (!pkg) return;
@@ -66,14 +77,19 @@ export default function Packages() {
         await updatePackage(pkg.id, {
           description: pkg.description ?? "",
           packageItems: formattedItems,
-          updatedById: 1, // TODO replace with current user session
+          updatedById: userId,
           overridePrice: pkg.overridePrice
         });
       }
       // CREATE
       else {
         await createPackage({
-          createdById: 1,
+          companyName: pkg.companyName,
+          contactNumber: pkg.contactNumber,
+          contactEmail: pkg.contactEmail,
+          numberOfGuests: pkg.numberOfGuests,
+          eventDate: pkg.eventDate,
+          createdById: userId,
           description: pkg.description ?? "",
           packageItems: formattedItems,
           overridePrice: pkg.overridePrice
