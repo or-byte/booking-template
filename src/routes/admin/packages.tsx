@@ -1,9 +1,9 @@
 import { Title } from "@solidjs/meta";
 import ProposalDetails from "~/components/admin/ProposalDetails";
 import { createResource, createSignal, For, Show, createEffect, Switch, Match } from "solid-js";
-import { createPackage, getAllPackages, Package, updatePackage, deletePackage } from "~/lib/package";
+import { createPackageAction, getAllPackages, Package, deletePackage, updatePackageAction, UpdatePackageFormData } from "~/lib/package";
 import { getAllProducts, Product } from "~/lib/product";
-import { useSearchParams } from "@solidjs/router";
+import { useAction, useSearchParams } from "@solidjs/router";
 import PackageCard from "~/components/cards/PackageCard";
 import Button from "~/components/button/Button";
 import PackageForm from "~/components/forms/PackageForms";
@@ -11,6 +11,8 @@ import { useSession } from "~/lib/auth";
 
 export default function Packages() {
   const session = useSession();
+  const getUserId = (): string | undefined => session().data?.user.id;
+
   const [searchParams] = useSearchParams();
 
   // Products states
@@ -18,22 +20,19 @@ export default function Packages() {
 
   // Packages states
   const [page, setPage] = createSignal(1);
-  const pageSize = 5;
-  const [packages, { refetch: refetchPackages }] = createResource(page, async (page) => (await getAllPackages(page, pageSize)))
+  const PAGE_SIZE = 5;
+  const [packages, { refetch: refetchPackages }] = createResource(page, async (page) => await getAllPackages(page, PAGE_SIZE));
+  const totalPages = (): number => packages()?.meta?.totalPages ?? 1;
+
   const [selectedPackage, setSelectedPackage] = createSignal<Package | null>(null);
+
+  // Package actions
+  const createPackage = useAction(createPackageAction);
+  const updatePackage = useAction(updatePackageAction);
 
   //Forms mode
   type PackageForm = "readonly" | "create" | "edit";
   const [packageMode, setPackageMode] = createSignal<PackageForm | null>(null);
-
-  //Status for package
-  type PackageStatus = "Created" | "Approved" | "Reviewed" | "Pending";
-  const statusStyles: Record<PackageStatus, string> = {
-    Created: "bg-gray-100 text-gray-600",
-    Approved: "bg-green-100 text-green-700",
-    Reviewed: "bg-yellow-100 text-yellow-700",
-    Pending: "bg-blue-100 text-blue-700",
-  };
 
   // Auto-select package from URL param
   createEffect(() => {
@@ -52,14 +51,15 @@ export default function Packages() {
     setPackageMode("edit");
   }
 
+  const refetchAndSync = async () => {
+    await refetchPackages();
+    const updated = packages()?.data.find(p => p.id === selectedPackage()?.id);
+    if (updated) setSelectedPackage(updated);
+    closePanel();
+  };
+
   const handleSavePackage = async () => {
-    const data = session().data;
-    if (!data) return;
-
-    const user = data.user;
-    if (!user) return;
-
-    const userId = user.id;
+    const userId = getUserId()
     if (!userId) return;
 
     try {
@@ -74,11 +74,15 @@ export default function Packages() {
 
       // UPDATE
       if (pkg.id) {
-        await updatePackage(pkg.id, {
+        await updatePackage(pkg.id, userId, {
+          companyName: pkg.companyName,
+          contactNumber: pkg.contactNumber,
+          contactEmail: pkg.contactEmail,
+          numberOfGuests: pkg.numberOfGuests,
+          eventDate: pkg.eventDate,
           description: pkg.description ?? "",
           packageItems: formattedItems,
-          updatedById: userId,
-          overridePrice: pkg.overridePrice
+          overridePrice: pkg.overridePrice,
         });
       }
       // CREATE
@@ -89,26 +93,17 @@ export default function Packages() {
           contactEmail: pkg.contactEmail,
           numberOfGuests: pkg.numberOfGuests,
           eventDate: pkg.eventDate,
-          createdById: userId,
           description: pkg.description ?? "",
           packageItems: formattedItems,
-          overridePrice: pkg.overridePrice
+          overridePrice: pkg.overridePrice,
+          userId
         });
       }
-
-      setSelectedPackage(null);
-      setPackageMode(null);
-      await refetchPackages();
+      await refetchAndSync();
     } catch (err) {
       console.error(err);
       alert("Failed to save package");
     }
-  };
-
-  const refetchAndSync = async () => {
-    await refetchPackages();
-    const updated = packages()?.data.find(p => p.id === selectedPackage()?.id);
-    if (updated) setSelectedPackage(updated);
   };
 
   const closePanel = () => {
@@ -130,7 +125,7 @@ export default function Packages() {
       alert("Failed to delete package");
     }
   }
-  
+
   const handleSetPage = (page: number) => {
     setPage(page);
   }
@@ -170,10 +165,9 @@ export default function Packages() {
             <div class="border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)] w-full">
               <For each={packages()?.data}>
                 {(p) => {
-                  const status = p.approvedBy ? "Approved" : p.reviewedBy ? "Reviewed" : "Created";
                   return (
                     <PackageCard
-                      name={p.description}
+                      name={p.description !== "" ? p.description : "No description"}
                       onEditShow={true}
                       onEdit={() => {
                         setSelectedPackage(p);
@@ -188,9 +182,9 @@ export default function Packages() {
                       <div class="flex items-center gap-2">
                         <p>Status: </p>
                         <span
-                          class={`rounded-full px-3 py-0.5 text-sm font-medium ${statusStyles[status]}`}
+                          class={`rounded-full px-3 py-0.5 text-sm font-medium ${p.status}`}
                         >
-                          {status}
+                          {p.status}
                         </span>
                       </div>
                     </PackageCard>
@@ -234,11 +228,11 @@ export default function Packages() {
       </div>
 
       {/* Page */}
-      <Show when={packages()?.meta}>
+      <Show when={packages()?.meta && packages()?.data.length! > 0}>
         <div class="flex justify-center items-center gap-4 mt-6">
 
           <Button
-            class="btn hover:underline hover:cursor-pointer"
+            class={`${page() === 1 ? "text-[var(--color-footer)]" : "hover:underline hover:cursor-pointer"}`}
             disabled={page() === 1}
             onClick={handlePrevPage}
           >
@@ -246,12 +240,11 @@ export default function Packages() {
           </Button>
 
           <span class="text-sm">
-            Page {packages()?.meta.page} of {packages()?.meta.totalPages}
+            Page {packages()?.meta.page} of {totalPages()}
           </span>
-
           <Button
-            class="btn hover:underline hover:cursor-pointer"
-            disabled={page() === packages()?.meta?.totalPages}
+            class={`${page() === totalPages() ? "text-[var(--color-footer)]" : "hover:underline hover:cursor-pointer"}`}
+            disabled={page() === totalPages()}
             onClick={handleNextPage}
           >
             Next

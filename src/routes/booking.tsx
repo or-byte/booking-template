@@ -1,10 +1,11 @@
 import { Title } from "@solidjs/meta";
+import { useAction } from "@solidjs/router";
 import { createSignal, For, Match, Show, Switch } from "solid-js";
 import Button from "~/components/button/Button";
 import Input from "~/components/input/Input";
 import InputNumberStepper from "~/components/input/InputNumberStepper";
 import { signInWithGoogle, useSession } from "~/lib/auth";
-import { createPackage, PackageFormData } from "~/lib/package";
+import { createPackageAction, PackageFormData } from "~/lib/package";
 import { ProductRoomsRequestCounter } from "~/lib/product";
 
 type RoomKey = keyof ProductRoomsRequestCounter;
@@ -20,6 +21,10 @@ const rooms: { key: RoomKey; label: string }[] = [
 
 export default function BookingRequest() {
   const session = useSession();
+  const getUserId: () => string | undefined = () => session().data?.user.id;
+
+  // Package actions
+  const createPackage = useAction(createPackageAction);
 
   async function handleSignIn(): Promise<void> {
     try {
@@ -35,9 +40,9 @@ export default function BookingRequest() {
     contactNumber: "",
     contactEmail: "",
     eventDate: new Date(),
-    createdById: "",
     description: "",
-    packageItems: []
+    packageItems: [],
+    userId: ""
   });
 
   const [requestedRooms, setRequestedRooms] = createSignal<ProductRoomsRequestCounter>({
@@ -64,6 +69,11 @@ export default function BookingRequest() {
   }
 
   const handleSubmitForm = async () => {
+    const userId = getUserId();
+    if (!userId) {
+      alert("No user login.");
+    }
+
     const packageItems = [{
       productId: 3,
       quantity: requestedRooms()?.deluxe ?? 0,
@@ -111,14 +121,14 @@ export default function BookingRequest() {
       contactNumber: form()?.contactNumber!,
       contactEmail: form()?.contactEmail!,
       eventDate: form()?.eventDate!,
-      createdById: session().data?.user.id!,
       description: `${form()?.companyName!}'s Proposed Reservation`,
-      packageItems: cleanedPackageItems
-    }
+      packageItems: cleanedPackageItems,
+      userId: userId!
+    };
 
     try {
-      const pkg = await createPackage(packageForm);
-      alert(`Package creation success: \nPackage #${pkg.id}`)
+      await createPackage(packageForm);
+      alert("Package creation success");
     }
     catch (err) {
       console.error(err);
