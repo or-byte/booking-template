@@ -13,7 +13,7 @@ export type ProposalDetailsProps = {
 
 export default function ProposalDetails(props: ProposalDetailsProps) {
   const session = useSession();
-  const getUserId = () => session().data?.user.id;
+  const getUserId: () => string | undefined = () => session().data?.user.id;
 
   // Package Events states
   const [packageEvents] = createResource(props.package?.id, (packageId) => getPackageEvents(packageId));
@@ -40,6 +40,8 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
 
     try {
       await reviewPackage(props.package.id, userId);
+
+      if (!props.onUpdate) return;
       props.onUpdate?.();
     } catch (err) {
       console.error(err);
@@ -54,6 +56,8 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
 
     try {
       await approvePackage(props.package.id, userId);
+
+      if (!props.onUpdate) return;
       props.onUpdate?.();
     } catch (err) {
       console.log(err);
@@ -68,6 +72,8 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
 
     try {
       await rejectPackage(props.package.id, userId);
+
+      if (!props.onUpdate) return;
       props.onUpdate?.();
     } catch (err) {
       console.log(err);

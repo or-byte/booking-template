@@ -110,7 +110,8 @@ export const getAllPackages = query(async (
 
     const total = await tx.package.count({ where })
 
-    // this will always get the latest `Package Event` 
+    // this will always get the latest `Package Event`
+    // `p.packageEvents` is never empty because `createPackage` also creates a `Package Event`
     const mappedPackages = packages.map((p) => {
       const pkg = {
         ...p,

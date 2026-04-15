@@ -21,7 +21,7 @@ const rooms: { key: RoomKey; label: string }[] = [
 
 export default function BookingRequest() {
   const session = useSession();
-  const getUserId = () => session().data?.user.id;
+  const getUserId: () => string | undefined = () => session().data?.user.id;
 
   // Package actions
   const createPackage = useAction(createPackageAction);

@@ -11,7 +11,7 @@ import { useSession } from "~/lib/auth";
 
 export default function Packages() {
   const session = useSession();
-  const getUserId = () => session().data?.user.id;
+  const getUserId = (): string | undefined => session().data?.user.id;
 
   const [searchParams] = useSearchParams();
 
@@ -21,7 +21,9 @@ export default function Packages() {
   // Packages states
   const [page, setPage] = createSignal(1);
   const PAGE_SIZE = 5;
-  const [packages, { refetch: refetchPackages }] = createResource(page, async (page) => (await getAllPackages(page, PAGE_SIZE)))
+  const [packages, { refetch: refetchPackages }] = createResource(page, async (page) => await getAllPackages(page, PAGE_SIZE));
+  const totalPages = (): number => packages()?.meta?.totalPages ?? 1;
+
   const [selectedPackage, setSelectedPackage] = createSignal<Package | null>(null);
 
   // Package actions
@@ -48,6 +50,13 @@ export default function Packages() {
   const toggleEditPackage = () => {
     setPackageMode("edit");
   }
+
+  const refetchAndSync = async () => {
+    await refetchPackages();
+    const updated = packages()?.data.find(p => p.id === selectedPackage()?.id);
+    if (updated) setSelectedPackage(updated);
+    closePanel();
+  };
 
   const handleSavePackage = async () => {
     const userId = getUserId()
@@ -95,13 +104,6 @@ export default function Packages() {
       console.error(err);
       alert("Failed to save package");
     }
-  };
-
-  const refetchAndSync = async () => {
-    await refetchPackages();
-    const updated = packages()?.data.find(p => p.id === selectedPackage()?.id);
-    if (updated) setSelectedPackage(updated);
-    closePanel();
   };
 
   const closePanel = () => {
@@ -230,7 +232,7 @@ export default function Packages() {
         <div class="flex justify-center items-center gap-4 mt-6">
 
           <Button
-            class="btn hover:underline hover:cursor-pointer"
+            class={`${page() === 1 ? "text-[var(--color-footer)]" : "hover:underline hover:cursor-pointer"}`}
             disabled={page() === 1}
             onClick={handlePrevPage}
           >
@@ -238,12 +240,11 @@ export default function Packages() {
           </Button>
 
           <span class="text-sm">
-            Page {packages()?.meta.page} of {packages()?.meta.totalPages}
+            Page {packages()?.meta.page} of {totalPages()}
           </span>
-
           <Button
-            class="btn hover:underline hover:cursor-pointer"
-            disabled={page() === packages()?.meta?.totalPages}
+            class={`${page() === totalPages() ? "text-[var(--color-footer)]" : "hover:underline hover:cursor-pointer"}`}
+            disabled={page() === totalPages()}
             onClick={handleNextPage}
           >
             Next
