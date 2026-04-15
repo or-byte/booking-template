@@ -17,12 +17,9 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  createdPackages  Package[] @relation("PackageCreatedBy")
-  reviewedPackages Package[] @relation("PackageReviewedBy")
-  approvedPackages Package[] @relation("PackageApprovedBy")
-  updatedPackaged  Package[] @relation("PackageUpdatedBy")
   sessions         Session[]
   accounts         Account[]
+  packageEvents    PackageEvent[]
 }
 
 model Session {
@@ -86,7 +83,7 @@ model Product {
   stockQty    Int     @default(0)
 
   categoryId   Int
-  category     Category      @relation(fields: [categoryId], references: [id])
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   packageItems PackageItem[]
   rooms        Room[]
 }
@@ -101,33 +98,38 @@ model Package {
   eventDate       DateTime
   reservationDate DateTime?
 
-  createdById String
-  createdBy   User   @relation(name: "PackageCreatedBy", fields: [createdById], references: [id])
-
-  reviewedById String?
-  reviewedBy   User?   @relation(name: "PackageReviewedBy", fields: [reviewedById], references: [id])
-
-  approvedById String?
-  approvedBy   User?   @relation(name: "PackageApprovedBy", fields: [approvedById], references: [id])
-
-  updatedById String?
-  updatedBy   User?   @relation(name: "PackageUpdatedBy", fields: [updatedById], references: [id])
-
   description   String
   overridePrice Decimal? @db.Decimal(10, 2)
 
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @default(now()) @updatedAt
-  packageItems PackageItem[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  packageItems  PackageItem[]
+  packageEvents PackageEvent[]
 }
 
 model PackageItem {
   id        Int     @id @default(autoincrement())
   quantity  Int
   packageId Int
-  package   Package @relation(fields: [packageId], references: [id])
+  package   Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
   productId Int
   product   Product @relation(fields: [productId], references: [id])
+}
+
+model PackageEvent {
+  id        Int     @id @default(autoincrement())
+  packageId Int
+  package   Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+
+  type        PackageEventType
+  description String?
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([packageId, createdAt])
 }
 
 model Room {
@@ -135,11 +137,20 @@ model Room {
   name      String
   capacity  Int
   productId Int
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 enum Role {
   ADMIN
   STAFF
   CUSTOMER
+}
+
+enum PackageEventType {
+  CREATED
+  MODIFIED
+  REVIEWED
+  APPROVED
+  REJECTED
+  CANCELLED
 }

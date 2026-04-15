@@ -1,7 +1,8 @@
-import { createSignal, For, Match, Show, Switch } from "solid-js";
-import { PackageStatus, Package, updatePackage, UpdatePackageFormData, calculatePrice } from "~/lib/package";
+import { createResource, For, Show } from "solid-js";
+import { PackageEventType, Package, calculatePrice, reviewPackageAction, approvePackageAction, rejectPackageAction, getPackageEvents } from "~/lib/package";
 import Button from "../button/Button";
 import { useSession } from "~/lib/auth";
+import { useAction } from "@solidjs/router";
 
 export type ProposalDetailsProps = {
   package: Package | null
@@ -12,17 +13,15 @@ export type ProposalDetailsProps = {
 
 export default function ProposalDetails(props: ProposalDetailsProps) {
   const session = useSession();
+  const getUserId: () => string | undefined = () => session().data?.user.id;
 
-  const submitUpdate = async (form: UpdatePackageFormData) => {
-    if (!props.package) return;
+  // Package Events states
+  const [packageEvents] = createResource(props.package?.id, (packageId) => getPackageEvents(packageId));
 
-    try {
-      await updatePackage(props.package!.id, form);
-      props.onUpdate?.();
-    } catch (err) {
-      throw new Error(`Proposal update failed: ${err}`)
-    }
-  };
+  // Package actions
+  const reviewPackage = useAction(reviewPackageAction);
+  const approvePackage = useAction(approvePackageAction);
+  const rejectPackage = useAction(rejectPackageAction);
 
   // Calculated price is based on product price
   const calculatedPrice = () => props.package ? calculatePrice(props.package) : 0;
@@ -34,33 +33,51 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
   const diffColor = () => priceDiff() > 0 ? "text-red-600" : priceDiff() < 0 ? "text-green-600" : "text-gray-600";
 
   const handleReview = async () => {
-    const data = session().data;
-    if (!data) return;
+    if (!props.package) return;
 
-    const user = data.user;
-    if (!user) return;
-
-    const userId = user.id;
+    const userId = getUserId();
     if (!userId) return;
 
-    submitUpdate({
-      reviewedById: userId
-    });
+    try {
+      await reviewPackage(props.package.id, userId);
+
+      if (!props.onUpdate) return;
+      props.onUpdate?.();
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   const handleApprove = async () => {
-    const data = session().data;
-    if (!data) return;
+    if (!props.package) return;
 
-    const user = data.user;
-    if (!user) return;
-
-    const userId = user.id;
+    const userId = getUserId();
     if (!userId) return;
 
-    submitUpdate({
-      approvedById: userId
-    })
+    try {
+      await approvePackage(props.package.id, userId);
+
+      if (!props.onUpdate) return;
+      props.onUpdate?.();
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const handleReject = async () => {
+    if (!props.package) return;
+
+    const userId = getUserId();
+    if (!userId) return;
+
+    try {
+      await rejectPackage(props.package.id, userId);
+
+      if (!props.onUpdate) return;
+      props.onUpdate?.();
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return (
@@ -86,22 +103,58 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
             </p>
           </div>
 
+          {/* Package Events */}
           <div class="flex justify-between border-b py-1 border-[var(--color-border-1)]" />
-          <p class="body-3 text-[#666666]">
-            Status: {props.package?.status === "APPROVED" ?
-              (<span class="text-green-600 font-bold">APPROVED!</span>) :
-              <span class="font-medium">{props.package?.status}</span>
-            }
-          </p>
-          <p class="body-3 text-[#666666]">
-            Created by: <span class="font-medium">{props.package?.createdBy?.name ?? "Unknown"}</span>
-          </p>
-          <p class="body-3 text-[#666666]">
-            Reviewed by: <span class="font-medium">{props.package?.reviewedBy?.name ?? "not yet reviewed"}</span>
-          </p>
-          <p class="body-3 text-[#666666]">
-            Approved by: <span class="font-medium">{props.package?.approvedBy?.name ?? "not yet approved"}</span>
-          </p>
+
+          <div class="w-full max-h-[250px] overflow-y-auto pr-2">
+            <div class="relative border-gray-200 ml-2">
+
+              <Show when={!packageEvents.loading}>
+                <For each={[...(packageEvents() ?? [])].reverse()}>
+                  {(e, i) => {
+                    const isLatest = i() === 0;
+
+                    return (
+                      <div class="flex gap-3 mb-6 relative">
+
+                        {/* Icon column */}
+                        <div class="relative flex flex-col items-center">
+                          <div class="absolute top-5 bottom-[-24px] w-px bg-gray-200"></div>
+
+                          <div
+                            class={`flex items-center justify-center w-5 h-5 rounded-full border z-10
+                  ${isLatest
+                                ? "bg-green-500 text-white border-green-500 text-[10px]"
+                                : "bg-white text-gray-400 border-gray-300"}`}
+                          >
+                            {isLatest ? "✓" : ""}
+                          </div>
+                        </div>
+
+                        {/* Content */}
+                        <div class="flex-1 leading-relaxed">
+                          <div class="text-xs text-gray-500 mb-1">
+                            {e.createdAt.toLocaleString()}
+                          </div>
+
+                          <div class={`text-sm font-semibold mb-1 ${isLatest ? "text-green-600" : "text-gray-700"}`}>
+                            {e.type}
+                          </div>
+
+                          <div class="text-sm text-gray-600">
+                            {e.description} <br />
+                            by {e.createdBy.name}
+                          </div>
+                        </div>
+
+                      </div>
+                    );
+                  }}
+                </For>
+              </Show>
+
+            </div>
+          </div>
         </div>
 
         <div class="flex justify-between border-b py-1 border-[var(--color-border-1)]" />
@@ -155,7 +208,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
         </div>
 
         {/* CREATED / MODIFIED => Show Review + Edit */}
-        <Show when={props.package?.status === PackageStatus.CREATED || props.package?.status === PackageStatus.MODIFIED}>
+        <Show when={props.package?.status === PackageEventType.CREATED || props.package?.status === PackageEventType.MODIFIED}>
           <div class="w-full flex flex-col gap-3">
             <Button class="btn"
               onClick={handleReview}>
@@ -168,8 +221,8 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
           </div>
         </Show>
 
-        {/* REVIEWED => Show Approve / Deny */}
-        <Show when={props.package?.status === PackageStatus.REVIEWED}>
+        {/* REVIEWED => Show Approve / Reject */}
+        <Show when={props.package?.status === PackageEventType.REVIEWED}>
           <div class="flex gap-2 flex-col">
             <Button
               class="btn"
@@ -177,8 +230,9 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
             >
               Approve
             </Button>
-            <Button class="py-2 px-6 bg-[#D6D6D6] rounded-[10px] hover:cursor-pointer hover:bg-[#E3E3E3]" onClick={props.onCancel}>
-              Deny
+            <Button class="py-2 px-6 bg-[#D6D6D6] rounded-[10px] hover:cursor-pointer hover:bg-[#E3E3E3]"
+              onClick={handleReject}>
+              Reject
             </Button>
           </div>
         </Show>

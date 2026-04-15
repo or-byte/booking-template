@@ -1,15 +1,23 @@
-import { Package as PrismaPackage, PackageItem as PrismaPackageItem } from "@prisma/client"
-import { User } from "./user";
+import { Package as PrismaPackage, PackageItem as PrismaPackageItem, PackageEvent as PrismaPackageEvent } from "@prisma/client"
 import prisma from "./prisma";
+import { action, query } from "@solidjs/router";
+import { User } from "./user";
 
-export const PackageStatus = {
+// This mirrors `PackageEventType` enum from schema
+export const PackageEventType = {
   CREATED: "CREATED",
   MODIFIED: "MODIFIED",
   REVIEWED: "REVIEWED",
-  APPROVED: "APPROVED"
+  APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
+  CANCELLED: "CANCELLED"
 } as const;
 
-export type PackageStatus = (typeof PackageStatus)[keyof typeof PackageStatus];
+export type PackageEventType = (typeof PackageEventType)[keyof typeof PackageEventType];
+
+export type PackageEvent = Omit<PrismaPackageEvent, "packageId"> & {
+  createdBy: User
+};
 
 export type PackageItem = Omit<PrismaPackageItem, "price"> & {
   name: string
@@ -18,12 +26,8 @@ export type PackageItem = Omit<PrismaPackageItem, "price"> & {
 
 export type Package = Omit<PrismaPackage, "overridePrice"> & {
   packageItems: PackageItem[]
-  createdBy: User
-  reviewedBy: User | null
-  approvedBy: User | null
-  updatedBy: User | null
   overridePrice?: number
-  status: PackageStatus
+  status: PackageEventType
 }
 
 export type PackageFormData = {
@@ -33,10 +37,10 @@ export type PackageFormData = {
   numberOfGuests: number
   reservationDate?: Date
   eventDate: Date
-  createdById: string
   description?: string
   packageItems: PackageItemFormData[]
   overridePrice?: number
+  userId: string
 }
 
 export type PackageItemFormData = {
@@ -53,14 +57,11 @@ export type UpdatePackageFormData = {
   reservationDate?: Date
   eventDate?: Date
   description?: string
-  reviewedById?: string | null
-  approvedById?: string | null
-  updatedById?: string | null
   packageItems?: PackageItemFormData[]
   overridePrice?: number
 }
 
-export const getAllPackages = async (
+export const getAllPackages = query(async (
   page: number = 1,
   pageSize: number = 5,
   search?: string
@@ -87,39 +88,56 @@ export const getAllPackages = async (
     }
     : undefined;
 
-  const [results, total] = await Promise.all([
-    prisma.package.findMany({
+  const result = await prisma.$transaction(async (tx) => {
+    const packages = await tx.package.findMany({
       where,
       skip,
       take: pageSize,
       include: {
         packageItems: {
-          include: { product: true },
+          include: { product: true }
         },
-        createdBy: true,
-        reviewedBy: true,
-        approvedBy: true,
-        updatedBy: true,
+        packageEvents: {
+          orderBy: {
+            id: "desc"
+          }
+        }
       },
       orderBy: {
         id: "asc"
-      },
-    }),
-    prisma.package.count({ where })
-  ]);
+      }
+    });
+
+    const total = await tx.package.count({ where })
+
+    // this will always get the latest `Package Event`
+    // `p.packageEvents` is never empty because `createPackage` also creates a `Package Event`
+    const mappedPackages = packages.map((p) => {
+      const pkg = {
+        ...p,
+        status: p.packageEvents[0].type
+      }
+      return mapPackage(pkg)
+    });
+
+    return { packages: mappedPackages, total };
+  });
 
   return {
-    data: results.map((p) => formatPackage(p)),
+    data: result.packages,
     meta: {
       page,
       pageSize,
-      total,
-      totalPages: Math.ceil(total / pageSize),
+      total: result.total,
+      totalPages: Math.ceil(result.total / pageSize),
     }
   };
-}
+},
+  "get-all-packages"
+);
 
-export const getPackageById = async (id: number) => {
+
+export const getPackageById = query(async (id: number): Promise<Package> => {
   "use server"
 
   const result = prisma.package.findUnique({
@@ -127,134 +145,195 @@ export const getPackageById = async (id: number) => {
     include: {
       packageItems: {
         include: { product: true },
-      },
-      createdBy: true,
-      reviewedBy: true,
-      approvedBy: true,
-      updatedBy: true
+      }
     },
   });
 
   if (!result) throw new Error("No result");
 
-  return formatPackage(result);
-}
+  return mapPackage(result);
+},
+  "get-package-by-id"
+);
 
-export const createPackage = async (form: PackageFormData): Promise<Package> => {
+export const getPackageEvents = query(async (packageId: number) => {
   "use server"
 
-  const result = await prisma.package.create({
-    data: {
-      companyName: form.companyName,
-      contactNumber: form.contactNumber,
-      contactEmail: form.contactEmail,
-      numberOfGuests: form.numberOfGuests,
-      eventDate: form.eventDate,
-      createdById: form.createdById,
-      description: form.description ?? "Created Via Package Proposal Form",
-      packageItems: {
-        create: form.packageItems.map(item => ({
-          productId: item.productId,
-          quantity: item.quantity,
-        })),
-      },
-      overridePrice: form.overridePrice
-    },
+  const result = await prisma.packageEvent.findMany({
+    where: { packageId },
     include: {
-      packageItems: {
-        include: { product: true }
-      },
-      createdBy: true,
-      reviewedBy: true,
-      approvedBy: true,
-      updatedBy: true
-    },
+      createdBy: true
+    }
   });
 
-  if (!result) throw new Error("No result");
+  return result;
+},
+  "get-package-events"
+)
 
-  return formatPackage(result);
-}
-
-export const updatePackage = async (id: number, form: UpdatePackageFormData): Promise<Package> => {
+export const createPackageAction = action(async (form: PackageFormData) => {
   "use server"
 
-  const updatedById = form.updatedById || form.reviewedById || form.approvedById;
-
-  const result = await prisma.package.update({
-    where: { id },
-    data: {
-      companyName: form.companyName,
-      contactNumber: form.contactNumber,
-      contactEmail: form.contactEmail,
-      description: form.description,
-      reviewedById: form.reviewedById,
-      approvedById: form.approvedById,
-      updatedById: updatedById,
-      ...(form.packageItems && {
-        packageItems: {
-          deleteMany: {},
-          create: form.packageItems.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity,
-          })),
+  try {
+    await prisma.$transaction(async (tx) => {
+      const pkg = await tx.package.create({
+        data: {
+          companyName: form.companyName,
+          contactNumber: form.contactNumber,
+          contactEmail: form.contactEmail,
+          numberOfGuests: form.numberOfGuests,
+          eventDate: form.eventDate,
+          description: form.description ?? "Created Via Package Proposal Form",
+          packageItems: {
+            create: form.packageItems.map(item => ({
+              productId: item.productId,
+              quantity: item.quantity,
+            })),
+          },
+          overridePrice: form.overridePrice
         },
-      }),
-      overridePrice: form.overridePrice
-    },
-    include: {
-      packageItems: {
-        include: { product: true }
-      },
-      createdBy: true,
-      reviewedBy: true,
-      approvedBy: true,
-      updatedBy: true
-    },
-  });
+        include: {
+          packageItems: {
+            include: { product: true }
+          },
+        },
+      });
 
-  if (!result) throw new Error("No result");
+      await tx.packageEvent.create({
+        data: {
+          packageId: pkg.id,
+          type: PackageEventType.CREATED,
+          createdById: form.userId,
+          description: "Package proposal created"
+        }
+      });
+    });
+  }
+  catch (err) {
+    console.error(err);
+  }
+},
+  "create-package"
+);
 
-  return formatPackage(result);
-}
-
-export const addItemsToPackage = async (packageId: number, items: PackageItemFormData[]) => {
+export const updatePackageAction = action(async (id: number, userId: string, form: UpdatePackageFormData) => {
   "use server"
 
-  return prisma.packageItem.createMany({
-    data: items.map(item => ({
-      packageId,
-      productId: item.productId,
-      quantity: item.quantity,
-      price: item.price,
-    })),
+  await prisma.$transaction(async (tx) => {
+    const updatedPkg = await prisma.package.update({
+      where: { id },
+      data: {
+        companyName: form.companyName,
+        contactNumber: form.contactNumber,
+        contactEmail: form.contactEmail,
+        description: form.description,
+        ...(form.packageItems && {
+          packageItems: {
+            deleteMany: {},
+            create: form.packageItems.map(item => ({
+              productId: item.productId,
+              quantity: item.quantity,
+            })),
+          },
+        }),
+        overridePrice: form.overridePrice
+      },
+      include: {
+        packageItems: {
+          include: { product: true }
+        },
+      },
+    });
+
+    const event = await tx.packageEvent.create({
+      data: {
+        packageId: updatedPkg.id,
+        type: PackageEventType.MODIFIED,
+        createdById: userId,
+        description: "Package proposal has been modified"
+      }
+    });
+
+    const pkg = {
+      ...updatedPkg,
+      status: event.type
+    }
   });
-}
+},
+  "update-package"
+);
+
+export const reviewPackageAction = action(async (packageId: number, userId: string) => {
+  "use server"
+
+  await prisma.packageEvent.create({
+    data: {
+      packageId,
+      type: PackageEventType.REVIEWED,
+      createdById: userId,
+      description: `Package proposal has been reviewed`
+    }
+  })
+},
+  "review-package"
+)
+
+export const approvePackageAction = action(async (packageId: number, userId: string) => {
+  "use server"
+
+  await prisma.packageEvent.create({
+    data: {
+      packageId,
+      type: PackageEventType.APPROVED,
+      createdById: userId,
+      description: `Package proposal has been approved`
+    }
+  });
+},
+  "approve-package"
+)
+
+export const rejectPackageAction = action(async (packageId: number, userId: string) => {
+  "use server"
+
+  await prisma.packageEvent.create({
+    data: {
+      packageId,
+      type: PackageEventType.REJECTED,
+      createdById: userId,
+      description: `Package proposal has been rejected`
+    }
+  });
+},
+  "reject-package"
+);
+
+export const cancelPackageAction = action(async (packageId: number, userId: string) => {
+  "use server"
+
+  await prisma.packageEvent.create({
+    data: {
+      packageId,
+      type: PackageEventType.CANCELLED,
+      createdById: userId,
+      description: `Package proposal has been cancelled`
+    }
+  });
+},
+  "cancel-package"
+);
 
 export const deletePackage = async (id: number) => {
   "use server"
-
-  await prisma.packageItem.deleteMany({
-    where: { packageId: id },
-  });
 
   await prisma.package.delete({
     where: { id },
   });
 }
 
-
-export function getPackageStatus(pkg: any): PackageStatus {
-  if (pkg.approvedBy) return PackageStatus.APPROVED;
-  if (pkg.reviewedBy) return PackageStatus.REVIEWED;
-  if (pkg.updatedBy && pkg.updatedAt !== pkg.createdAt) return PackageStatus.MODIFIED;
-  return PackageStatus.CREATED;
-}
-
-export function formatPackage(pkg: any): Package {
+export function mapPackage(pkg: any): Package {
   return ({
     ...pkg,
-    status: getPackageStatus(pkg),
     packageItems: pkg.packageItems.map(({ product, ...i }) => ({
       ...i,
       name: product.name,
