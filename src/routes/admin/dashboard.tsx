@@ -4,6 +4,7 @@ import Table, { Column } from "~/components/table/Table";
 import { MdFillFilter_list } from 'solid-icons/md';
 import { getAllProducts, Product, updateProduct } from "~/lib/product";
 import { createPackage, getAllPackages, Package, updatePackage, deletePackage } from "~/lib/package";
+import GoogleCalendar from "~/components/calendar/GoogleCalendar";
 
 export const BookingStatus = {
   CHECK_IN: "Check In",
@@ -217,6 +218,7 @@ export default function Dashboard() {
   return (
     <main class="py-8">
       <Title>Dashboard</Title>
+      <GoogleCalendar />
       <p class="title text-left my-5">Dashboard</p>
 
       <div class="flex flex-col gap-6">
