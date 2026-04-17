@@ -1,5 +1,7 @@
-import { createSignal, Show, onMount, createEffect } from "solid-js";
+import { createSignal, Show, createEffect, For } from "solid-js";
 import Button from "~/components/button/Button";
+import { sendEmail } from "~/lib/google/email";
+import adminBodyDefault from "~/lib/google/templates/admin";
 import defaultBodyTemplate from "~/lib/google/templates/default";
 import { Package, PACKAGE_EVENT_DESCRIPTION, PackageEvent, PackageEventType } from "~/lib/package";
 import { User } from "~/lib/user";
@@ -113,6 +115,11 @@ const samplePackage: Package = {
   updatedAt: new Date(),
 };
 
+const roleButtons: { label: string; value: boolean }[] = [
+  { label: "Customer", value: true },
+  { label: "Admin", value: false },
+]
+
 const statusButtons: { label: string; value: PackageEventType }[] = [
   { label: "Created", value: PackageEventType.CREATED },
   { label: "Modified", value: PackageEventType.MODIFIED },
@@ -123,79 +130,117 @@ const statusButtons: { label: string; value: PackageEventType }[] = [
 ];
 
 export default function EmailPreview() {
+  const [previewRef, setPreviewRef] = createSignal<HTMLDivElement>();
   const [error, setError] = createSignal("");
+  const [isCustomerView, setIsCustomerView] = createSignal(true);
   const [status, setStatus] = createSignal<PackageEventType>(samplePackage.status);
   const events = () => {
     switch (status()) {
       case PackageEventType.CREATED:
         return [packageEvents.create];
       case PackageEventType.MODIFIED:
-        return [packageEvents.create, packageEvents.modify];
+        return [packageEvents.modify, packageEvents.create];
       case PackageEventType.REVIEWED:
-        return [packageEvents.create, packageEvents.review];
+        return [packageEvents.review, packageEvents.create];
       case PackageEventType.APPROVED:
-        return [packageEvents.create, packageEvents.review, packageEvents.approve];
+        return [packageEvents.approve, packageEvents.review, packageEvents.create];
       case PackageEventType.REJECTED:
-        return [packageEvents.create, packageEvents.review, packageEvents.reject];
+        return [packageEvents.reject, packageEvents.review, packageEvents.create];
       case PackageEventType.CANCELLED:
-        return [packageEvents.create, packageEvents.cancel];
+        return [packageEvents.cancel, packageEvents.create];
     }
   }
 
-  let previewRef: HTMLDivElement | undefined;
-
-  const runPreviewWithStatus = (currentStatus: PackageEventType) => {
-    try {
-      setError("");
-      if (!previewRef) return;
-
-      const sortedEvents = [...(events() ?? [])].sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() -
-          new Date(b.createdAt).getTime()
-      );
-
-      const pkg = {
-        ...samplePackage,
-        status: currentStatus,
-        packageEvents: sortedEvents,
-      };
-
-      const html = defaultBodyTemplate(pkg as any);
-      previewRef.innerHTML = html;
-    } catch (e: any) {
-      setError(e.message);
-    }
-  };
-
   createEffect(() => {
-    runPreviewWithStatus(status());
+    const el = previewRef();
+    const currentStatus = status();
+    const isCustomer = isCustomerView();
+
+    if (!el) return;
+
+    setError("");
+
+    const sortedEvents = [...(events() ?? [])].sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() -
+        new Date(b.createdAt).getTime()
+    );
+
+    const pkg = {
+      ...samplePackage,
+      status: currentStatus,
+      packageEvents: sortedEvents,
+      viewerRole: isCustomer ? "CUSTOMER" : "ADMIN",
+    };
+
+    const template = isCustomer
+      ? defaultBodyTemplate
+      : adminBodyDefault;
+
+    el.innerHTML = "";
+    el.innerHTML = template(pkg as any);
   });
+
+  const handleRoleButtonClick = (value: boolean) => {
+    setIsCustomerView(value);
+  }
+
+  const handleStatusButtonClick = (value: PackageEventType) => {
+    setStatus(value);
+  }
+
+  const handleSendEmail = async () => {
+    const pkg: Package = {
+      ...samplePackage,
+      packageEvents: events()
+    }
+    await sendEmail(pkg);
+  }
 
   return (
     <div class="w-full h-screen bg-gray-100 flex items-center justify-center">
       <div class="w-full max-w-5xl flex flex-col items-center gap-4">
+        {/* View Buttons */}
+        <div class="flex flex-wrap gap-2">
+          <For each={roleButtons}>
+            {(btn) => <Button
+              class={`px-3 py-2 rounded-md border transition ${isCustomerView() === btn.value
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white hover:bg-gray-100"
+                }`}
+              onClick={() => handleRoleButtonClick(btn.value)}
+            >
+              {btn.label}
+            </Button>}
+          </For>
+        </div>
 
         {/* Status buttons */}
         <div class="flex flex-wrap gap-2">
-          {statusButtons.map((btn) => (
-            <Button
+          <For each={statusButtons}>
+            {(btn) => <Button
               class={`px-3 py-2 rounded-md border transition ${status() === btn.value
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white hover:bg-gray-100"
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white hover:bg-gray-100"
                 }`}
-              onClick={() => setStatus(btn.value)}
+              onClick={() => handleStatusButtonClick(btn.value)}
             >
               {btn.label}
-            </Button>
-          ))}
+            </Button>}
+          </For>
         </div>
 
         {/* Preview */}
         <div
-          ref={previewRef}
+          ref={setPreviewRef}
           class="w-full h-[500px] md:h-[600px] bg-gray-200 border rounded-lg shadow-sm p-2 overflow-auto"
         />
+
+        <Button
+          class="btn"
+          onClick={handleSendEmail}>
+          Test send to email
+        </Button>
 
         <Show when={error()}>
           <pre class="text-red-600 text-sm bg-red-50 p-2 rounded border border-red-200 overflow-auto">

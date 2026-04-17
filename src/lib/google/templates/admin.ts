@@ -2,7 +2,7 @@ import { Package } from "~/lib/package";
 import { statusColorMap, statusTextMap } from "./status";
 import { renderItemsHTML, renderPackageEventsHTML } from "./sections";
 
-export default function defaultBodyTemplate(pkg: Package) {
+export default function adminBodyDefault(pkg: Package) {
   const status = pkg.status;
 
   const total = (pkg.packageItems ?? []).reduce(
@@ -12,12 +12,12 @@ export default function defaultBodyTemplate(pkg: Package) {
 
   const itemsHtml = renderItemsHTML(pkg);
 
-  const eventsHtml = renderPackageEventsHTML(pkg.packageEvents);
+  const eventsHtml = renderPackageEventsHTML(pkg.packageEvents, true);
 
   return `
     <html>
       <body style="font-family: Arial, sans-serif; background:#f6f6f6; padding:20px;">
-        <div style="max-width:600px; margin:auto; background:white; border-radius:8px; padding:30px;">
+        <div style="max-width:full; margin:auto; background:white; border-radius:8px; padding:30px;">
           
           <h2 style="color:#2c7be5; margin-top:0;">
             Package ${statusTextMap[status]} 📦

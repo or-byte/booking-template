@@ -2,6 +2,7 @@ import { Package as PrismaPackage, PackageItem as PrismaPackageItem, PackageEven
 import prisma from "./prisma";
 import { action, query } from "@solidjs/router";
 import { User } from "./user";
+import { Product } from "./product";
 
 // This mirrors `PackageEventType` enum from schema
 export const PackageEventType = {
@@ -344,7 +345,7 @@ export const deletePackage = async (id: number) => {
 export function mapPackage(pkg: any): Package {
   return ({
     ...pkg,
-    packageItems: pkg.packageItems.map(({ product, ...i }) => ({
+    packageItems: pkg.packageItems.map(({ product, ...i }: PackageItem & { product: Product }) => ({
       ...i,
       name: product.name,
       price: Number(product.price)

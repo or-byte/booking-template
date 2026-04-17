@@ -1,7 +1,8 @@
 import { Role } from "@prisma/client";
-import { Package } from "../package";
+import { NormalizedPackage, Package } from "../package";
 import { getUserEmailsByRole } from "../user";
 import defaultBodyTemplate from "./templates/default";
+import { toBase64Url } from "~/utils/buffer";
 
 let gCachedToken: string | null = null;
 let gTokenExpiry = 0;
@@ -41,38 +42,42 @@ export async function getAccessToken() {
   return gCachedToken;
 }
 
-export const sendEmail = async (
-  pkg: Package
-) => {
+// pkg.PackageEvents.length is never 0 because `Package` is created with PackageEvent.type 'CREATED'
+export const normalizePkg = (pkg: Package): NormalizedPackage => {
+  return {
+    ...pkg,
+    status: pkg.packageEvents?.[0]?.type!,
+  };
+};
+
+export const sendEmail = async (pkg: Package) => {
   "use server"
 
   const accessToken = await getAccessToken();
-  if (!accessToken) throw new Error("Missing acess token");
+  if (!accessToken) throw new Error("Missing access token");
+
+  const normalizedPkg = normalizePkg(pkg);
 
   const admins = await getUserEmailsByRole(Role.ADMIN);
-  const recipients: string[] = [
+  const recipients = [
     ...admins,
-    ...(admins.includes(pkg.contactEmail) ? [] : [pkg.contactEmail]), // this is to prevent duplication
+    ...(admins.includes(normalizedPkg.contactEmail) ? [] : [normalizedPkg.contactEmail]),
   ];
 
-  for (let i: number = 0; i < recipients.length; i++) {
-    const recipient = recipients[i];
-    console.log("sending email to ", recipient);
+  const results = [];
 
-    const body = defaultBodyTemplate(pkg);
+  for (const recipient of recipients) {
+    const body = defaultBodyTemplate(normalizedPkg);
 
     const message = [
       `To: ${recipient}`,
       `Subject: The Waterfront Beach Resort Package Update`,
       "Content-Type: text/html; charset=UTF-8",
       "",
-      body
+      body,
     ].join("\n");
 
-    const base64Encoded = btoa(unescape(encodeURIComponent(message)))
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/, "");
+    const base64Encoded = toBase64Url(message);
 
     try {
       const response = await fetch(
@@ -87,9 +92,11 @@ export const sendEmail = async (
         }
       );
 
-      return await response.json();
+      results.push(await response.json());
     } catch (error) {
       console.error("Error sending email:", error);
     }
   }
+
+  return results;
 };

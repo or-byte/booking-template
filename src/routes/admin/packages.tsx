@@ -113,6 +113,7 @@ export default function Packages() {
           userId
         });
       }
+      await handleOnUpdate();
     } catch (err) {
       console.error(err);
       alert("Failed to save package");
