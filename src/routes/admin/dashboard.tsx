@@ -1,10 +1,13 @@
 import { Title } from "@solidjs/meta";
-import { createSignal, createMemo, createResource, For } from "solid-js";
+import { createSignal, createMemo, createResource, For, Show, createEffect } from "solid-js";
 import Table, { Column } from "~/components/table/Table";
 import { MdFillFilter_list } from 'solid-icons/md';
 import { getAllProducts, Product, updateProduct } from "~/lib/product";
 import { createPackage, getAllPackages, Package, updatePackage, deletePackage } from "~/lib/package";
+import { getServiceAccountAccessToken, listEvents, createEvent, deleteEvent } from "~/lib/google/calendar";
 import GoogleCalendar from "~/components/calendar/GoogleCalendar";
+import PackageCard from "~/components/cards/PackageCard";
+import Button from "~/components/button/Button";
 
 export const BookingStatus = {
   CHECK_IN: "Check In",
@@ -73,6 +76,7 @@ export const sampleBookings: Booking[] = [
   },
 ];
 
+
 const productColumns: Column<Product>[] = [
   { header: "Name", accessor: "name" },
   { header: "Description", accessor: "description" },
@@ -135,12 +139,19 @@ export default function Dashboard() {
   const [packages, { refetch: refetchPackages }] = createResource(page, async (page) => (await getAllPackages(page, pageSize)));
   const totalPages = () => 10;
 
+  //access token state
+  const [accessToken] = createResource(getServiceAccountAccessToken);
 
-  const handleStatusChange = (id: number, status: BookingStatus) => {
-    setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
-    setEditingId(null);
+  //events state
+  const [events, { refetch }] = createResource(accessToken, listEvents);
+
+  //success message state for add, update, and delete
+  const [message, setMessage] = createSignal<{ text: string; type: "success" | "error" } | null>(null);
+
+  const showMessage = (text: string, type: "success" | "error" = "success") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 3000);
   };
-
 
   const filteredAndSorted = createMemo(() => {
     let data = [...bookings()];
@@ -163,6 +174,43 @@ export default function Dashboard() {
   const toggleSort = () => {
     setSortOrder(prev => prev === "asc" ? "desc" : "asc");
   };
+
+  const handleStatusChange = (id: number, status: BookingStatus) => {
+    setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
+    setEditingId(null);
+  };
+
+  const onCreateEvent = async () => {
+    if (!accessToken()) {
+      console.error("No access token available");
+      return;
+    }
+
+    try {
+      await createEvent(accessToken(), {
+        summary: "Service Account Event test new",
+        start: { dateTime: "2026-04-21T09:00:00+08:00" },
+        end: { dateTime: "2026-04-21T10:00:00+08:00" },
+      });
+      showMessage("Event added successfully!")
+    } catch (error) {
+      console.error(error);
+      showMessage("Something went wrong. Please try again.", "error");
+    }
+  };
+
+  const onDeleteEvent = async (event) => {
+    try {
+      await deleteEvent(accessToken(), event.id);
+      refetch();
+      showMessage("Event deleted successfully!");
+    } catch (error) {
+      console.error(error);
+      showMessage("Something went wrong. Please try again.", "error");
+    }
+
+  }
+
 
   const columns: Column<Booking>[] = [
     {
@@ -218,8 +266,38 @@ export default function Dashboard() {
   return (
     <main class="py-8">
       <Title>Dashboard</Title>
-      <GoogleCalendar />
       <p class="title text-left my-5">Dashboard</p>
+
+      <GoogleCalendar />
+
+      <div class="my-4 flex flex-col gap-5 items-start">
+        <Show when={!events.loading} fallback={<p>Loading events...</p>}>
+          <div class="border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)] w-full">
+            <For each={events()?.items}>
+              {(event) => (
+                <PackageCard
+                  name={event.summary}
+                  onEditShow={false}
+                  onDelete={() => onDeleteEvent(event)}>
+                  <span>{event.start?.dateTime}</span>
+                </PackageCard>
+              )}
+            </For>
+          </div>
+        </Show>
+        <Button class="btn" onClick={onCreateEvent}>Create New Event</Button>
+      </div>
+
+      <Show when={message()}>
+        <div
+          class={`my-4 p-3 rounded-[10px] text-sm text-left ${message()?.type === "error"
+            ? "bg-red-100 text-red-700"
+            : "bg-green-100 text-green-700"
+            }`}
+        >
+          {message()?.text}
+        </div>
+      </Show>
 
       <div class="flex flex-col gap-6">
         <Table
@@ -231,10 +309,10 @@ export default function Dashboard() {
         <Table
           title="Packages"
           columns={packageColumns}
-          data={packages() ?? []}
+          data={packages()?.data}
           pagination={{
             page,
-            totalPages,
+            totalPages: () => packages()?.meta.totalPages ?? 1,
             onNext: () => setPage(p => p + 1),
             onPrev: () => setPage(p => p - 1),
           }}

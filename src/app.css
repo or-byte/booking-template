@@ -137,6 +137,14 @@ p {
     @apply border-[var(--color-accent-1)] cursor-pointer;
   }
 
+  .btn-outline:disabled:hover {
+    @apply cursor-not-allowed;
+  }
+
+  .btn-outline:disabled {
+    @apply border-[var(--color-border-1)] disabled:opacity-40
+  }
+
   .nav {
     @apply hidden md:flex gap-4 items-center rounded-[20px] bg-[var(--color-bg-2)] py-[20px] px-[30px]
   }

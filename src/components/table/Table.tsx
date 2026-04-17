@@ -1,4 +1,5 @@
 import { For, JSX, Show } from "solid-js";
+import Button from "../button/Button";
 
 export type Column<T> = {
   header: string;
@@ -72,20 +73,20 @@ export default function Table<T>(props: Props<T>) {
               Page {pagination().page()} of {pagination().totalPages()}
             </p>
             <div class="flex gap-2">
-              <button
-                class="px-3 py-1 rounded border body-2 disabled:opacity-40 hover:bg-gray-100"
+              <Button
+                class="btn-outline"
                 onClick={pagination().onPrev}
-                disabled={pagination().page() <= 1}
+                disabled={pagination().page() === 1}
               >
                 Previous
-              </button>
-              <button
-                class="px-3 py-1 rounded border body-2 disabled:opacity-40 hover:bg-gray-100"
+              </Button>
+              <Button
+                class="btn-outline"
                 onClick={pagination().onNext}
                 disabled={pagination().page() >= pagination().totalPages()}
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         )}
