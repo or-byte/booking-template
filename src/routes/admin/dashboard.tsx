@@ -5,6 +5,9 @@ import { MdFillFilter_list } from 'solid-icons/md';
 import { getAllProducts, Product, updateProduct } from "~/lib/product";
 import { getAllPackages, Package } from "~/lib/package";
 import GoogleCalendar from "~/components/calendar/GoogleCalendar";
+import PackageCard from "~/components/cards/PackageCard";
+import Button from "~/components/button/Button";
+import { getServiceAccountAccessToken, listEvents, createEvent, deleteEvent } from "~/lib/google/calendar";
 
 export const BookingStatus = {
   CHECK_IN: "Check In",
@@ -138,6 +141,12 @@ export default function Dashboard() {
   //success message state for add, update, and delete
   const [message, setMessage] = createSignal<{ text: string; type: "success" | "error" } | null>(null);
 
+  //access token state
+  const [accessToken] = createResource(getServiceAccountAccessToken);
+
+  //events state
+  const [events, { refetch }] = createResource(accessToken, listEvents);
+
   const filteredAndSorted = createMemo(() => {
     let data = [...bookings()];
 
@@ -216,12 +225,78 @@ export default function Dashboard() {
     },
   ];
 
+  const onCreateEvent = async () => {
+    if (!accessToken()) {
+      console.error("No access token available");
+      return;
+    }
+
+    try {
+      await createEvent(accessToken(), {
+        summary: "Service Account Event test new",
+        start: { dateTime: "2026-04-21T09:00:00+08:00" },
+        end: { dateTime: "2026-04-21T10:00:00+08:00" },
+      });
+      showMessage("Event added successfully!")
+    } catch (error) {
+      console.error(error);
+      showMessage("Something went wrong. Please try again.", "error");
+    }
+  };
+
+  const onDeleteEvent = async (event) => {
+    try {
+      await deleteEvent(accessToken(), event.id);
+      refetch();
+      showMessage("Event deleted successfully!");
+    } catch (error) {
+      console.error(error);
+      showMessage("Something went wrong. Please try again.", "error");
+    }
+
+  }
+
+  const showMessage = (text: string, type: "success" | "error" = "success") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 3000);
+  };
+
+  <Show when={message()}>
+    <div
+      class={`my-4 p-3 rounded-[10px] text-sm text-left ${message()?.type === "error"
+        ? "bg-red-100 text-red-700"
+        : "bg-green-100 text-green-700"
+        }`}
+    >
+      {message()?.text}
+    </div>
+  </Show>
+
+
   return (
     <main class="py-8">
       <Title>Dashboard</Title>
       <p class="title text-left my-5">Dashboard</p>
 
       <GoogleCalendar />
+
+      <div class="my-4 flex flex-col gap-5 items-start">
+        <Show when={!events.loading} fallback={<p>Loading events...</p>}>
+          <div class="border border-[var(--color-border-1)] rounded-[10px] divide-y divide-[var(--color-border-1)] w-full">
+            <For each={events()?.items}>
+              {(event) => (
+                <PackageCard
+                  name={event.summary}
+                  onEditShow={false}
+                  onDelete={() => onDeleteEvent(event)}>
+                  <span>{event.start?.dateTime}</span>
+                </PackageCard>
+              )}
+            </For>
+          </div>
+        </Show>
+        <Button class="btn" onClick={onCreateEvent}>Create New Event</Button>
+      </div>
 
       <Show when={message()}>
         <div
