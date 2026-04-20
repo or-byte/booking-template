@@ -145,6 +145,7 @@ export default function Dashboard() {
   const [events, { refetch }] = createResource(() => accessToken(), listEvents);
 
   //success message state for add, update, and delete
+  //message() is null when no request is made
   const [message, setMessage] = createSignal<{ text: string; type: "success" | "error" } | null>(null);
 
   const filteredAndSorted = createMemo(() => {
@@ -287,7 +288,6 @@ export default function Dashboard() {
         <Button class="btn" onClick={onCreateEvent}>Create New Event</Button>
       </div>
 
-      {/* Message doesnt show when message() is null */}
       <Show when={message()}>
         <div
           class={`my-4 p-3 rounded-[10px] text-sm text-left ${message()?.type === "error"

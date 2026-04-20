@@ -7,15 +7,7 @@ export type EventFormData = {
   end: { dateTime: string };
 };
 
-function base64url(input: Buffer | string) {
-  return Buffer.from(input)
-    .toString("base64")
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-}
-
-const createJWT = async (client_email: string, private_key: string): Promise<any> => {
+const createJWT = async (client_email: string, private_key: string): Promise<string> => {
   const now = Math.floor(Date.now() / 1000);
 
   const header = {
@@ -31,8 +23,16 @@ const createJWT = async (client_email: string, private_key: string): Promise<any
     exp: now + 3600,
   };
 
-  const encodedHeader = base64url(JSON.stringify(header));
-  const encodedPayload = base64url(JSON.stringify(payload));
+  const encodedHeader = Buffer.from(JSON.stringify(header))
+    .toString("base64")
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
+  const encodedPayload = Buffer.from(JSON.stringify(payload))
+    .toString("base64")
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
 
   const data = `${encodedHeader}.${encodedPayload}`;
 
@@ -49,7 +49,7 @@ const createJWT = async (client_email: string, private_key: string): Promise<any
   return `${data}.${encodedSignature}`;
 }
 
-export const getServiceAccountAccessToken = async (): Promise<any> => {
+export const getServiceAccountAccessToken = async (): Promise<string> => {
   "use server";
   const privateKey = process.env.SERVICE_ACCOUNT_KEY!
     .replace(/\\n/g, "\n")
@@ -75,6 +75,7 @@ export const getServiceAccountAccessToken = async (): Promise<any> => {
   return data.access_token;
 }
 
+//this function returns an unnamed object prototype
 export const listEvents = async (accessToken: string): Promise<any> => {
   "use server";
   const res = await fetch(
@@ -89,6 +90,7 @@ export const listEvents = async (accessToken: string): Promise<any> => {
   return res.json();
 }
 
+//this function returns an unnamed object prototype
 export const createEvent = async (accessToken: string, body: EventFormData): Promise<any> => {
   "use server";
 
@@ -107,6 +109,7 @@ export const createEvent = async (accessToken: string, body: EventFormData): Pro
   return res.json();
 }
 
+//this function returns an unnamed object prototype
 export const deleteEvent = async (accessToken: string, eventId: string): Promise<any> => {
   "use server";
   const res = await fetch(
