@@ -3,7 +3,7 @@ import Button from "~/components/button/Button";
 import { sendEmail } from "~/lib/google/email";
 import adminBodyDefault from "~/lib/google/templates/admin";
 import defaultBodyTemplate from "~/lib/google/templates/default";
-import { Package, PACKAGE_EVENT_DESCRIPTION, PackageEvent, PackageEventType } from "~/lib/package";
+import { Package, PackageEvent, PackageEventType } from "~/lib/package";
 import { User } from "~/lib/user";
 
 const users: Record<string, User> = {
@@ -42,7 +42,6 @@ const users: Record<string, User> = {
 const packageEvents: Record<string, PackageEvent> = {
   create: {
     id: 1,
-    description: PACKAGE_EVENT_DESCRIPTION.create,
     createdAt: new Date("2026-04-10T09:00:00"),
     type: PackageEventType.CREATED,
     createdById: "u1",
@@ -50,7 +49,6 @@ const packageEvents: Record<string, PackageEvent> = {
   },
   modify: {
     id: 2,
-    description: PACKAGE_EVENT_DESCRIPTION.modify,
     createdAt: new Date("2026-04-10T10:15:00"),
     type: PackageEventType.MODIFIED,
     createdById: "u2",
@@ -58,7 +56,6 @@ const packageEvents: Record<string, PackageEvent> = {
   },
   review: {
     id: 3,
-    description: PACKAGE_EVENT_DESCRIPTION.review,
     createdAt: new Date("2026-04-11T08:30:00"),
     type: PackageEventType.REVIEWED,
     createdById: "u3",
@@ -66,7 +63,6 @@ const packageEvents: Record<string, PackageEvent> = {
   },
   approve: {
     id: 4,
-    description: PACKAGE_EVENT_DESCRIPTION.approve,
     createdAt: new Date("2026-04-11T11:45:00"),
     type: PackageEventType.APPROVED,
     createdById: "u2",
@@ -74,7 +70,6 @@ const packageEvents: Record<string, PackageEvent> = {
   },
   reject: {
     id: 5,
-    description: PACKAGE_EVENT_DESCRIPTION.reject,
     createdAt: new Date("2026-04-11T11:45:00"),
     type: PackageEventType.REJECTED,
     createdById: "u2",
@@ -82,7 +77,6 @@ const packageEvents: Record<string, PackageEvent> = {
   },
   cancel: {
     id: 6,
-    description: PACKAGE_EVENT_DESCRIPTION.cancel,
     createdAt: new Date("2026-04-11T11:45:00"),
     type: PackageEventType.CANCELLED,
     createdById: "u2",
@@ -139,7 +133,7 @@ export default function EmailPreview() {
       case PackageEventType.CREATED:
         return [packageEvents.create];
       case PackageEventType.MODIFIED:
-        return [packageEvents.modify, packageEvents.create];
+        return [packageEvents.modify];
       case PackageEventType.REVIEWED:
         return [packageEvents.review, packageEvents.create];
       case PackageEventType.APPROVED:
@@ -160,16 +154,10 @@ export default function EmailPreview() {
 
     setError("");
 
-    const sortedEvents = [...(events() ?? [])].sort(
-      (a, b) =>
-        new Date(a.createdAt).getTime() -
-        new Date(b.createdAt).getTime()
-    );
-
     const pkg = {
       ...samplePackage,
       status: currentStatus,
-      packageEvents: sortedEvents,
+      packageEvents: events(),
       viewerRole: isCustomer ? "CUSTOMER" : "ADMIN",
     };
 
@@ -187,14 +175,6 @@ export default function EmailPreview() {
 
   const handleStatusButtonClick = (value: PackageEventType) => {
     setStatus(value);
-  }
-
-  const handleSendEmail = async () => {
-    const pkg: Package = {
-      ...samplePackage,
-      packageEvents: events()
-    }
-    await sendEmail(pkg.id);
   }
 
   return (
@@ -235,12 +215,6 @@ export default function EmailPreview() {
           ref={setPreviewRef}
           class="w-full h-[500px] md:h-[600px] bg-gray-200 border rounded-lg shadow-sm p-2 overflow-auto"
         />
-
-        <Button
-          class="btn"
-          onClick={handleSendEmail}>
-          Test send to email
-        </Button>
 
         <Show when={error()}>
           <pre class="text-red-600 text-sm bg-red-50 p-2 rounded border border-red-200 overflow-auto">

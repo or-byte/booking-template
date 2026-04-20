@@ -116,9 +116,11 @@ export default function Packages() {
           userId
         });
         await refetchPackages();
+        setSelectedPackage(null);
+        setPackageMode(null);
+        if (!newPkg) return;
         await sendEmail(newPkg.id);
       }
-      alert("package created");
     } catch (err) {
       console.error(err);
       alert(`Failed to save package: ${err}`);

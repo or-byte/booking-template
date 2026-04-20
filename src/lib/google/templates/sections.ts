@@ -1,4 +1,5 @@
 import { Package, PackageEvent } from "~/lib/package";
+import { statusDescriptionMap } from "./status";
 
 export const renderItemsHTML = (pkg: Package) => {
   return (pkg.packageItems ?? [])
@@ -73,7 +74,7 @@ export const renderPackageEventsHTML = (events: PackageEvent[], isAdmin = false)
                   </div>
 
                   <div style="font-size:12px;color:#4b5563;">
-                    ${e.description}
+                    ${statusDescriptionMap[e.type]}
                     ${isAdmin ? `<br/>by ${e.createdBy.name}.` : ''}
                   </div>
                 </div>

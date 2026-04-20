@@ -2,7 +2,7 @@
 import { getPackageById } from "../package";
 import { getUserEmailsByRole, Role } from "../user";
 import defaultBodyTemplate from "./templates/default";
-import { toBase64Url } from "~/utils/buffer";
+import { toBase64 } from "~/utils/crypto";
 
 let gCachedToken: string | null = null;
 let gTokenExpiry = 0;
@@ -49,7 +49,6 @@ export const sendEmail = async (packageId: number) => {
   if (!accessToken) throw new Error("Missing access token");
 
   const pkg = await getPackageById(packageId);
-  console.log(pkg);
 
   const admins = await getUserEmailsByRole(Role.ADMIN);
   const recipients = [
@@ -70,7 +69,7 @@ export const sendEmail = async (packageId: number) => {
       body,
     ].join("\n");
 
-    const base64Encoded = toBase64Url(message);
+    const base64Encoded = toBase64(message);
 
     try {
       const response = await fetch(
