@@ -12,12 +12,6 @@ export type Role = (typeof Role)[keyof typeof Role]
 
 export type User = PrismaUser;
 
-export type UserEmail = {
-  id: string
-  name: string
-  email: string
-}
-
 export const getUserEmailsByRole = query(async (role: Role) : Promise<string[]> => {
   "use server"
 
