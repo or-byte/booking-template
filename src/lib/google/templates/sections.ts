@@ -74,6 +74,7 @@ export const renderPackageEventsHTML = (events: PackageEvent[], isAdmin = false)
 
                   <div style="font-size:12px;color:#4b5563;">
                     ${e.description}
+                    ${isAdmin ? `<br/>by ${e.createdBy.name}.` : ''}
                   </div>
                 </div>
 

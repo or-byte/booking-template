@@ -18,7 +18,7 @@ export default function adminBodyDefault(pkg: Package) {
   return `
     <html>
       <body style="font-family: Arial, sans-serif; background:#f6f6f6; padding:20px;">
-        <div style="max-width:full; margin:auto; background:white; border-radius:8px; padding:30px;">
+        <div style="max-width:600px; margin:auto; background:white; border-radius:8px; padding:30px;">
           
           <h2 style="color:#2c7be5; margin-top:0;">
             Package ${statusTextMap[status]} 📦

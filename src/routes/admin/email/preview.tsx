@@ -86,7 +86,7 @@ const packageEvents: Record<string, PackageEvent> = {
     createdAt: new Date("2026-04-11T11:45:00"),
     type: PackageEventType.CANCELLED,
     createdById: "u2",
-    createdBy: users.admin,
+    createdBy: users.customer,
   }
 };
 
