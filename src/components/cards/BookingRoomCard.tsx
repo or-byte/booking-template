@@ -1,8 +1,7 @@
 import { JSX } from "solid-js";
-import { Image } from "~/lib/product";
 
 type BookingRoomCardProps = {
-    image: Image;
+    image: string;
     title: string;
     priceLabel?: string;
     class?: string;
@@ -30,8 +29,8 @@ export default function BookingRoomCard(
             `}
         >
             <img
-                src={props.image.url}
-                alt={props.image.title}
+                src={props.image}
+                alt={props.title}
                 class="absolute inset-0 w-full h-full object-cover"
             />
 

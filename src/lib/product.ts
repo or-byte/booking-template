@@ -3,11 +3,11 @@ import { Image as PrismaImage } from "@prisma/client"
 import prisma from "./prisma";
 import { query } from "@solidjs/router";
 
-const placeholderProductImage = "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=";
-
 export type Image = PrismaImage;
 
 export type Product = Omit<PrismaProduct, "price"> & { price: number, images: Image[] };
+
+export type ProductPreview = Omit<Product, "images"> & { previewUrl?: string };
 
 export type ProductFormData = {
   name: string;
@@ -58,19 +58,25 @@ export const getProductsByCategory = query(
   "products-by-category-id"
 );
 
-
+// when calling this function, by default, all images are called by default
+// by switching `previewOnly` to true, images are omitted and only the first image as `previewUrl` is assigned
+//
+// creating resource from this function also defaults it to Product[], otherwise it is required to declare it as ProductPreview[]
+// example: const [rooms] = createResource(async () => { return await getProductsByCategoryName("Room", true) as ProductPreview[] });
 export const getProductsByCategoryName = query(
-  async (name: string): Promise<Product[]> => {
+  async (name: string, previewOnly: boolean = false): Promise<Product[] | ProductPreview[]> => {
     "use server"
 
     const products = await prisma.product.findMany({
-      where: { category: { name: name } },
-       include: {
-         images: true 
-        }
+      where: { category: { name } },
+      include: {
+        images: true
+      }
     });
 
-    return products.map(mapProduct);
+    if (previewOnly) return products.map(mapProductPreview) as ProductPreview[];
+
+    return products.map(mapProduct) as Product[];
   },
   "products-by-category-name"
 );
@@ -115,6 +121,16 @@ export function mapProduct(product: any): Product {
   return {
     ...product,
     price: product.price.toNumber(),
-    images: product.images.length !== 0 ? product.images : [{ id: 9999, title: "Placeholder Image", url: placeholderProductImage, productId: product.id  }]
+    images: product.images
   };
+}
+
+// this function maps to ProductPreview where only the first image is returned to frontend
+// previewUrl is nullable, frontend should handle empty preview
+export function mapProductPreview(product: any): ProductPreview {
+  return {
+    ...product,
+    price: product.price.toNumber(),
+    previewUrl: product.images[0]?.url
+  }
 }
