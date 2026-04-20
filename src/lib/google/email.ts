@@ -1,6 +1,6 @@
-import { Role } from "@prisma/client";
-import { getPackageById, Package } from "../package";
-import { getUserEmailsByRole } from "../user";
+
+import { getPackageById } from "../package";
+import { getUserEmailsByRole, Role } from "../user";
 import defaultBodyTemplate from "./templates/default";
 import { toBase64Url } from "~/utils/buffer";
 
