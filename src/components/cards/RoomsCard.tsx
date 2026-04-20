@@ -1,10 +1,10 @@
 import { createSignal, For, JSX } from "solid-js";
-import { gPlaceholderRoomImage } from "~/routes/rooms";
+import { Image } from "~/lib/product";
 
 export type RoomsCardItem = {
   id: string | number;
   name: string
-  image: string;
+  images: Image[];
   price: string;
 };
 
@@ -64,9 +64,10 @@ export default function RoomsCard<T extends RoomsCardItem>(
               }}
             >
               {/* Background */}
+              {/* images[] is never empty because, by default, Product will return a placeholder image */}
               <img
-                src={gPlaceholderRoomImage}
-                alt=""
+                src={item.images[0].url}
+                alt={item.images[0].title}
                 class="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
               />
 

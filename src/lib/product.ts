@@ -1,8 +1,13 @@
 import { Product as PrismaProduct } from "@prisma/client"
+import { Image as PrismaImage } from "@prisma/client"
 import prisma from "./prisma";
 import { query } from "@solidjs/router";
 
-export type Product = Omit<PrismaProduct, "price"> & { price: number };
+const placeholderProductImage = "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=";
+
+export type Image = PrismaImage;
+
+export type Product = Omit<PrismaProduct, "price"> & { price: number, images: Image[] };
 
 export type ProductFormData = {
   name: string;
@@ -26,7 +31,11 @@ export const getAllProducts = query(
   async (): Promise<Product[]> => {
     "use server"
 
-    const products = await prisma.product.findMany();
+    const products = await prisma.product.findMany({
+      include: {
+        images: true
+      }
+    });
 
     return products.map(mapProduct);
   },
@@ -37,7 +46,12 @@ export const getProductsByCategory = query(
   async (id: number): Promise<Product[]> => {
     "use server"
 
-    const products = await prisma.product.findMany({ where: { categoryId: id } });
+    const products = await prisma.product.findMany({
+      where: { categoryId: id },
+      include: {
+        images: true
+      }
+    });
 
     return products.map(mapProduct);
   },
@@ -49,7 +63,12 @@ export const getProductsByCategoryName = query(
   async (name: string): Promise<Product[]> => {
     "use server"
 
-    const products = await prisma.product.findMany({ where: { category: { name: name } } });
+    const products = await prisma.product.findMany({
+      where: { category: { name: name } },
+       include: {
+         images: true 
+        }
+    });
 
     return products.map(mapProduct);
   },
@@ -92,9 +111,10 @@ export const deleteProduct = async (id: number) => {
   await prisma.product.delete({ where: { id } });
 };
 
-export function mapProduct(product: PrismaProduct): Product {
+export function mapProduct(product: any): Product {
   return {
     ...product,
-    price: product.price.toNumber()
+    price: product.price.toNumber(),
+    images: product.images.length !== 0 ? product.images : [{ id: 9999, title: "Placeholder Image", url: placeholderProductImage, productId: product.id  }]
   };
 }
