@@ -2,7 +2,6 @@
 import { getPackageById } from "../package";
 import { getUserEmailsByRole, Role } from "../user";
 import defaultBodyTemplate from "./templates/default";
-import { toBase64 } from "~/utils/crypto";
 
 let gCachedToken: string | null = null;
 let gTokenExpiry = 0;
@@ -69,7 +68,11 @@ export const sendEmail = async (packageId: number) => {
       body,
     ].join("\n");
 
-    const base64Encoded = toBase64(message);
+    const base64Encoded = Buffer.from(message, "utf-8")
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
 
     try {
       const response = await fetch(
