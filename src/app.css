@@ -137,6 +137,14 @@ p {
     @apply border-[var(--color-accent-1)] cursor-pointer;
   }
 
+  .btn-outline:disabled:hover {
+    @apply cursor-not-allowed;
+  }
+
+  .btn-outline:disabled {
+    @apply border-[var(--color-border-1)] disabled:opacity-40
+  }
+
   .nav {
     @apply hidden md:flex gap-4 items-center rounded-[20px] bg-[var(--color-bg-2)] py-[20px] px-[30px]
   }
@@ -163,5 +171,17 @@ p {
 
   .spinner {
     @apply w-8 h-8 border-4 border-[var(--color-footer)]/30 border-t-[var(--color-accent-1)] rounded-full animate-spin
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
