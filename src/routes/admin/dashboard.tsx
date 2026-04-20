@@ -287,6 +287,7 @@ export default function Dashboard() {
         <Button class="btn" onClick={onCreateEvent}>Create New Event</Button>
       </div>
 
+      {/* Message doesnt show when message() is null */}
       <Show when={message()}>
         <div
           class={`my-4 p-3 rounded-[10px] text-sm text-left ${message()?.type === "error"
