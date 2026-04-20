@@ -13,7 +13,7 @@ export default function Hero() {
         bg-cover bg-center
         flex items-center justify-center
       "
-      style="background-image: url('/images/hero_img.jpg');"
+      style="background-image: url('/images/hero_section_1.jpg');"
     >
       {/* Gradient Overlay */}
       <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/30" />

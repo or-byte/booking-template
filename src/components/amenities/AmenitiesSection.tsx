@@ -2,14 +2,12 @@ import { For } from "solid-js";
 
 export default function AmenitiesSection() {
   const amenities = [
-    "Free WiFi",
-    "Pool",
-    "Restaurant",
-    "Parking",
-    "Air Conditioning",
-    "Beach Access",
-    "Room Service",
-    "Bar",
+    "Swimming Pool",
+    "Watersports (Jetski, Banana Boat, Billiards",
+    "Basketball Court",
+    "Beach Volleyball",
+    "Conference Room",
+    "Souvenir Shop"
   ];
 
   return (
@@ -18,12 +16,12 @@ export default function AmenitiesSection() {
 
         <h2 class="text-3xl font-serif mb-10">Hotel Amenities</h2>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-gray-700">
+        <div class="grid gap-6 text-gray-700" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))">
           <For each={amenities}>
             {(amenity) => (
-              <div class="flex items-center gap-2">
-                <span class="mt-1 text-[var(--color-accent-1)]">✦</span>
-                <span class="text-left">{amenity}</span>
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="mt-1 shrink-0 text-[var(--color-accent-1)]">✦</span>
+                <span class="text-left truncate">{amenity}</span>
               </div>
             )}
           </For>
