@@ -3,7 +3,8 @@ import { statusColorMap, statusTextMap } from "./status";
 import { renderItemsHTML, renderPackageEventsHTML } from "./sections";
 
 export default function adminBodyDefault(pkg: Package) {
-  const status = pkg.status;
+  // packageEvents will never be empty because it is created alongside package
+  const status = pkg.packageEvents[0].type;
 
   const total = (pkg.packageItems ?? []).reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -28,7 +29,7 @@ export default function adminBodyDefault(pkg: Package) {
           <p>
             This package has been 
             <strong style="color:${statusColorMap[status]};">
-              ${statusTextMap[status].toUpperCase()}.
+              ${statusTextMap[status]}.
             </strong> 
           </p>
 

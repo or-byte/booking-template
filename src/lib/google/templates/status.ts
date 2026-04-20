@@ -1,10 +1,10 @@
 export const statusTextMap = {
-  CREATED: "created",
-  MODIFIED: "modified",
-  REVIEWED: "reviewed",
-  APPROVED: "approved",
-  REJECTED: "rejected",
-  CANCELLED: "cancelled",
+  CREATED: "CREATED",
+  MODIFIED: "MODIFIED",
+  REVIEWED: "REVIEWED",
+  APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
+  CANCELLED: "CANCELLED",
 };
 
 export const statusColorMap = {

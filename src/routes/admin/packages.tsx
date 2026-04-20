@@ -22,7 +22,7 @@ export default function Packages() {
   // Packages states
   const [page, setPage] = createSignal(1);
   const PAGE_SIZE = 5;
-  const [packages, { refetch: refetchPackages }] = createResource(page, async (page) => await getAllPackages(page, PAGE_SIZE));
+  const [packages, { refetch: refetchPackages }] = createResource(page, async (page) => { return await getAllPackages(page, PAGE_SIZE) });
   const totalPages = (): number => packages()?.meta?.totalPages ?? 1;
 
   const [selectedPackage, setSelectedPackage] = createSignal<Package | null>(null);
@@ -52,7 +52,7 @@ export default function Packages() {
     setPackageMode("edit");
   }
 
-    const closePanel = () => {
+  const closePanel = () => {
     setSelectedPackage(null);
     setPackageMode(null);
   };
@@ -62,9 +62,9 @@ export default function Packages() {
     const updated = packages()?.data.find(p => p.id === selectedPackage()?.id);
     if (updated) {
       setSelectedPackage(updated);
-      
+
       try {
-        await sendEmail(updated);
+        await sendEmail(updated.id);
       } catch (err) {
         console.error("Failed to send email updates:", err);
       }
@@ -74,7 +74,10 @@ export default function Packages() {
 
   const handleSavePackage = async () => {
     const userId = getUserId()
-    if (!userId) return;
+    if (!userId) {
+      console.error("user not logged in");
+      return;
+    }
 
     try {
       const pkg = selectedPackage();
@@ -101,7 +104,7 @@ export default function Packages() {
       }
       // CREATE
       else {
-        await createPackage({
+        const newPkg = await createPackage({
           companyName: pkg.companyName,
           contactNumber: pkg.contactNumber,
           contactEmail: pkg.contactEmail,
@@ -112,17 +115,19 @@ export default function Packages() {
           overridePrice: pkg.overridePrice,
           userId
         });
+        await refetchPackages();
+        await sendEmail(newPkg.id);
       }
-      await handleOnUpdate();
+      alert("package created");
     } catch (err) {
       console.error(err);
-      alert("Failed to save package");
+      alert(`Failed to save package: ${err}`);
     }
   };
 
   const onHandleDelete = async (p: Package) => {
     try {
-      await deletePackage(p?.id);
+      await deletePackage(p.id);
       await refetchPackages();
 
       if (selectedPackage()?.id === p.id) {

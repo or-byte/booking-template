@@ -194,7 +194,7 @@ export default function EmailPreview() {
       ...samplePackage,
       packageEvents: events()
     }
-    await sendEmail(pkg);
+    await sendEmail(pkg.id);
   }
 
   return (

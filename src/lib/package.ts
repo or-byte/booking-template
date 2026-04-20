@@ -156,7 +156,12 @@ export const getPackageById = query(async (id: number): Promise<Package> => {
     include: {
       packageItems: {
         include: { product: true },
-      }
+      },
+      packageEvents: {
+        orderBy: {
+          id: "desc"
+        },
+      },
     },
   });
 
@@ -186,7 +191,7 @@ export const createPackageAction = action(async (form: PackageFormData) => {
   "use server"
 
   try {
-    await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const pkg = await tx.package.create({
         data: {
           companyName: form.companyName,
@@ -218,7 +223,10 @@ export const createPackageAction = action(async (form: PackageFormData) => {
           description: PACKAGE_EVENT_DESCRIPTION.create
         }
       });
+
+      return pkg;
     });
+    return mapPackage(result);
   }
   catch (err) {
     console.error(err);
@@ -343,15 +351,17 @@ export const deletePackage = async (id: number) => {
 }
 
 export function mapPackage(pkg: any): Package {
-  return ({
+  return {
     ...pkg,
-    packageItems: pkg.packageItems.map(({ product, ...i }: PackageItem & { product: Product }) => ({
-      ...i,
-      name: product.name,
-      price: Number(product.price)
-    })),
-    overridePrice: Number(pkg.overridePrice)
-  });
+    packageItems: Array.isArray(pkg.packageItems)
+      ? pkg.packageItems.map(({ product, ...i }: PackageItem & { product: Product }) => ({
+        ...i,
+        name: product?.name ?? "",
+        price: Number(product?.price ?? 0),
+      }))
+      : [],
+    overridePrice: Number(pkg.overridePrice ?? 0),
+  };
 }
 
 export function calculatePrice(pkg: Package): number {

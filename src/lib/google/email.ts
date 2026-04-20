@@ -1,5 +1,5 @@
 import { Role } from "@prisma/client";
-import { NormalizedPackage, Package } from "../package";
+import { getPackageById, Package } from "../package";
 import { getUserEmailsByRole } from "../user";
 import defaultBodyTemplate from "./templates/default";
 import { toBase64Url } from "~/utils/buffer";
@@ -42,32 +42,25 @@ export async function getAccessToken() {
   return gCachedToken;
 }
 
-// pkg.PackageEvents.length is never 0 because `Package` is created with PackageEvent.type 'CREATED'
-export const normalizePkg = (pkg: Package): NormalizedPackage => {
-  return {
-    ...pkg,
-    status: pkg.packageEvents?.[0]?.type!,
-  };
-};
-
-export const sendEmail = async (pkg: Package) => {
+export const sendEmail = async (packageId: number) => {
   "use server"
 
   const accessToken = await getAccessToken();
   if (!accessToken) throw new Error("Missing access token");
 
-  const normalizedPkg = normalizePkg(pkg);
+  const pkg = await getPackageById(packageId);
+  console.log(pkg);
 
   const admins = await getUserEmailsByRole(Role.ADMIN);
   const recipients = [
     ...admins,
-    ...(admins.includes(normalizedPkg.contactEmail) ? [] : [normalizedPkg.contactEmail]),
+    ...(admins.includes(pkg.contactEmail) ? [] : [pkg.contactEmail]),
   ];
 
   const results = [];
 
   for (const recipient of recipients) {
-    const body = defaultBodyTemplate(normalizedPkg);
+    const body = defaultBodyTemplate(pkg);
 
     const message = [
       `To: ${recipient}`,
