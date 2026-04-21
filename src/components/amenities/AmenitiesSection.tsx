@@ -16,12 +16,12 @@ export default function AmenitiesSection() {
 
         <h2 class="text-3xl font-serif mb-10">Hotel Amenities</h2>
 
-        <div class="grid gap-6 text-gray-700" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))">
+        <div class="flex flex-col md:grid gap-x-10 gap-y-4 text-gray-700" style="grid-template-columns: repeat(3, auto)"> 
           <For each={amenities}>
             {(amenity) => (
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="mt-1 shrink-0 text-[var(--color-accent-1)]">✦</span>
-                <span class="text-left truncate">{amenity}</span>
+              <div class="flex items-center gap-2">
+                <span class="shrink-0 text-[var(--color-accent-1)]">✦</span>
+                <span class="text-left">{amenity}</span>
               </div>
             )}
           </For>
