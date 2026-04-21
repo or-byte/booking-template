@@ -31,8 +31,20 @@ export type BookingFormData = {
   status: BookingStatus
 }
 
+export type BookingCreateResponse = {
+  bookingId?: number | null;
+  roomId: number | null;
+}
+
+export type BookingUpdateResponse = {
+  id: number
+  leadGuestId: string
+  roomId: number
+  status: BookingStatus
+}
+
 export const getAllBookings = query(
-  async () => {
+  async (): Promise<Booking[]> => {
     "use server"
 
     const result = await prisma.$queryRaw<{ id: string, leadGuestId: string, roomId: number, datetimeRange: string, leadGuestName: string, roomName: string }[]>`
@@ -59,19 +71,32 @@ export const getAllBookings = query(
   "get-all-bookings"
 )
 
-export const createNewBooking = async (email: string, forms: BookingFormData[]) => {
+export const createNewBooking = async (email: string, forms: BookingFormData[]): Promise<BookingCreateResponse[]> => {
   "use server";
 
   if (!forms.length) return [];
 
   const user = await getUserByEmail(email);
 
-  if (!user) throw new Error ("User not found");
+  if (!user) throw new Error("User not found");
 
   const results: { bookingId: number | null; roomId: number | null }[] = [];
 
   // Get all available rooms for these products in one query
   const productIds = Array.from(new Set(forms.map(f => f.productId))); // unique product IDs
+
+  // This is a safety check to make sure that each booking aligns to the same Package `eventTime` and `durationInDays`
+  const [first] = forms;
+
+  const sameDates = forms.every(
+    f =>
+      f.checkInDate.getTime() === first.checkInDate.getTime() &&
+      f.checkOutDate.getTime() === first.checkOutDate.getTime()
+  );
+
+  if (!sameDates) {
+    throw new Error("All booking forms must have the same date range");
+  }
 
   const availableRooms = await prisma.$queryRaw<{ productId: number; roomId: bigint }[]>`
     SELECT r."productId", r."id" as "roomId"
@@ -82,8 +107,8 @@ export const createNewBooking = async (email: string, forms: BookingFormData[]) 
         FROM "Booking" b
         WHERE b."roomId" = r."id"
           AND b."datetimeRange" && tstzrange(
-            ${forms[0].checkInDate}::timestamptz,
-            ${forms[0].checkOutDate}::timestamptz,
+            ${first.checkInDate}::timestamptz,
+            ${first.checkOutDate}::timestamptz,
             '[)'
           )
       )
@@ -115,7 +140,7 @@ export const createNewBooking = async (email: string, forms: BookingFormData[]) 
       status: form.status,
     });
   }
-  
+
   if (bookingsToInsert.length) {
     const values = bookingsToInsert
       .map(
@@ -123,8 +148,6 @@ export const createNewBooking = async (email: string, forms: BookingFormData[]) 
           `('${b.leadGuestId}', ${b.roomId}, tstzrange('${b.checkInDate.toISOString()}', '${b.checkOutDate.toISOString()}', '[)'), '${b.status}')`
       )
       .join(", ");
-
-    console.log(values);
 
     const inserted = await prisma.$queryRawUnsafe<{ id: bigint; roomId: bigint }[]>(
       `
@@ -145,7 +168,7 @@ export const createNewBooking = async (email: string, forms: BookingFormData[]) 
   return results;
 };
 
-export const updateBookingStatus = async (id: number, status: BookingStatus) => {
+export const updateBookingStatus = async (id: number, status: BookingStatus): Promise<BookingUpdateResponse> => {
   "use server"
 
   const result = await prisma.booking.update({
