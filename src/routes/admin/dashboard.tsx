@@ -96,11 +96,15 @@ export default function Dashboard() {
   const handleStatusChange = async (id: number, status: BookingStatus) => {
 
     try {
-      await updateBookingStatus(id, status)
-        .then((res) => {
-          const status = res.status;
-          mutateBookings(prev => prev?.map(b => (b.id === id ? { ...b, status} : b)) ?? prev);
-        })
+      const res = await updateBookingStatus(id, status);
+      const newStatus = res.status
+      mutateBookings(prev => prev?.map(b => {
+        if (b.id === id)
+          return { ...b, status: newStatus };
+        else {
+          return b;
+        }
+      }));
     }
     catch (err) {
       console.error(err);

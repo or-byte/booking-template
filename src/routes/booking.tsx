@@ -40,6 +40,7 @@ export default function BookingRequest() {
     contactNumber: "",
     contactEmail: "",
     eventDate: new Date(),
+    durationInDays: 1,
     title: "",
     packageItems: [],
     userId: ""

@@ -181,7 +181,7 @@ export const getPackageById = query(async (id: number): Promise<Package> => {
   "get-package-by-id"
 );
 
-export const getPackageEvents = query(async (packageId: number) : Promise<PackageEvent[]> => {
+export const getPackageEvents = query(async (packageId: number): Promise<PackageEvent[]> => {
   "use server"
 
   const result = await prisma.packageEvent.findMany({
@@ -220,7 +220,13 @@ export const createPackageAction = action(async (form: PackageFormData) => {
         },
         include: {
           packageItems: {
-            include: { product: true }
+            include: {
+              product: {
+                include: {
+                  category: true
+                }
+              }
+            }
           },
         },
       });
@@ -271,7 +277,13 @@ export const updatePackageAction = action(async (id: number, userId: string, for
       },
       include: {
         packageItems: {
-          include: { product: true }
+          include: {
+            product: {
+              include: {
+                category: true
+              }
+            }
+          }
         },
       },
     });

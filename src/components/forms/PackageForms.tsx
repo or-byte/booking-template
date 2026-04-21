@@ -26,7 +26,7 @@ const emptyPackage: Package = {
   contactEmail: "",
   numberOfGuests: 0,
   eventDate: new Date(),
-  durationInDays: 0,
+  durationInDays: 1,
   title: "",
   packageItems: [],
   overridePrice: 0,
@@ -107,8 +107,11 @@ export default function PackageForm(props: Props) {
             <p class="body-2 font-bold pb-2">Duration (days):</p>
             <Input
               type="number"
-              value={pkg().durationInDays ?? ""}
-              onInput={(e) => setField({ durationInDays: Number(e.currentTarget.value) })}
+              value={pkg().durationInDays ?? 1}
+              onInput={(e) => {
+                const value = Math.max(1, Number(e.currentTarget.value))
+                setField({ durationInDays: value });
+              }}
             />
           </label>
         </div>
