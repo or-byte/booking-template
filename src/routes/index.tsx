@@ -8,12 +8,12 @@ import ImageGallery from "~/components/gallery/ImageGallery";
 import { clientOnly } from "@solidjs/start";
 import { formatPrice } from "~/utils/price";
 import { createResource, Show } from "solid-js";
-import { getProductsByCategoryName } from "~/lib/product";
+import { getProductsByCategoryName, ProductPreview } from "~/lib/product";
 
 const MapGoogle = clientOnly(() => import("~/components/map/MapGoogle"));
 
 export default function Home() {
-  const [rooms] = createResource(() => getProductsByCategoryName("Room"));
+  const [rooms] = createResource(async () => { return await getProductsByCategoryName("Room", true) as ProductPreview[] });
 
   return (
     <>

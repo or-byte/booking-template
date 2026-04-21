@@ -1,13 +1,15 @@
 import { Title } from "@solidjs/meta";
 import { createResource, For } from "solid-js";
 import BookingRoomCard from "~/components/cards/BookingRoomCard";
-import { getProductsByCategoryName } from "~/lib/product";
+import { getProductsByCategoryName, ProductPreview } from "~/lib/product";
 import { formatPrice } from "~/utils/price";
 
-export const gPlaceholderRoomImage = "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=";
+const roomImagePlaceholder = "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=";
+
 
 export default function Rooms() {
-  const [rooms] = createResource(() => getProductsByCategoryName("Room"));
+  const [rooms] = createResource(async () => { return await getProductsByCategoryName("Room", true) as ProductPreview[] });
+
   return (
     <main class="min-h-screen">
       <Title>Rooms</Title>
@@ -26,10 +28,10 @@ export default function Rooms() {
         {/* Rooms List */}
         <div class="flex flex-col">
           <For each={rooms()}>
-            {(room, index) => (
+            {(room) => (
               <div class="py-6">
                 <BookingRoomCard
-                  image={gPlaceholderRoomImage}
+                  image={room.previewUrl ?? roomImagePlaceholder}
                   title={room.name}
                   priceLabel={formatPrice(room.price)}
                 />
