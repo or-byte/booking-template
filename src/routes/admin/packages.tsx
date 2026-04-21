@@ -8,6 +8,7 @@ import PackageCard from "~/components/cards/PackageCard";
 import Button from "~/components/button/Button";
 import PackageForm from "~/components/forms/PackageForms";
 import { useSession } from "~/lib/auth";
+import { sendEmail } from "~/lib/google/email";
 
 export default function Packages() {
   const session = useSession();
@@ -21,7 +22,7 @@ export default function Packages() {
   // Packages states
   const [page, setPage] = createSignal(1);
   const PAGE_SIZE = 5;
-  const [packages, { refetch: refetchPackages }] = createResource(page, async (page) => await getAllPackages(page, PAGE_SIZE));
+  const [packages, { refetch: refetchPackages }] = createResource(page, async (page) => { return await getAllPackages(page, PAGE_SIZE) });
   const totalPages = (): number => packages()?.meta?.totalPages ?? 1;
 
   const [selectedPackage, setSelectedPackage] = createSignal<Package | null>(null);
@@ -51,16 +52,32 @@ export default function Packages() {
     setPackageMode("edit");
   }
 
-  const refetchAndSync = async () => {
+  const closePanel = () => {
+    setSelectedPackage(null);
+    setPackageMode(null);
+  };
+
+  const handleOnUpdate = async () => {
     await refetchPackages();
     const updated = packages()?.data.find(p => p.id === selectedPackage()?.id);
-    if (updated) setSelectedPackage(updated);
+    if (updated) {
+      setSelectedPackage(updated);
+
+      try {
+        await sendEmail(updated.id);
+      } catch (err) {
+        console.error("Failed to send email updates:", err);
+      }
+    }
     closePanel();
   };
 
   const handleSavePackage = async () => {
     const userId = getUserId()
-    if (!userId) return;
+    if (!userId) {
+      console.error("user not logged in");
+      return;
+    }
 
     try {
       const pkg = selectedPackage();
@@ -87,7 +104,7 @@ export default function Packages() {
       }
       // CREATE
       else {
-        await createPackage({
+        const newPkg = await createPackage({
           companyName: pkg.companyName,
           contactNumber: pkg.contactNumber,
           contactEmail: pkg.contactEmail,
@@ -98,22 +115,21 @@ export default function Packages() {
           overridePrice: pkg.overridePrice,
           userId
         });
+        await refetchPackages();
+        setSelectedPackage(null);
+        setPackageMode(null);
+        if (!newPkg) return;
+        await sendEmail(newPkg.id);
       }
-      await refetchAndSync();
     } catch (err) {
       console.error(err);
-      alert("Failed to save package");
+      alert(`Failed to save package: ${err}`);
     }
-  };
-
-  const closePanel = () => {
-    setSelectedPackage(null);
-    setPackageMode(null);
   };
 
   const onHandleDelete = async (p: Package) => {
     try {
-      await deletePackage(p?.id);
+      await deletePackage(p.id);
       await refetchPackages();
 
       if (selectedPackage()?.id === p.id) {
@@ -205,7 +221,7 @@ export default function Packages() {
                   <Match when={packageMode() === "readonly"}>
                     <ProposalDetails
                       package={selectedPackage()!}
-                      onUpdate={refetchAndSync}
+                      onUpdate={handleOnUpdate}
                       onEdit={toggleEditPackage}
                       onCancel={() => setSelectedPackage(null)}
                     />

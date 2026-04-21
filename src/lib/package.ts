@@ -2,6 +2,7 @@ import { Package as PrismaPackage, PackageItem as PrismaPackageItem, PackageEven
 import prisma from "./prisma";
 import { action, query } from "@solidjs/router";
 import { User } from "./user";
+import { Product } from "./product";
 
 // This mirrors `PackageEventType` enum from schema
 export const PackageEventType = {
@@ -26,6 +27,7 @@ export type PackageItem = Omit<PrismaPackageItem, "price"> & {
 
 export type Package = Omit<PrismaPackage, "overridePrice"> & {
   packageItems: PackageItem[]
+  packageEvents: PackageEvent[]
   overridePrice?: number
   status: PackageEventType
 }
@@ -145,7 +147,12 @@ export const getPackageById = query(async (id: number): Promise<Package> => {
     include: {
       packageItems: {
         include: { product: true },
-      }
+      },
+      packageEvents: {
+        orderBy: {
+          id: "desc"
+        },
+      },
     },
   });
 
@@ -175,7 +182,7 @@ export const createPackageAction = action(async (form: PackageFormData) => {
   "use server"
 
   try {
-    await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const pkg = await tx.package.create({
         data: {
           companyName: form.companyName,
@@ -204,10 +211,12 @@ export const createPackageAction = action(async (form: PackageFormData) => {
           packageId: pkg.id,
           type: PackageEventType.CREATED,
           createdById: form.userId,
-          description: "Package proposal created"
         }
       });
+
+      return pkg;
     });
+    return mapPackage(result);
   }
   catch (err) {
     console.error(err);
@@ -250,7 +259,6 @@ export const updatePackageAction = action(async (id: number, userId: string, for
         packageId: updatedPkg.id,
         type: PackageEventType.MODIFIED,
         createdById: userId,
-        description: "Package proposal has been modified"
       }
     });
 
@@ -271,7 +279,6 @@ export const reviewPackageAction = action(async (packageId: number, userId: stri
       packageId,
       type: PackageEventType.REVIEWED,
       createdById: userId,
-      description: `Package proposal has been reviewed`
     }
   })
 },
@@ -286,7 +293,6 @@ export const approvePackageAction = action(async (packageId: number, userId: str
       packageId,
       type: PackageEventType.APPROVED,
       createdById: userId,
-      description: `Package proposal has been approved`
     }
   });
 },
@@ -301,7 +307,6 @@ export const rejectPackageAction = action(async (packageId: number, userId: stri
       packageId,
       type: PackageEventType.REJECTED,
       createdById: userId,
-      description: `Package proposal has been rejected`
     }
   });
 },
@@ -316,7 +321,6 @@ export const cancelPackageAction = action(async (packageId: number, userId: stri
       packageId,
       type: PackageEventType.CANCELLED,
       createdById: userId,
-      description: `Package proposal has been cancelled`
     }
   });
 },
@@ -332,15 +336,17 @@ export const deletePackage = async (id: number) => {
 }
 
 export function mapPackage(pkg: any): Package {
-  return ({
+  return {
     ...pkg,
-    packageItems: pkg.packageItems.map(({ product, ...i }) => ({
-      ...i,
-      name: product.name,
-      price: Number(product.price)
-    })),
-    overridePrice: Number(pkg.overridePrice)
-  });
+    packageItems: Array.isArray(pkg.packageItems)
+      ? pkg.packageItems.map(({ product, ...i }: PackageItem & { product: Product }) => ({
+        ...i,
+        name: product?.name ?? "",
+        price: Number(product?.price ?? 0),
+      }))
+      : [],
+    overridePrice: Number(pkg.overridePrice ?? 0),
+  };
 }
 
 export function calculatePrice(pkg: Package): number {
