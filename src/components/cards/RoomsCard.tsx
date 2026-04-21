@@ -1,16 +1,12 @@
 import { createSignal, For, JSX } from "solid-js";
+import { Product, ProductPreview } from "~/lib/product";
 
-const roomImagePlaceholder = "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=";
+const roomImagePlaceholder = "/images/placeholder.jpg";
 
-export type RoomsCardItem = {
-  id: string | number;
-  name: string
-  image: string;
-  price: string;
-};
+export type RoomsCardItem = Product | ProductPreview;
 
 type RoomsCardProps<T> = {
-  items: T[];
+  items: ProductPreview[];
   renderContent: (item: T, isActive: boolean) => JSX.Element;
   defaultActive?: number;
   expandedFlex?: number;     // default: 4
@@ -67,7 +63,7 @@ export default function RoomsCard<T extends RoomsCardItem>(
               {/* Background */}
               {/* images[] is never empty because, by default, Product will return a placeholder image */}
               <img
-                src={item.image ?? roomImagePlaceholder }
+                src={item.images[0]?.url ?? roomImagePlaceholder }
                 alt={""}
                 class="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
               />

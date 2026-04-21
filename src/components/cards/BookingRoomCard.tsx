@@ -36,7 +36,7 @@ export default function BookingRoomCard(
 
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-            <div class="absolute bottom-4 left-4 text-white group-hover:shadow-xl">
+            <div class="absolute bottom-4 left-4 text-white">
                 {props.priceLabel && (
                     <p class="text-sm opacity-90 text-left">{props.priceLabel}</p>
                 )}
