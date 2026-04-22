@@ -28,13 +28,33 @@ type Props<T> = {
   pagination?: PaginationProps; // omit this prop entirely to hide pagination
 };
 
+const formatDate = (date: Date) => {
+  const mm = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const dd = String(date.getDate()).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  return `${mm}/${dd}/${yyyy}`;
+}
+
 export default function Table<T>(props: Props<T>) {
 
   // Resolves what to render in a cell — calls the function if accessor is
   // a render function, otherwise reads the property directly from the row.
+  // if accessor is of Date, format first
   const getValue = (row: T, accessor: Column<T>["accessor"]) => {
-    if (typeof accessor === "function") return accessor(row);
-    return row[accessor] as JSX.Element;
+    let value: unknown;
+
+    if (typeof accessor === "function") {
+      value = accessor(row);
+    } else {
+      value = row[accessor];
+    }
+
+    // Handle Date formatting
+    if (value instanceof Date) {
+      return formatDate(value);
+    }
+
+    return value as JSX.Element;
   };
 
   return (
@@ -83,7 +103,7 @@ export default function Table<T>(props: Props<T>) {
             <p class="body-2 text-gray-500">
               Page {pagination().page()} of {pagination().totalPages()}
             </p>
-             
+
             {/* disabled when on first/last page to prevent going out of bounds */}
             <div class="flex gap-2">
               <Button

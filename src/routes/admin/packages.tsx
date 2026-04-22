@@ -97,7 +97,7 @@ export default function Packages() {
           contactEmail: pkg.contactEmail,
           numberOfGuests: pkg.numberOfGuests,
           eventDate: pkg.eventDate,
-          description: pkg.description ?? "",
+          title: pkg.title ?? "",
           packageItems: formattedItems,
           overridePrice: pkg.overridePrice,
         });
@@ -110,7 +110,7 @@ export default function Packages() {
           contactEmail: pkg.contactEmail,
           numberOfGuests: pkg.numberOfGuests,
           eventDate: pkg.eventDate,
-          description: pkg.description ?? "",
+          title: pkg.title ?? "",
           packageItems: formattedItems,
           overridePrice: pkg.overridePrice,
           userId
@@ -183,7 +183,7 @@ export default function Packages() {
                 {(p) => {
                   return (
                     <PackageCard
-                      name={p.description !== "" ? p.description : "No description"}
+                      name={p.title !== "" ? p.title : "No title"}
                       onEditShow={true}
                       onEdit={() => {
                         setSelectedPackage(p);
@@ -209,7 +209,7 @@ export default function Packages() {
               </For>
             </div>
           </Show>
-          {/* Package Description */}
+          {/* Package Title */}
 
           <Show when={packageMode() !== null}>
             <div

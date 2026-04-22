@@ -89,7 +89,7 @@ const productColumns: Column<Product>[] = [
 
 const packageColumns: Column<Package>[] = [
   { header: "ID", accessor: "id" },
-  { header: "Description", accessor: "description" },
+  { header: "Title", accessor: "title" },
   {
     header: "Override Price",
     accessor: (row) =>
@@ -98,19 +98,6 @@ const packageColumns: Column<Package>[] = [
       ) : (
         <span>-</span>
       ),
-  },
-  { header: "Created By", accessor: "createdById" },
-  {
-    header: "Reviewed By",
-    accessor: (row) => row.reviewedById ?? "-",
-  },
-  {
-    header: "Approved By",
-    accessor: (row) => row.approvedById ?? "-",
-  },
-  {
-    header: "Updated By",
-    accessor: (row) => row.updatedById ?? "-",
   },
   {
     header: "Created At",
@@ -149,7 +136,9 @@ export default function Dashboard() {
   const [message, setMessage] = createSignal<{ text: string; type: "success" | "error" } | null>(null);
 
   const filteredAndSorted = createMemo(() => {
-    let data = [...bookings()];
+    let data = bookings();
+
+    if (!data) return;
 
     // Filter
     if (statusFilter() !== "All") {
@@ -175,7 +164,7 @@ export default function Dashboard() {
     setEditingId(null);
   };
 
-  const columns: Column<Booking>[] = [
+  const bookingColumn: Column<Booking>[] = [
     {
       header: "Guest",
       accessor: "guest",
@@ -302,7 +291,7 @@ export default function Dashboard() {
       <div class="flex flex-col gap-6">
         <Table
           title="Booking List"
-          columns={columns}
+          columns={bookingColumn}
           data={filteredAndSorted()}
         />
 

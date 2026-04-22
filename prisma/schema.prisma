@@ -99,7 +99,7 @@ model Package {
   eventDate       DateTime
   reservationDate DateTime?
 
-  description   String
+  title         String
   overridePrice Decimal? @db.Decimal(10, 2)
 
   createdAt     DateTime       @default(now())
