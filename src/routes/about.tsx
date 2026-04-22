@@ -1,5 +1,4 @@
 import { Title } from "@solidjs/meta";
-import Button from "~/components/button/Button";
 
 export default function About() {
   return (
@@ -22,7 +21,7 @@ export default function About() {
         </div>
 
         <img
-          src="https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba"
+          src="/images/about.jpg"
           class="w-full h-[300px] object-cover rounded-sm"
           alt=""
         />
