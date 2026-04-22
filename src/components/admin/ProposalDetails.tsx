@@ -3,6 +3,7 @@ import { PackageEventType, Package, calculatePrice, reviewPackageAction, approve
 import Button from "../button/Button";
 import { useSession } from "~/lib/auth";
 import { useAction } from "@solidjs/router";
+import { statusDescriptionMap } from "~/lib/google/templates/status";
 
 export type ProposalDetailsProps = {
   package: Package | null
@@ -30,7 +31,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
 
   // Difference only if overridePrice is set
   const priceDiff = () => overridePrice() > 0 ? overridePrice() - calculatedPrice() : 0;
-  const diffColor = () => priceDiff() > 0 ? "text-red-600" : priceDiff() < 0 ? "text-green-600" : "text-gray-600";  
+  const diffColor = () => priceDiff() > 0 ? "text-red-600" : priceDiff() < 0 ? "text-green-600" : "text-gray-600";
 
   const handleReview = async () => {
     if (!props.package) return;
@@ -142,7 +143,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
                           </div>
 
                           <div class="text-sm text-gray-600">
-                            {e.description} <br />
+                            {statusDescriptionMap[e.type]} <br />
                             by {e.createdBy.name}
                           </div>
                         </div>

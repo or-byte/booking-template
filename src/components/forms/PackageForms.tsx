@@ -26,7 +26,7 @@ const emptyPackage: Package = {
   contactEmail: "",
   numberOfGuests: 0,
   eventDate: new Date(),
-  description: "",
+  title: "",
   packageItems: [],
   overridePrice: 0,
 } as Package;
@@ -89,12 +89,12 @@ export default function PackageForm(props: Props) {
           />
         </label>
 
-        {/* Description */}
+        {/* Title */}
         <label class="text-left">
-          <p class="body-2 font-bold pb-2">Description:</p>
+          <p class="body-2 font-bold pb-2">Title:</p>
           <Input
-            value={pkg().description ?? ""}
-            onInput={(e) => setField({ description: e.currentTarget.value })}
+            value={pkg().title ?? ""}
+            onInput={(e) => setField({ title: e.currentTarget.value })}
           />
         </label>
 

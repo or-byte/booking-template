@@ -43,7 +43,7 @@ export default function adminBodyDefault(pkg: Package) {
             <tr><td><strong>Guests</strong></td><td>${pkg.numberOfGuests}</td></tr>
             <tr><td><strong>Event Date</strong></td><td>${new Date(pkg.eventDate).toLocaleString()}</td></tr>
             <tr><td><strong>Reservation Date</strong></td><td>${pkg.reservationDate ? new Date(pkg.reservationDate).toLocaleString() : "-"}</td></tr>
-            <tr><td><strong>Description</strong></td><td>${pkg.description}</td></tr>
+            <tr><td><strong>Title</strong></td><td>${pkg.title}</td></tr>
           </table>
 
           <table style="width:100%; border-collapse:collapse; margin-top:10px;">

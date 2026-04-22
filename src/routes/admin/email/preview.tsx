@@ -92,7 +92,7 @@ const samplePackage: Package = {
   numberOfGuests: 8,
   eventDate: new Date(),
   reservationDate: new Date(),
-  description: "Sample Proposed Package for Company Outing",
+  title: "Sample Proposed Package for Company Outing",
   packageItems: [
     {
       id: 1,

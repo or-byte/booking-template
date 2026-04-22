@@ -152,14 +152,19 @@ async function main() {
         capacity: 2
       },
       {
+        name: "LOFT 1",
+        productId: loft.id,
+        capacity: 8
+      },
+      {
         name: "DORMITORY 1",
         productId: dormOld.id,
         capacity: 20
       },
       {
         name: "DORMITORY 2",
-        productId: dormOld.id,
-        capacity: 20
+        productId: dormNew.id,
+        capacity: 26
       },
     ]
   })
