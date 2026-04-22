@@ -6,7 +6,7 @@ import SearchInput from "../search/SearchInput";
 import { Package, getAllPackages } from "~/lib/package";
 
 const menuItems = [
-  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/dashboard", label: "Dashboard" },
   { href: "/admin/products", label: "Products" },
   { href: "/admin/packages", label: "Packages" },
 ];

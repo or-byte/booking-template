@@ -40,7 +40,7 @@ export default function BookingRequest() {
     contactNumber: "",
     contactEmail: "",
     eventDate: new Date(),
-    description: "",
+    title: "",
     packageItems: [],
     userId: ""
   });
@@ -121,7 +121,7 @@ export default function BookingRequest() {
       contactNumber: form()?.contactNumber!,
       contactEmail: form()?.contactEmail!,
       eventDate: form()?.eventDate!,
-      description: `${form()?.companyName!}'s Proposed Reservation`,
+      title: `${form()?.companyName!}'s Proposed Reservation`,
       packageItems: cleanedPackageItems,
       userId: userId!
     };
@@ -134,8 +134,6 @@ export default function BookingRequest() {
       console.error(err);
     }
   }
-
-
 
   return (
     <main>

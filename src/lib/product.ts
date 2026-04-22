@@ -2,10 +2,11 @@ import { Product as PrismaProduct } from "@prisma/client"
 import { Image as PrismaImage } from "@prisma/client"
 import prisma from "./prisma";
 import { query } from "@solidjs/router";
+import { Category } from "./category";
 
 export type Image = PrismaImage;
 
-export type Product = Omit<PrismaProduct, "price"> & { price: number, images: Image[] };
+export type Product = Omit<PrismaProduct, "price"> & { category: Category, price: number, images: Image[] };
 
 export type ProductPreview = Omit<Product, "images"> & { previewUrl?: string };
 

@@ -23,6 +23,7 @@ export type PackageEvent = Omit<PrismaPackageEvent, "packageId"> & {
 export type PackageItem = Omit<PrismaPackageItem, "price"> & {
   name: string
   price: number
+  category?: string
 };
 
 export type Package = Omit<PrismaPackage, "overridePrice"> & {
@@ -39,7 +40,7 @@ export type PackageFormData = {
   numberOfGuests: number
   reservationDate?: Date
   eventDate: Date
-  description?: string
+  title?: string
   packageItems: PackageItemFormData[]
   overridePrice?: number
   userId: string
@@ -58,7 +59,7 @@ export type UpdatePackageFormData = {
   numberOfGuests?: number
   reservationDate?: Date
   eventDate?: Date
-  description?: string
+  title?: string
   packageItems?: PackageItemFormData[]
   overridePrice?: number
 }
@@ -83,7 +84,7 @@ export const getAllPackages = query(async (
 
   const where = search
     ? {
-      description: {
+      title: {
         contains: search,
         mode: "insensitive" as const,
       },
@@ -97,7 +98,14 @@ export const getAllPackages = query(async (
       take: pageSize,
       include: {
         packageItems: {
-          include: { product: true }
+          include: {
+            product: {
+              include:
+              {
+                category: true
+              }
+            }
+          }
         },
         packageEvents: {
           orderBy: {
@@ -146,7 +154,14 @@ export const getPackageById = query(async (id: number): Promise<Package> => {
     where: { id },
     include: {
       packageItems: {
-        include: { product: true },
+        include: {
+          product: {
+            include:
+            {
+              category: true
+            }
+          }
+        }
       },
       packageEvents: {
         orderBy: {
@@ -163,7 +178,7 @@ export const getPackageById = query(async (id: number): Promise<Package> => {
   "get-package-by-id"
 );
 
-export const getPackageEvents = query(async (packageId: number) => {
+export const getPackageEvents = query(async (packageId: number) : Promise<PackageEvent[]> => {
   "use server"
 
   const result = await prisma.packageEvent.findMany({
@@ -190,7 +205,7 @@ export const createPackageAction = action(async (form: PackageFormData) => {
           contactEmail: form.contactEmail,
           numberOfGuests: form.numberOfGuests,
           eventDate: form.eventDate,
-          description: form.description ?? "Created Via Package Proposal Form",
+          title: form.title ?? "Created Via Package Proposal Form",
           packageItems: {
             create: form.packageItems.map(item => ({
               productId: item.productId,
@@ -235,7 +250,9 @@ export const updatePackageAction = action(async (id: number, userId: string, for
         companyName: form.companyName,
         contactNumber: form.contactNumber,
         contactEmail: form.contactEmail,
-        description: form.description,
+        reservationDate: form.reservationDate,
+        eventDate: form.eventDate,
+        title: form.title,
         ...(form.packageItems && {
           packageItems: {
             deleteMany: {},
@@ -343,6 +360,7 @@ export function mapPackage(pkg: any): Package {
         ...i,
         name: product?.name ?? "",
         price: Number(product?.price ?? 0),
+        category: product?.category.name
       }))
       : [],
     overridePrice: Number(pkg.overridePrice ?? 0),
