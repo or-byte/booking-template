@@ -180,6 +180,60 @@ async function main() {
       },
     ]
   });
+
+  await prisma.image.create({
+    data: {
+      title: 'deluxe',
+      url: '/images/rooms/deluxe_room.jpg',
+      productId: 3
+
+    }
+  });
+
+  await prisma.image.create({
+    data: {
+      title: 'superior',
+      url: '/images/rooms/superior_room.jpg',
+      productId: 4
+
+    }
+  });
+
+  await prisma.image.create({
+    data: {
+      title: 'standard',
+      url: '/images/rooms/standard_room.jpg',
+      productId: 5
+
+    }
+  });
+
+  await prisma.image.create({
+    data: {
+      title: 'loft',
+      url: '/images/rooms/loft_room.jpg',
+      productId: 6
+
+    }
+  });
+
+  await prisma.image.create({
+    data: {
+      title: 'dorm_old',
+      url: '/images/rooms/dorm_old_room.jpg',
+      productId: 7
+
+    }
+  });
+
+  await prisma.image.create({
+    data: {
+      title: 'dorm_new',
+      url: '/images/rooms/dorm_new_room.jpg',
+      productId: 8
+
+    }
+  });
 }
 
 main()

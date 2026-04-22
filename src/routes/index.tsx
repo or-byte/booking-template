@@ -59,9 +59,9 @@ export default function Home() {
         <div class="flex justify-center w-full min-h-[200px] md:h-[400px]">
           <ImageGallery
             images={[
-              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
+              "/images/elmar/el_mar_1.jpg",
+              "/images/elmar/el_mar_2.jpg", 
+              "/images/elmar/el_mar_3.jpg",
             ]}
           />
         </div>
@@ -75,9 +75,9 @@ export default function Home() {
         <div class="flex justify-center w-full min-h-[200px] md:h-[400px]">
           <ImageGallery
             images={[
-              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
-              "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=",
+              "/images/samat.jpeg",
+              "/images/lascasas.jpeg",
+              "/images/pawikan.jpg",
             ]}
           />
         </div>

@@ -4,7 +4,7 @@ import BookingRoomCard from "~/components/cards/BookingRoomCard";
 import { getProductsByCategoryName, ProductPreview } from "~/lib/product";
 import { formatPrice } from "~/utils/price";
 
-const roomImagePlaceholder = "https://media.istockphoto.com/id/627892060/photo/hotel-room-suite-with-view.jpg?s=612x612&w=0&k=20&c=YBwxnGH3MkOLLpBKCvWAD8F__T-ypznRUJ_N13Zb1cU=";
+const roomImagePlaceholder = "/images/placeholder.jpg";
 
 
 export default function Rooms() {
