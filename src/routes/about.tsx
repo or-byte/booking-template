@@ -5,7 +5,12 @@ export default function About() {
     <main>
       <Title>About</Title>
 
-      <section class="max-w-6xl mx-auto px-6 grid gap-12 md:grid-cols-2 items-center mt-20">
+      <section class="items-center">
+        <img
+          src="/images/about_us.jpg"
+          class="w-full h-[300px] object-cover rounded-sm mb-10"
+          alt=""
+        />
         <div class="flex flex-col space-y-4 items-center text-center md:text-left">
           <h2 class="text-2xl font-serif text-neutral-900">
             About Us
@@ -19,12 +24,6 @@ export default function About() {
             During the summer, you can always count on our gorgeous sunsets that light up Bataan's sky providing a beautiful canvass with the best aerial photos without obstructions or disruptive sounds of the city. Between the months of August and February, female marine turtles, of Pawikan as we call them, go back to the shores of Morong, Bataan to lay their eggs. If your fortunate enough, you will be able to experience them hatch their eggs at the shoreline of the resort.
           </p>
         </div>
-
-        <img
-          src="/images/about.jpg"
-          class="w-full h-[300px] object-cover rounded-sm"
-          alt=""
-        />
       </section>
     </main>
   );

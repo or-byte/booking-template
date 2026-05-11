@@ -68,7 +68,7 @@ export default function Home() {
       </FeatureSection>
       <FeatureSection
         title="Explore Bataan"
-        description={" With limitless things to do & adventures to encounter, there are plenty of beach activities for every interest, age and curiosity.  Families will enjoy the turquoise waters ofwhile sport lovers will enjoy the opportunity to snorkel, fish and the many different boat rides, whether they be for fun rides or for tour rides nearby the resort.  Our swimming pool is open year round for you to always enjoy a day with the whole family!"}
+        description={" With limitless things to do & adventures to encounter, there are plenty of beach activities for every interest, age and curiosity.  Families will enjoy the turquoise waters of while sport lovers will enjoy the opportunity to snorkel, fish and the many different boat rides, whether they be for fun rides or for tour rides nearby the resort.  Our swimming pool is open year round for you to always enjoy a day with the whole family!"}
         linkHref="#"
         linkLabel="View More Details"
       >
