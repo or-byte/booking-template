@@ -6,6 +6,14 @@ import defaultBodyTemplate from "./templates/default";
 let gCachedToken: string | null = null;
 let gTokenExpiry = 0;
 
+export type ContactUsRequestBody = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
 export async function getAccessToken() {
   "use server"
   const now = Date.now();
@@ -41,7 +49,56 @@ export async function getAccessToken() {
   return gCachedToken;
 }
 
-export const sendEmail = async (packageId: number) => {
+// returns response.json() from Gmail API v1
+export const sendContactUsEmail = async (requestBody: ContactUsRequestBody) : Promise<any> => {
+  "use server"
+
+  const accessToken = await getAccessToken();
+  if (!accessToken) throw new Error("Missing access token");
+
+  const recipient = process.env.CONTACT_US_RECIPIENT_EMAIL;
+  const subject = `${requestBody.subject} - ${requestBody.email}`;
+  const body = `${requestBody.firstName} ${requestBody.lastName} says: ${requestBody.message}`;
+
+  const message = [
+    `To: ${recipient}`,
+    `Subject: ${subject}`,
+    "Content-Type: text/html; charset=UTF-8",
+    "",
+    body
+  ].join("\n");
+
+  const base64Encoded = Buffer.from(message, "utf-8")
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+  
+  const results = [];
+
+  try {
+    const response = await fetch(
+      "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ raw: base64Encoded }),
+      }
+    );
+
+    results.push(await response.json());
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+
+  return results;
+}
+
+// returns response.json() from Gmail API v1
+export const sendEmail = async (packageId: number) : Promise<any> => {
   "use server"
 
   const accessToken = await getAccessToken();

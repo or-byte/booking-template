@@ -5,6 +5,7 @@ import { MdFillAirplanemode_active, MdFillEmail, MdFillLocal_phone } from 'solid
 import { TbOutlineWorld } from 'solid-icons/tb'
 import Input from "~/components/input/Input";
 import Button from "~/components/button/Button";
+import { ContactUsRequestBody, sendContactUsEmail } from "~/lib/google/email";
 
 const MapGoogle = clientOnly(() => import("~/components/map/MapGoogle"));
 
@@ -16,18 +17,23 @@ export default function Contact() {
   const [message, setMessage] = createSignal("");
   const [error, setError] = createSignal<string | null>(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!firstName() || !lastName() || !email() || !subject() || !message()) {
       setError("Please fill in all fields.");
       return;
     }
-    console.log({
+    const requestBody : ContactUsRequestBody = {
       firstName: firstName(),
       lastName: lastName(),
       email: email(),
       subject: subject(),
       message: message(),
-    });
+    }
+    try {
+      await sendContactUsEmail(requestBody);
+    } catch (err) {
+      console.error("Failed to send message: ", error);
+    }
   }
 
   return (
