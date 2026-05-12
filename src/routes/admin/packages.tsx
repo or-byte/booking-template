@@ -26,7 +26,7 @@ export default function Packages() {
   const totalPages = (): number => packages()?.meta?.totalPages ?? 1;
 
   const [selectedPackage, setSelectedPackage] = createSignal<Package | null>(null);
-  const [isProcessing, setPackageFormDisabled] = createSignal<boolean>(false);
+  const [isProcessing, setIsProcessing] = createSignal<boolean>(false);
   
   // Package actions
   const createPackage = useAction(createPackageAction);
@@ -56,10 +56,10 @@ export default function Packages() {
   const closePanel = () => {
     setSelectedPackage(null);
     setPackageMode(null);
+    setIsProcessing(false);
   };
 
   const handleOnUpdate = async () => {
-    await refetchPackages();
     const updated = packages()?.data.find(p => p.id === selectedPackage()?.id);
     if (updated) {
       setSelectedPackage(updated);
@@ -70,6 +70,8 @@ export default function Packages() {
         console.error("Failed to send email updates:", err);
       }
     }
+    
+    await refetchPackages();
     closePanel();
   };
 
@@ -80,7 +82,7 @@ export default function Packages() {
       return;
     }
 
-    setPackageFormDisabled(true);
+    setIsProcessing(true);
 
     try {
       const pkg = selectedPackage();
@@ -106,12 +108,8 @@ export default function Packages() {
           overridePrice: pkg.overridePrice,
         });
 
+        await refetchPackages(); 
         await sendEmail(pkg.id);
-        await refetchPackages();
-        
-        setPackageFormDisabled(true);
-        setSelectedPackage(null);
-        setPackageMode(null);
       }
       // CREATE
       else {
@@ -129,17 +127,14 @@ export default function Packages() {
         });
         if (!newPkg) return;
 
-        await sendEmail(newPkg.id);
         await refetchPackages();
-        
-        setPackageFormDisabled(true);
-        setSelectedPackage(null);
-        setPackageMode(null);
+        await sendEmail(newPkg.id);
       }
     } catch (err) {
       console.error(err);
       alert(`Failed to save package: ${err}`);
     }
+    closePanel();
   };
 
   const onHandleDelete = async (p: Package) => {
@@ -148,8 +143,7 @@ export default function Packages() {
       await refetchPackages();
 
       if (selectedPackage()?.id === p.id) {
-        setSelectedPackage(null);
-        setPackageMode(null);
+        closePanel();
       }
     } catch (err) {
       console.error(err);
@@ -245,7 +239,7 @@ export default function Packages() {
                     <PackageForm
                       package={selectedPackage()}
                       mode={packageMode() as "create" | "edit"}
-                      allProducts={allProducts()}
+                      allProducts={allProducts()!}
                       isProcessing={isProcessing()}
                       onSave={handleSavePackage}
                       onPackageChange={setSelectedPackage}
