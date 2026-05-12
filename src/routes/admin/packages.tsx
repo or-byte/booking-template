@@ -26,7 +26,8 @@ export default function Packages() {
   const totalPages = (): number => packages()?.meta?.totalPages ?? 1;
 
   const [selectedPackage, setSelectedPackage] = createSignal<Package | null>(null);
-
+  const [isProcessing, setPackageFormDisabled] = createSignal<boolean>(false);
+  
   // Package actions
   const createPackage = useAction(createPackageAction);
   const updatePackage = useAction(updatePackageAction);
@@ -79,6 +80,8 @@ export default function Packages() {
       return;
     }
 
+    setPackageFormDisabled(true);
+
     try {
       const pkg = selectedPackage();
       if (!pkg) return;
@@ -102,6 +105,13 @@ export default function Packages() {
           packageItems: formattedItems,
           overridePrice: pkg.overridePrice,
         });
+
+        await sendEmail(pkg.id);
+        await refetchPackages();
+        
+        setPackageFormDisabled(true);
+        setSelectedPackage(null);
+        setPackageMode(null);
       }
       // CREATE
       else {
@@ -117,11 +127,14 @@ export default function Packages() {
           overridePrice: pkg.overridePrice,
           userId
         });
+        if (!newPkg) return;
+
+        await sendEmail(newPkg.id);
         await refetchPackages();
+        
+        setPackageFormDisabled(true);
         setSelectedPackage(null);
         setPackageMode(null);
-        if (!newPkg) return;
-        await sendEmail(newPkg.id);
       }
     } catch (err) {
       console.error(err);
@@ -233,6 +246,7 @@ export default function Packages() {
                       package={selectedPackage()}
                       mode={packageMode() as "create" | "edit"}
                       allProducts={allProducts()}
+                      isProcessing={isProcessing()}
                       onSave={handleSavePackage}
                       onPackageChange={setSelectedPackage}
                       onCancel={closePanel}

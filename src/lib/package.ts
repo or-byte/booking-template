@@ -196,7 +196,7 @@ export const getPackageEvents = query(async (packageId: number): Promise<Package
   "get-package-events"
 )
 
-export const createPackageAction = action(async (form: PackageFormData) => {
+export const createPackageAction = action(async (form: PackageFormData): Promise<Package | undefined> => {
   "use server"
 
   try {
@@ -250,10 +250,10 @@ export const createPackageAction = action(async (form: PackageFormData) => {
   "create-package"
 );
 
-export const updatePackageAction = action(async (id: number, userId: string, form: UpdatePackageFormData) => {
+export const updatePackageAction = action(async (id: number, userId: string, form: UpdatePackageFormData) : Promise<Package> => {
   "use server"
 
-  await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const updatedPkg = await prisma.package.update({
       where: { id },
       data: {
@@ -300,7 +300,11 @@ export const updatePackageAction = action(async (id: number, userId: string, for
       ...updatedPkg,
       status: event.type
     }
+
+    return pkg
   });
+  return mapPackage(result);
+
 },
   "update-package"
 );
