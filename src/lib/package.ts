@@ -196,7 +196,7 @@ export const getPackageEvents = query(async (packageId: number): Promise<Package
   "get-package-events"
 )
 
-export const createPackageAction = action(async (form: PackageFormData) => {
+export const createPackageAction = action(async (form: PackageFormData): Promise<Package | undefined> => {
   "use server"
 
   try {
@@ -250,10 +250,10 @@ export const createPackageAction = action(async (form: PackageFormData) => {
   "create-package"
 );
 
-export const updatePackageAction = action(async (id: number, userId: string, form: UpdatePackageFormData) => {
+export const updatePackageAction = action(async (id: number, userId: string, form: UpdatePackageFormData) : Promise<Package> => {
   "use server"
 
-  await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const updatedPkg = await prisma.package.update({
       where: { id },
       data: {
@@ -300,12 +300,16 @@ export const updatePackageAction = action(async (id: number, userId: string, for
       ...updatedPkg,
       status: event.type
     }
+
+    return pkg
   });
+  return mapPackage(result);
+
 },
   "update-package"
 );
 
-export const reviewPackageAction = action(async (packageId: number, userId: string) => {
+export const reviewPackageAction = action(async (packageId: number, userId: string) : Promise<void> => {
   "use server"
 
   await prisma.packageEvent.create({
@@ -319,7 +323,7 @@ export const reviewPackageAction = action(async (packageId: number, userId: stri
   "review-package"
 )
 
-export const approvePackageAction = action(async (packageId: number, userId: string) => {
+export const approvePackageAction = action(async (packageId: number, userId: string) : Promise<void> => {
   "use server"
 
   await prisma.packageEvent.create({
@@ -333,7 +337,7 @@ export const approvePackageAction = action(async (packageId: number, userId: str
   "approve-package"
 )
 
-export const rejectPackageAction = action(async (packageId: number, userId: string) => {
+export const rejectPackageAction = action(async (packageId: number, userId: string) : Promise<void>  => {
   "use server"
 
   await prisma.packageEvent.create({
@@ -347,7 +351,7 @@ export const rejectPackageAction = action(async (packageId: number, userId: stri
   "reject-package"
 );
 
-export const cancelPackageAction = action(async (packageId: number, userId: string) => {
+export const cancelPackageAction = action(async (packageId: number, userId: string) : Promise<void> => {
   "use server"
 
   await prisma.packageEvent.create({
@@ -361,13 +365,15 @@ export const cancelPackageAction = action(async (packageId: number, userId: stri
   "cancel-package"
 );
 
-export const deletePackage = async (id: number) => {
+export const deletePackage = action(async (id: number) : Promise<void> => {
   "use server"
 
   await prisma.package.delete({
     where: { id },
   });
-}
+},
+  "delete-package"
+)
 
 export function mapPackage(pkg: any): Package {
   return {

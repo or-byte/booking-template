@@ -112,7 +112,7 @@ export const updateProduct = async (form: ProductFormData & { id: number }): Pro
   return mapProduct(product);
 };
 
-export const deleteProduct = async (id: number) => {
+export const deleteProduct = async (id: number): Promise<void> => {
   "use server"
 
   await prisma.product.delete({ where: { id } });

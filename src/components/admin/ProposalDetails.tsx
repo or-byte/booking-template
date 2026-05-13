@@ -1,4 +1,4 @@
-import { createMemo, createResource, For, Show } from "solid-js";
+import { createMemo, createResource, createSignal, For, Show } from "solid-js";
 import { PackageEventType, Package, calculatePrice, reviewPackageAction, approvePackageAction, rejectPackageAction, getPackageEvents } from "~/lib/package";
 import Button from "../button/Button";
 import { useSession } from "~/lib/auth";
@@ -46,12 +46,16 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
   const priceDiff = () => overridePrice() > 0 ? overridePrice() - calculatedPrice() : 0;
   const diffColor = () => priceDiff() > 0 ? "text-red-600" : priceDiff() < 0 ? "text-green-600" : "text-gray-600";
 
+  // button disabled state on handle press
+  const [isProcessing, setIsProcessing] = createSignal<boolean>(false)
+
   const handleReview = async () => {
     if (!props.package) return;
 
     const userId = getUserId();
     if (!userId) return;
 
+    setIsProcessing(true);
     try {
       await reviewPackage(props.package.id, userId);
 
@@ -60,6 +64,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
     } catch (err) {
       console.error(err);
     }
+    setIsProcessing(false);
   }
 
   const handleApprove = async () => {
@@ -68,14 +73,17 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
     const userId = getUserId();
     if (!userId) return;
 
+    setIsProcessing(true);
     try {
       await approvePackage(props.package.id, userId);
 
       if (!props.onUpdate) return;
       props.onUpdate?.(props.package);
     } catch (err) {
+
       console.log(err);
     }
+    setIsProcessing(false);
   }
 
   const handleReject = async () => {
@@ -84,6 +92,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
     const userId = getUserId();
     if (!userId) return;
 
+    setIsProcessing(true);
     try {
       await rejectPackage(props.package.id, userId);
 
@@ -92,9 +101,11 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
     } catch (err) {
       console.log(err);
     }
+    setIsProcessing(false);
   }
 
   const handleGenerateBookings = async () => {
+    setIsProcessing(true);
     const rooms = props.package?.packageItems?.filter(item => item.category === "Room") ?? [];
 
     const forms: BookingFormData[] = [];
@@ -128,6 +139,7 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
       console.error(err);
       alert("Failed to generate bookings");
     }
+    setIsProcessing(false);
   };
 
   return (
@@ -271,7 +283,9 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
         {/* CREATED / MODIFIED => Show Review + Edit */}
         <Show when={props.package?.status === PackageEventType.CREATED || props.package?.status === PackageEventType.MODIFIED}>
           <div class="w-full flex flex-col gap-3">
-            <Button class="btn"
+            <Button 
+              class="btn" 
+              disabled={isProcessing()}
               onClick={handleReview}>
               Submit Review
             </Button>
@@ -287,11 +301,13 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
           <div class="flex gap-2 flex-col">
             <Button
               class="btn"
+              disabled={isProcessing()}
               onClick={handleApprove}
             >
               Approve
             </Button>
             <Button class="py-2 px-6 bg-[#D6D6D6] rounded-[10px] hover:cursor-pointer hover:bg-[#E3E3E3]"
+              disabled={isProcessing()}
               onClick={handleReject}>
               Reject
             </Button>
@@ -301,12 +317,13 @@ export default function ProposalDetails(props: ProposalDetailsProps) {
         {/* APPROVED => Show Generate Bookings button */}
         <Show when={props.package?.status === PackageEventType.APPROVED}>
           <div class="flex gap-2 flex-1">
-            <div
+            <Button
               class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1 text-center"
+              disabled={isProcessing()}
               onClick={handleGenerateBookings}
             >
               Generate Bookings
-            </div>
+            </Button>
           </div>
         </Show>
       </div>

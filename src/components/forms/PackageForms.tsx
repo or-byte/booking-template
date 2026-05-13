@@ -10,6 +10,7 @@ type Props = {
   package: Package | null;
   mode: PanelMode;
   allProducts: Product[];
+  isProcessing: boolean;
   onSave: () => void;
   onCancel: () => void;
   onPackageChange: (pkg: Package) => void;
@@ -208,7 +209,7 @@ export default function PackageForm(props: Props) {
 
         {/* Actions */}
         <div class="flex flex-col sm:flex-row gap-2 mt-2">
-          <Button class="btn w-full" onClick={props.onSave}>
+          <Button class="btn w-full" onClick={props.onSave} disabled={props.isProcessing}>
             {config().saveLabel}
           </Button>
           <Button
