@@ -1,80 +1,83 @@
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
+
+export type GalleryImage = string | { src: string; alt?: string; caption?: string };
 
 type ImageGalleryProps = {
-  images: string[];
+  images: GalleryImage[];
+  /** Adds a hover caption strip. Only used where the images carry meaning. */
+  captions?: boolean;
+  class?: string;
 };
 
+const srcOf = (image: GalleryImage) => (typeof image === "string" ? image : image.src);
+const altOf = (image: GalleryImage) => (typeof image === "string" ? "" : (image.alt ?? ""));
+const captionOf = (image: GalleryImage) =>
+  typeof image === "string" ? undefined : image.caption;
+
+/**
+ * A mosaic that keeps a strong hero frame at any count: the first image runs
+ * tall, the rest fill the column beside it. Every tile shares one aspect
+ * discipline so the grid never goes ragged.
+ */
 export default function ImageGallery(props: ImageGalleryProps) {
-  const total = props.images.length;
+  const tile = (image: GalleryImage, extra: string) => (
+    <figure class={`group relative overflow-hidden rounded-2xl bg-sand-200 ${extra}`}>
+      <img
+        src={srcOf(image)}
+        alt={altOf(image)}
+        loading="lazy"
+        class="h-full w-full object-cover transition-transform duration-[1200ms] ease-[var(--ease-out-soft)]
+               group-hover:scale-[1.06]"
+      />
+      <div
+        class="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/60 via-transparent
+               to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+      />
+      <Show when={props.captions && captionOf(image)}>
+        <figcaption
+          class="pointer-events-none absolute bottom-4 left-5 right-5 translate-y-2 text-sm font-medium
+                 text-sand-50 opacity-0 transition-all duration-500 ease-[var(--ease-out-soft)]
+                 group-hover:translate-y-0 group-hover:opacity-100"
+        >
+          {captionOf(image)}
+        </figcaption>
+      </Show>
+    </figure>
+  );
 
-  // 3-image layout
-  if (total === 3) {
+  // Three images: one tall frame, two stacked beside it.
+  if (props.images.length === 3) {
     return (
-      <div class="
-      grid gap-4 w-full
-      grid-cols-1
-      md:grid-cols-[3fr_2fr] md:grid-rows-2">
-        {/* Large Image */}
-        <div class="relative overflow-hidden rounded-xl aspect-[4/3] md:aspect-auto md:row-span-2">
-          <img
-            src={props.images[0]}
-            class="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
-
-        {/* Right Images */}
-        <div class="relative overflow-hidden rounded-xl aspect-[4/3] md:aspect-auto">
-          <img
-            src={props.images[1]}
-            class="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
-
-        <div class="relative overflow-hidden rounded-xl aspect-[4/3] md:aspect-auto">
-          <img
-            src={props.images[2]}
-            class="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
+      <div
+        class={`grid w-full gap-3 md:grid-cols-[1.35fr_1fr] md:grid-rows-2 md:[&>*:first-child]:row-span-2 ${
+          props.class ?? ""
+        }`}
+      >
+        {tile(props.images[0], "aspect-[4/3] md:aspect-auto md:min-h-[440px]")}
+        {tile(props.images[1], "aspect-[4/3] md:aspect-auto")}
+        {tile(props.images[2], "aspect-[4/3] md:aspect-auto")}
       </div>
     );
   }
 
-  // 4+ image layout
-  function getSpan(index: number) {
-    if (index === 0) return "col-span-2 row-span-2";
-    if (index % 5 === 0) return "col-span-2 row-span-1";
-    if (index % 3 === 0) return "row-span-2";
-    return "";
-  }
-
   return (
-    <div class="
-      grid gap-4 w-full
-      grid-cols-1
-      sm:grid-cols-2
-      md:grid-cols-4
-      auto-rows-[200px] md:auto-rows-[220px]
-    ">
+    <div
+      class={`grid w-full auto-rows-[200px] grid-cols-2 gap-3 md:auto-rows-[230px] md:grid-cols-4 ${
+        props.class ?? ""
+      }`}
+    >
       <For each={props.images}>
-        {(img, i) => (
-          <div
-            class={`
-            relative overflow-hidden rounded-xl
-            aspect-[4/3] sm:aspect-auto
-            ${getSpan(i())}
-          `}
-          >
-            <img
-              src={img}
-              class="w-full h-full object-cover"
-              loading="lazy"
-            />
-          </div>
-        )}
+        {(image, i) => {
+          const span =
+            i() === 0
+              ? "col-span-2 row-span-2"
+              : i() % 5 === 0
+                ? "col-span-2"
+                : i() % 3 === 0
+                  ? "row-span-2"
+                  : "";
+          return tile(image, span);
+        }}
       </For>
     </div>
   );

@@ -63,9 +63,19 @@ export default function MapGoogle(props: any) {
   const [selectedPlace, setSelectedPlace] = createSignal<typeof AIRPORTS[0] | null>(null);
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
+  // Without a key the embedded map renders Google's grey "something went wrong"
+  // panel, which reads as a broken site. Fall back to a styled link instead.
+  const [unavailable, setUnavailable] = createSignal(!GOOGLE_MAPS_API_KEY);
 
   onMount(async () => {
-    await loadGoogleMapsScript();
+    if (unavailable()) return;
+
+    try {
+      await loadGoogleMapsScript();
+    } catch {
+      setUnavailable(true);
+      return;
+    }
 
     const { Map } = await google.maps.importLibrary("maps") as google.maps.MapsLibrary;
     const { DirectionsService, DirectionsRenderer } = await google.maps.importLibrary("routes") as google.maps.RoutesLibrary;
@@ -112,56 +122,67 @@ export default function MapGoogle(props: any) {
     mapInstance = null;
   });
 
+  const mapsLink = () =>
+    `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
+      selectedPlace()?.query ?? AIRPORTS[0].query
+    )}&destination=${encodeURIComponent(RESORT.name)}`;
+
   return (
-    <div class={`flex flex-col md:flex-row rounded-xl border border-slate-200 md:h-[600px] ${props.class ?? ""}`}>
+    <div class={`flex flex-col overflow-hidden bg-white md:h-[600px] md:flex-row ${props.class ?? ""}`}>
       {/* Left panel */}
-      <div class="w-full md:w-[260px] md:min-w-[260px] border-b md:border-b-0 md:border-r border-slate-200 flex flex-col ">
+      <div class="flex w-full flex-col border-b border-sand-300/80 md:w-[268px] md:min-w-[268px] md:border-b-0 md:border-r">
 
         {/* Header — fixed, never scrolls */}
-        <div class="p-4 flex flex-col flex-shrink-0">
-          <p class="text-[10px] uppercase tracking-widest text-slate-400 text-left ml-1">Get Directions From</p>
-          <div class="flex gap-[5px]">
-            <MdFillLocation_on color="var(--color-accent-1)" />
-            <p class="text-sm font-semibold text-slate-800">The Waterfront Beach Resort</p>
+        <div class="flex flex-shrink-0 flex-col gap-1 border-b border-sand-300/60 bg-sand-50 p-5">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-navy-600/60">
+            Get directions from
+          </p>
+          <div class="flex items-center gap-2">
+            <MdFillLocation_on color="var(--color-gold-600)" />
+            <p class="text-sm font-semibold text-navy-900">The Waterfront Beach Resort</p>
           </div>
         </div>
 
-        <div class="flex flex-col md:flex-1 md:min-h-0">
+        <div class="flex flex-col md:min-h-0 md:flex-1">
           <For each={CATEGORIES}>
             {(category) => {
               const [open, setOpen] = createSignal(category.label === "Airports");
               return (
-                <div class="border-b border-slate-100 flex flex-col min-h-0">
+                <div class="flex min-h-0 flex-col border-b border-sand-300/60">
                   <button
                     onClick={() => setOpen(!open())}
-                    class="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer border-none text-left flex-shrink-0"
+                    class="flex w-full flex-shrink-0 cursor-pointer items-center justify-between border-none
+                           bg-sand-100/70 px-5 py-3 text-left transition-colors hover:bg-sand-200/70"
                   >
                     <div class="flex items-center gap-2">
-                      <category.icon size={15} color="var(--color-accent-1)" />
-                      <p class="text-[12px] font-semibold text-slate-600 uppercase tracking-wider">{category.label}</p>
+                      <category.icon size={15} color="var(--color-gold-600)" />
+                      <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-navy-700">
+                        {category.label}
+                      </p>
                     </div>
-                    <span class={`text-slate-400 transition-transform duration-200 ${open() ? "rotate-180" : ""}`}>
-                      <MdOutlineKeyboard_arrow_down size={23} />
+                    <span class={`text-navy-400 transition-transform duration-200 ${open() ? "rotate-180" : ""}`}>
+                      <MdOutlineKeyboard_arrow_down size={22} />
                     </span>
                   </button>
 
                   {/* Scroll is scoped to each category's places */}
                   <Show when={open()}>
-                    <div class="overflow-y-auto max-h-[600px] always-scrollbar">
+                    <div class="always-scrollbar max-h-[600px] overflow-y-auto">
                       <For each={category.places}>
                         {(destination) => {
                           const isSelected = () => selectedPlace()?.name === destination.name;
                           return (
                             <button
                               onClick={() => showDirections(destination)}
-                              class="w-full px-4 py-3.5 text-left border-none border-b border-slate-100 cursor-pointer transition-colors duration-150 border-l-[3px]"
+                              class="w-full cursor-pointer border-b border-l-[3px] border-sand-200 px-5 py-3.5
+                                     text-left transition-colors duration-150"
                               classList={{
-                                "bg-[var(--color-accent-1)]/10 border-l-[var(--color-accent-1)]": isSelected(),
-                                "bg-white border-l-transparent": !isSelected(),
+                                "bg-gold-100/50 !border-l-gold-500": isSelected(),
+                                "bg-white !border-l-transparent hover:bg-sand-50": !isSelected(),
                               }}
                             >
                               <p
-                                class="mb-0.5 text-[13px]"
+                                class="mb-0.5 text-[13px] text-navy-900"
                                 classList={{
                                   "font-semibold": isSelected(),
                                   "font-medium": !isSelected(),
@@ -169,7 +190,7 @@ export default function MapGoogle(props: any) {
                               >
                                 {destination.name}
                               </p>
-                              <p class="text-[11px] text-slate-400">Click for directions →</p>
+                              <p class="text-[11px] text-navy-600/60">Click for directions →</p>
                             </button>
                           );
                         }}
@@ -183,20 +204,43 @@ export default function MapGoogle(props: any) {
         </div>
 
         <Show when={error()}>
-          <div class="px-4 py-3 bg-red-50 border-t border-red-200 flex-shrink-0">
+          <div class="flex-shrink-0 border-t border-red-200 bg-red-50 px-5 py-3">
             <p class="text-xs text-red-600">{error()}</p>
           </div>
         </Show>
 
         <Show when={loading()}>
-          <div class="px-4 py-3 bg-blue-50 border-t border-blue-200 flex-shrink-0">
-            <p class="text-xs text-blue-500">Loading directions...</p>
+          <div class="flex-shrink-0 border-t border-sand-300/60 bg-sand-50 px-5 py-3">
+            <p class="text-xs text-navy-600/70">Loading directions…</p>
           </div>
         </Show>
       </div>
 
-      {/* Map */}
-      <div ref={mapContainer} class="w-full h-[300px] md:h-auto md:flex-1 rounded-tr-xl rounded-br-xl" />
+      {/* Map, or a graceful stand-in when the embed cannot run */}
+      <Show
+        when={!unavailable()}
+        fallback={
+          <div class="flex h-[300px] w-full flex-col items-center justify-center gap-4 bg-sand-100 px-8 text-center md:h-auto md:flex-1">
+            <MdFillLocation_on size={26} color="var(--color-gold-600)" />
+            <div>
+              <p class="font-display text-2xl text-navy-900">{RESORT.name}</p>
+              <p class="mt-2 max-w-xs text-sm text-navy-700/70">
+                Sitio Pasinay, Barangay Nagbalayong, Morong, Bataan
+              </p>
+            </div>
+            <a
+              href={mapsLink()}
+              target="_blank"
+              rel="noreferrer noopener"
+              class="btn-outline !px-6 !py-2.5"
+            >
+              Open in Google Maps
+            </a>
+          </div>
+        }
+      >
+        <div ref={mapContainer} class="h-[300px] w-full md:h-auto md:flex-1" />
+      </Show>
     </div>
   );
 }

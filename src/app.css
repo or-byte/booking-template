@@ -1,101 +1,371 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   The Waterfront Beach Resort — Design System
+   ----------------------------------------------------------------------------
+   The palette is drawn from the brand mark (deep navy + sailing blue) and
+   warmed with the sand and gold of the Morong sunset in the hero photograph.
+   ========================================================================== */
+
+@theme {
+  /* --- Brand: deep navy, from the logo wordmark ------------------------- */
+  --color-navy-50: #f2f5fa;
+  --color-navy-100: #e2e9f4;
+  --color-navy-200: #c3d1e7;
+  --color-navy-300: #93aed3;
+  --color-navy-400: #5c82b5;
+  --color-navy-500: #365f97;
+  --color-navy-600: #244676;
+  --color-navy-700: #1a3560;
+  --color-navy-800: #12244a;
+  --color-navy-900: #0a1733;
+  --color-navy-950: #050d20;
+
+  /* --- Brand: sailing blue, from the logo wave -------------------------- */
+  --color-sea-50: #eff9ff;
+  --color-sea-100: #dcf1ff;
+  --color-sea-200: #b2e4ff;
+  --color-sea-300: #6ecfff;
+  --color-sea-400: #2bb7f5;
+  --color-sea-500: #109ce0;
+  --color-sea-600: #037bbd;
+  --color-sea-700: #04629a;
+  --color-sea-800: #09537f;
+  --color-sea-900: #0d4569;
+
+  /* --- Accent: sunset gold, from the hero photograph -------------------- */
+  --color-gold-100: #f8eeda;
+  --color-gold-200: #f0dbb4;
+  --color-gold-300: #e4c184;
+  --color-gold-400: #d6a45a;
+  --color-gold-500: #c58a3c;
+  --color-gold-600: #a76d2f;
+  --color-gold-700: #85552a;
+
+  /* --- Neutral: warm sand, the page ground ------------------------------ */
+  --color-sand-50: #fdfbf8;
+  --color-sand-100: #faf6f0;
+  --color-sand-200: #f2ebe1;
+  --color-sand-300: #e6dbcc;
+  --color-sand-400: #d3c4b0;
+  --color-sand-500: #b3a58e;
+
+  /* --- Type ------------------------------------------------------------- */
+  --font-display: "Cormorant Garamond", Didot, "Bodoni MT", Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* --- Motion ----------------------------------------------------------- */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* --- Elevation: tinted with navy rather than pure black --------------- */
+  --shadow-card: 0 1px 2px rgb(10 23 51 / 0.04), 0 8px 24px -12px rgb(10 23 51 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(10 23 51 / 0.05), 0 24px 48px -20px rgb(10 23 51 / 0.28);
+  --shadow-nav: 0 1px 0 rgb(10 23 51 / 0.06), 0 12px 32px -20px rgb(10 23 51 / 0.35);
+}
+
+/* ----------------------------------------------------------------------------
+   Legacy aliases. The admin dashboard and the map component still reference the
+   original variable names; keep them pointing at the new palette so the whole
+   product moves together instead of drifting into two colour systems.
+   -------------------------------------------------------------------------- */
+:root {
+  --color-bg: var(--color-sand-100);
+  --color-bg-2: #ffffff;
+  --color-footer: var(--color-navy-900);
+  --color-primary: var(--color-navy-800);
+  --color-accent-1: var(--color-sea-600);
+  --color-accent-2: var(--color-sea-700);
+  --color-disabled: var(--color-navy-200);
+  --color-border-1: var(--color-sand-300);
+
+  --nav-height: 84px;
+}
+
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Anchored sections should not slide under the fixed navigation bar. */
+    scroll-padding-top: var(--nav-height);
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
-    font-family: "Inter", sans-serif;
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    color: var(--color-navy-900);
+    background-color: var(--color-sand-50);
     display: flex;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1,
-  h2 {
-    font-family: Didot, "Bodoni MT", serif;
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    line-height: 1.08;
+    text-wrap: balance;
   }
 
-  :root {
-    --color-bg: #EBEBEB;
-    --color-footer: #A7A7A7;
-    --color-primary: #335d92;
-    --color-accent-1: #419EBD;
-    --color-accent-2: #54a1bb;
-    --color-disabled: #83ACB9;
-    --color-border-1: #B4B4B4;
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 4.75rem);
+  }
 
-    --font-size-h1: 4rem;
-    --font-size-h2: 64px;
-    --font-size-h3: 40px;
-    --font-size-h4: 32px;
-    --font-size-body-lg: 16px;
-    --font-size-body-sm: 14px;
-    --font-size-body-xs: 12px;
+  h2 {
+    font-size: clamp(2rem, 4.2vw, 3.25rem);
+  }
 
-    --line-height-h1: 1.1;
-    --line-height-h2: 1.1;
-    --line-height-h3: 1.1;
-    --line-height-h4: 1.1;
-    --line-height-body-lg: 1.35;
-    --line-height-body-sm: 1.2;
+  h3 {
+    font-size: clamp(1.375rem, 2.4vw, 1.875rem);
+  }
 
-    --font-weight-light: 100;
-    --font-weight-regular: 400;
-    --font-weight-bold: 700;
+  p {
+    text-wrap: pretty;
+  }
+
+  /* A single visible focus treatment across the whole site. */
+  :focus-visible {
+    outline: 2px solid var(--color-sea-500);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-navy-900);
+    color: var(--color-sand-100);
   }
 }
 
-/* MetaProvider renders a wrapper div — target it */
-body>div {
+/* MetaProvider renders a wrapper div — target it so the footer sits at the
+   bottom of short pages. */
+body > div {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
 }
 
 main {
   flex: 1;
-  text-align: center;
-  margin-top: 100px;
-  margin-left: 80px;
-  margin-right: 80px;
-  margin-bottom: 80px;
 }
 
-@media (max-width: 768px) {
-  main {
-    margin-top: 60px;
-    margin-left: 16px;
-    margin-right: 16px;
-    margin-bottom: 40px;
+@layer components {
+  /* --- Layout ----------------------------------------------------------- */
+  .shell {
+    @apply mx-auto w-full max-w-[1240px] px-5 sm:px-8 lg:px-12;
+  }
+
+  .shell-narrow {
+    @apply mx-auto w-full max-w-[820px] px-5 sm:px-8;
+  }
+
+  .section {
+    @apply py-20 md:py-28;
+  }
+
+  .section-tight {
+    @apply py-14 md:py-20;
+  }
+
+  /* --- Typography ------------------------------------------------------- */
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-600;
+  }
+
+  .eyebrow-light {
+    @apply text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-300;
+  }
+
+  .lede {
+    @apply text-base leading-relaxed text-navy-700/80 md:text-lg;
+  }
+
+  .subheader-1 {
+    @apply text-base font-semibold;
+  }
+
+  .body-1 {
+    @apply text-base font-normal;
+  }
+
+  .body-2 {
+    @apply text-sm font-normal;
+  }
+
+  .body-3 {
+    @apply text-xs font-normal;
+  }
+
+  /* --- Buttons ---------------------------------------------------------- */
+  .btn,
+  .btn-primary,
+  .btn-gold,
+  .btn-outline,
+  .btn-ghost-light {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-7 py-3
+           text-[13px] font-semibold uppercase tracking-[0.14em] whitespace-nowrap
+           transition-all duration-300 ease-[var(--ease-out-soft)];
+  }
+
+  .btn,
+  .btn-primary {
+    @apply bg-navy-900 text-sand-50 shadow-[0_10px_30px_-14px_rgb(10_23_51/0.9)]
+           hover:-translate-y-0.5 hover:bg-navy-800 hover:shadow-[0_18px_38px_-16px_rgb(10_23_51/0.9)];
+  }
+
+  .btn-gold {
+    @apply bg-gold-500 text-navy-950 shadow-[0_10px_30px_-14px_rgb(165_109_47/0.9)]
+           hover:-translate-y-0.5 hover:bg-gold-400 hover:shadow-[0_18px_38px_-16px_rgb(165_109_47/0.95)];
+  }
+
+  .btn-outline {
+    @apply border border-navy-900/25 bg-transparent text-navy-900
+           hover:border-navy-900 hover:bg-navy-900 hover:text-sand-50;
+  }
+
+  .btn-ghost-light {
+    @apply border border-white/45 bg-white/5 text-white backdrop-blur-[2px]
+           hover:border-white hover:bg-white hover:text-navy-900;
+  }
+
+  .btn:disabled,
+  .btn-primary:disabled,
+  .btn-gold:disabled,
+  .btn-outline:disabled,
+  .btn-ghost-light:disabled {
+    @apply pointer-events-none translate-y-0 border-transparent bg-navy-200 text-navy-500 shadow-none;
+  }
+
+  /* --- Links ------------------------------------------------------------ */
+  .link-arrow {
+    @apply inline-flex items-center gap-2 text-[12px] font-semibold uppercase
+           tracking-[0.16em] text-navy-900 transition-colors duration-200 hover:text-gold-600;
+  }
+
+  .link-arrow::after {
+    content: "→";
+    @apply translate-x-0 text-base leading-none transition-transform duration-300 ease-[var(--ease-out-soft)];
+  }
+
+  .link-arrow:hover::after {
+    @apply translate-x-1.5;
+  }
+
+  /* --- Surfaces --------------------------------------------------------- */
+  .card {
+    @apply rounded-2xl border border-sand-300/70 bg-white shadow-[var(--shadow-card)];
+  }
+
+  .hairline {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-sand-400/70 to-transparent;
+  }
+
+  /* Photographs read better with a hint of warmth over a hard black scrim. */
+  .photo-scrim {
+    @apply absolute inset-0 bg-gradient-to-t from-navy-950/85 via-navy-950/25 to-transparent;
+  }
+
+  .nav {
+    @apply hidden items-center gap-4 rounded-full bg-white px-[30px] py-[20px] md:flex;
+  }
+
+  .spinner {
+    @apply h-8 w-8 animate-spin rounded-full border-4 border-navy-200 border-t-sea-600;
   }
 }
 
-h1 {
-  text-transform: uppercase;
-  font-weight: 100;
-  line-height: 1.1;
+/* ----------------------------------------------------------------------------
+   Motion
+   -------------------------------------------------------------------------- */
+
+/* Scroll-reveal. Elements start displaced and are released by the Reveal
+   component once they intersect the viewport. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.8s var(--ease-out-soft),
+    transform 0.8s var(--ease-out-soft);
+  transition-delay: var(--reveal-delay, 0ms);
 }
 
-h2 {
-  font-size: 45px;
-  font-weight: 100;
-  line-height: 1.1;
+[data-reveal="shown"] {
+  opacity: 1;
+  transform: none;
 }
 
-p {
-  max-width: 14rem;
-  line-height: 1.35;
+/* Slow drift across the hero photograph. */
+@keyframes ken-burns {
+  from {
+    transform: scale(1.05) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.16) translate3d(-1.2%, -1.6%, 0);
+  }
 }
 
-@media (min-width: 480px) {
-  h1 {
-    max-width: none;
+.animate-ken-burns {
+  animation: ken-burns 22s var(--ease-in-out-soft) infinite alternate;
+}
+
+@keyframes scroll-cue {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(7px);
+    opacity: 1;
+  }
+}
+
+.animate-scroll-cue {
+  animation: scroll-cue 2.2s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 38s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 
-  p {
-    max-width: none;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
   }
 }
 
+/* ----------------------------------------------------------------------------
+   Scrollbars
+   -------------------------------------------------------------------------- */
 .always-scrollbar::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 .always-scrollbar::-webkit-scrollbar-track {
@@ -103,49 +373,14 @@ p {
 }
 
 .always-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  /* slate-300 */
+  background-color: var(--color-sand-400);
   border-radius: 999px;
 }
 
-@layer components {
-  .btn {
-    @apply py-2 px-6 bg-[var(--color-accent-1)] rounded-[10px] cursor-pointer transition-colors duration-200 text-white;
-  }
+.no-scrollbar {
+  scrollbar-width: none;
+}
 
-  .btn:hover {
-    @apply bg-[var(--color-accent-2)];
-  }
-
-  .btn:disabled {
-    @apply bg-[var(--color-disabled)] text-[var(--color-footer)];
-  }
-
-  .btn:disabled:hover {
-    @apply cursor-not-allowed;
-  }
-
-  .nav {
-    @apply hidden md:flex gap-4 items-center rounded-[20px] bg-[var(--color-bg-2)] py-[20px] px-[30px]
-  }
-
-  .subheader-1 {
-    @apply font-bold text-base;
-  }
-
-  .body-1 {
-    @apply font-normal text-base;
-  }
-
-  .body-2 {
-    @apply font-normal text-sm;
-  }
-
-  .body-3 {
-    @apply font-normal text-xs;
-  }
-
-  .spinner {
-    @apply w-8 h-8 border-4 border-[var(--color-footer)]/30 border-t-[var(--color-accent-1)] rounded-full animate-spin
-  }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
