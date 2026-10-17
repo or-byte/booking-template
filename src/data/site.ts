@@ -56,35 +56,36 @@ const unsplash = (id: string, w = 1600) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
 
 export const photos = {
-  hero: "/images/hero_img.jpg",
+  hero: "/images/hero-sunset.jpg",
   logo: "/images/waterfront_logo.png",
 
   /** One per room type, in the order the rooms are listed. */
   rooms: [
-    unsplash("1618773928121-c32242e63f39"),
-    unsplash("1611892440504-42a792e24d32"),
-    unsplash("1631049307264-da0ec9d70304"),
-    unsplash("1616594039964-ae9021a400a0"),
+    "/images/room-twin.jpg",
+    "/images/room-loft.jpg",
+    "/images/room-loft-twin.jpg",
+    "/images/room-dormitory.jpg",
   ],
 
   dining: [
-    unsplash("1559339352-11d035aa65de"),
-    unsplash("1517248135467-4c7edcad34c4"),
-    unsplash("1414235077428-338989a2e8c0"),
+    "/images/dining-bar.jpg",
+    "/images/dining-beachside.jpg",
+    "/images/dining-cottage.jpg",
   ],
 
-  /** Matched to the three entries in `experiences`, in order. */
+  /** Matched to the three entries in `experiences`, in order. Stock images until
+   *  the resort supplies photos of these places. */
   explore: [
     unsplash("1507525428034-b723cf961d3e"),
     unsplash("1470071459604-3b5ec3a7fe05"),
     unsplash("1506929562872-bb421503ef21"),
   ],
 
-  resort: unsplash("1566073771259-6a8506099945"),
-  pool: unsplash("1520250497591-112f2f40a3f4"),
-  spa: unsplash("1544161515-4ab6ce6db874"),
-  shore: unsplash("1540541338287-41700207dee6"),
-  dusk: unsplash("1571003123894-1f0594d2b5d9"),
+  resort: "/images/resort-building.jpg",
+  pool: "/images/pool.jpg",
+  spa: "/images/cabanas.jpg",
+  shore: "/images/shore.jpg",
+  dusk: "/images/beach-flags.jpg",
 };
 
 /* ---------------------------------------------------------------------------

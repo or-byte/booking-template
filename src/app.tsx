@@ -20,7 +20,7 @@ function Layout(props: { children: any }) {
       <Meta property="og:site_name" content={site.name} />
       <Meta property="og:title" content={`${site.name} — ${site.tagline}`} />
       <Meta property="og:description" content={site.description} />
-      <Meta property="og:image" content="/images/hero_img.jpg" />
+      <Meta property="og:image" content="/images/hero-sunset.jpg" />
       <Meta name="twitter:card" content="summary_large_image" />
       <Meta name="geo.placename" content={fullAddress} />
 

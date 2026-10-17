@@ -211,10 +211,10 @@ export default function Explore() {
               images={[
                 { src: photos.hero, alt: "Sunset from the beach", caption: "Sunset from the beach" },
                 { src: photos.pool, alt: "Pool deck", caption: "Pool deck" },
-                { src: photos.rooms[0], alt: "Seaview Deluxe", caption: "Seaview Deluxe" },
-                { src: photos.dining[0], alt: "El Mar terrace", caption: "El Mar terrace" },
+                { src: photos.rooms[0], alt: "Twin room", caption: "Twin room" },
+                { src: photos.dining[0], alt: "Beach bar", caption: "Beach bar" },
                 { src: photos.shore, alt: "The shoreline", caption: "The shoreline" },
-                { src: photos.rooms[3], alt: "Beachfront Suite", caption: "Beachfront Suite" },
+                { src: photos.rooms[3], alt: "Dormitory room", caption: "Dormitory room" },
                 { src: photos.spa, alt: "Seaside cabanas", caption: "Seaside cabanas" },
               ]}
             />
