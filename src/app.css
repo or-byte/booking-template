@@ -56,7 +56,7 @@
 
   /* --- Type ------------------------------------------------------------- */
   --font-display: "Italiana", Didot, "Bodoni MT", Georgia, serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: "Mukta Mahee", ui-sans-serif, system-ui, -apple-system, sans-serif;
 
   /* --- Motion ----------------------------------------------------------- */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
@@ -96,7 +96,9 @@
 
   body {
     font-family: var(--font-sans);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    /* Mukta Mahee draws small for its size; match the x-height of the
+       previous text face so every text-* utility keeps its intended scale. */
+    font-size-adjust: 0.53;
     color: var(--color-navy-900);
     background-color: var(--color-sand-50);
     display: flex;
@@ -113,6 +115,7 @@
        A stroke scaled to the type size gives it a heavier, even weight. */
     font-weight: 400;
     font-synthesis: none;
+    font-size-adjust: none;
     -webkit-text-stroke: 0.022em currentColor;
     letter-spacing: -0.01em;
     line-height: 1.08;
@@ -138,6 +141,7 @@
   /* Same guard for non-heading elements set in the display face. */
   .font-display {
     font-synthesis: none;
+    font-size-adjust: none;
     -webkit-text-stroke: 0.022em currentColor;
   }
 

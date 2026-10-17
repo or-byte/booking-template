@@ -257,11 +257,11 @@ export const dining = {
    ------------------------------------------------------------------------- */
 
 export const glance = [
-  { value: "180 m", label: "of private shoreline" },
-  { value: "24", label: "rooms, suites and casitas" },
-  { value: "3 hrs", label: "from Metro Manila" },
-  { value: "1998", label: "welcoming guests since" },
-];
+  { value: "180 m", label: "of private shoreline", icon: "shore" },
+  { value: "24", label: "rooms, suites and casitas", icon: "key" },
+  { value: "3 hrs", label: "from Metro Manila", icon: "car" },
+  { value: "1998", label: "welcoming guests since", icon: "heart" },
+] as const;
 
 /* ---------------------------------------------------------------------------
    Navigation

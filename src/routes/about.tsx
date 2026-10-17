@@ -132,7 +132,14 @@ export default function About() {
           <dl class="grid grid-cols-2 gap-y-10 lg:grid-cols-4">
             <For each={glance}>
               {(stat, i) => (
-                <Reveal delay={i() * 80} class="text-center">
+                <Reveal delay={i() * 80} class="group text-center">
+                  <span
+                    class={`mx-auto mb-5 grid h-14 w-14 place-items-center rounded-full border transition-transform
+                      duration-500 ease-[var(--ease-out-soft)] group-hover:-translate-y-1.5 group-hover:rotate-[-6deg]
+                      ${i() % 2 === 0 ? "border-sea-300/40 text-sea-300" : "border-orange-300/40 text-orange-300"}`}
+                  >
+                    <Icon name={stat.icon} size={26} />
+                  </span>
                   <dt class="font-display text-4xl text-orange-300 md:text-5xl">{stat.value}</dt>
                   <dd class="mt-2 text-xs uppercase tracking-[0.16em] text-sand-300/60">
                     {stat.label}

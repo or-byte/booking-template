@@ -14,7 +14,7 @@ export default createHandler(() => (
 
           {/*
             Two families carry the whole site: Italiana for display (a single
-            weight, high-contrast serif) and Inter
+            weight, high-contrast serif) and Mukta Mahee
             for everything else. Loaded with `display=swap` so the first paint
             is never blocked by the network.
           */}
@@ -22,7 +22,7 @@ export default createHandler(() => (
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
           <link
             rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Italiana&family=Inter:wght@300;400;500;600;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Italiana&family=Mukta+Mahee:wght@300;400;500;600;700&display=swap"
           />
 
           {/* Room photography is remote; warm the connection during hydration. */}

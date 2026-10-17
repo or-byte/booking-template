@@ -76,7 +76,15 @@ export default function Home() {
           <dl class="grid grid-cols-2 gap-y-10 py-12 lg:grid-cols-4">
             <For each={glance}>
               {(stat, i) => (
-                <Reveal delay={i() * 80} class="text-center">
+                <Reveal delay={i() * 80} class="group text-center">
+                  {/* Badges alternate sky blue and orange, and lift on hover. */}
+                  <span
+                    class={`mx-auto mb-5 grid h-14 w-14 place-items-center rounded-full transition-transform
+                      duration-500 ease-[var(--ease-out-soft)] group-hover:-translate-y-1.5 group-hover:rotate-[-6deg]
+                      ${i() % 2 === 0 ? "bg-sea-100 text-sea-700" : "bg-orange-100 text-orange-600"}`}
+                  >
+                    <Icon name={stat.icon} size={26} />
+                  </span>
                   <dt class="font-display text-4xl text-navy-900 md:text-5xl">{stat.value}</dt>
                   <dd class="mt-2 text-xs uppercase tracking-[0.16em] text-navy-600/70">
                     {stat.label}
@@ -112,19 +120,19 @@ export default function Home() {
                 fallbackImage={photos.rooms[0]}
                 renderContent={(room, isActive) => (
                   <div class="absolute inset-x-0 bottom-0 p-6 text-left text-white md:p-7">
-                    <p
-                      class={`text-[11px] uppercase tracking-[0.18em] transition-all duration-500
-                        ${isActive ? "text-orange-300 opacity-100" : "text-sand-200 opacity-70"}`}
-                    >
-                      From {formatPrice(room.price)}
-                    </p>
-
                     <h3
-                      class={`mt-2 font-display transition-all duration-500
-                        ${isActive ? "text-3xl md:text-4xl" : "text-xl opacity-85"}`}
+                      class={`font-display transition-all duration-500
+                        ${isActive ? "text-3xl md:text-4xl" : "text-xl opacity-90"}`}
                     >
                       {room.name}
                     </h3>
+
+                    {/* Folded panels carry the price as a quiet line under the name. */}
+                    <Show when={!isActive}>
+                      <p class="mt-2 text-[11px] uppercase tracking-[0.16em] text-sand-100/80">
+                        From {formatPrice(room.price)}
+                      </p>
+                    </Show>
 
                     {/* The description belongs only to the open panel — the
                         folded ones are too narrow to carry a sentence. */}
@@ -139,7 +147,21 @@ export default function Home() {
                         <p class="mt-3 max-w-sm text-sm leading-relaxed text-sand-100/85">
                           {room.description}
                         </p>
-                        <span class="link-arrow mt-5 text-sand-50">Reserve</span>
+
+                        <div class="mt-5 flex items-end justify-between gap-6 border-t border-white/15 pt-5">
+                          <div>
+                            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-orange-300">
+                              From
+                            </p>
+                            <p class="mt-1 flex items-baseline gap-1.5">
+                              <span class="font-display text-3xl text-white">
+                                {formatPrice(room.price)}
+                              </span>
+                              <span class="text-xs text-sand-200/80">/ night</span>
+                            </p>
+                          </div>
+                          <span class="link-arrow pb-1 text-sand-50">Reserve</span>
+                        </div>
                       </div>
                     </div>
                   </div>

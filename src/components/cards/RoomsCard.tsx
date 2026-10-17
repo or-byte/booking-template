@@ -50,7 +50,7 @@ export default function RoomsCard<T extends RoomsCardItem>(props: RoomsCardProps
               onClick={() => setActive(index())}
               aria-label={item.name}
               aria-expanded={isActive()}
-              class="group relative h-[300px] shrink-0 cursor-pointer overflow-hidden rounded-2xl text-left
+              class="group relative h-[400px] shrink-0 cursor-pointer overflow-hidden rounded-2xl text-left
                      transition-[flex-grow] duration-700 ease-[var(--ease-out-soft)] md:h-full md:shrink md:basis-0"
               style={{ "flex-grow": isActive() ? expanded() : collapsed() }}
             >
@@ -66,7 +66,7 @@ export default function RoomsCard<T extends RoomsCardItem>(props: RoomsCardProps
               <div
                 class={`absolute inset-0 transition-all duration-700 ${
                   isActive()
-                    ? "bg-gradient-to-t from-navy-950/85 via-navy-950/20 to-transparent"
+                    ? "bg-gradient-to-t from-navy-950/95 from-10% via-navy-950/55 via-45% to-transparent to-80%"
                     : "bg-navy-950/55 backdrop-saturate-[0.85]"
                 }`}
               />
