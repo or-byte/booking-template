@@ -1,6 +1,7 @@
 import { A, useLocation, useNavigate } from "@solidjs/router";
 import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import Icon from "~/components/ui/Icon";
+import { bookHref, bookingEnabled } from "~/data/features";
 import { photos, primaryNav, site, telHref } from "~/data/site";
 
 export default function NavBar() {
@@ -156,7 +157,7 @@ export default function NavBar() {
 
             <button
               type="button"
-              onClick={[goTo, "/rooms"]}
+              onClick={[goTo, bookHref]}
               class={overHero() ? "btn-ghost-light !px-6 !py-2.5" : "btn-accent !px-6 !py-2.5"}
             >
               Book Now
@@ -167,7 +168,7 @@ export default function NavBar() {
           <div class="flex items-center gap-3 lg:hidden">
             <button
               type="button"
-              onClick={[goTo, "/rooms"]}
+              onClick={[goTo, bookHref]}
               class={`${overHero() ? "btn-ghost-light" : "btn-accent"} !px-5 !py-2 !text-[11px]`}
             >
               Book
@@ -275,8 +276,8 @@ export default function NavBar() {
           </For>
 
           <div class="mt-auto pt-10">
-            <button type="button" class="btn-accent w-full" onClick={[goTo, "/rooms"]}>
-              Check Availability
+            <button type="button" class="btn-accent w-full" onClick={[goTo, bookHref]}>
+              {bookingEnabled ? "Check Availability" : "Book a Stay"}
             </button>
 
             <div class="mt-8 space-y-2 text-sm text-navy-700">

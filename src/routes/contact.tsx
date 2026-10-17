@@ -7,6 +7,8 @@ import Icon, { type IconName } from "~/components/ui/Icon";
 import PageHero from "~/components/ui/PageHero";
 import Reveal from "~/components/ui/Reveal";
 import SectionHeading from "~/components/ui/SectionHeading";
+import TurtleIllustration from "~/components/ui/TurtleIllustration";
+import { useSearchParams } from "@solidjs/router";
 import { fullAddress, photos, site, telHref, travel } from "~/data/site";
 
 const MapGoogle = clientOnly(() => import("~/components/map/MapGoogle"));
@@ -49,7 +51,10 @@ export default function Contact() {
   const [firstName, setFirstName] = createSignal("");
   const [lastName, setLastName] = createSignal("");
   const [email, setEmail] = createSignal("");
-  const [subject, setSubject] = createSignal("");
+  const [params] = useSearchParams();
+  // Booking buttons land here with ?booking=soon while online booking is off.
+  const fromBooking = () => params.booking === "soon";
+  const [subject, setSubject] = createSignal(fromBooking() ? "Booking enquiry" : "");
   const [message, setMessage] = createSignal("");
   const [error, setError] = createSignal<string | null>(null);
   const [sent, setSent] = createSignal(false);
@@ -71,15 +76,12 @@ export default function Contact() {
 
     setError(null);
 
-    // No mail transport is wired up yet; log the payload so the shape is
-    // visible while the backend endpoint is being built.
-    console.log({
-      firstName: firstName(),
-      lastName: lastName(),
-      email: email(),
-      subject: subject(),
-      message: message(),
-    });
+    // There is no mail backend yet, so hand the message to the guest's own
+    // email app, addressed to the resort. Nothing is lost if they send it.
+    const body = `${message()}\n\n${firstName()} ${lastName()}\n${email()}`;
+    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(
+      subject(),
+    )}&body=${encodeURIComponent(body)}`;
 
     setSent(true);
   };
@@ -101,6 +103,30 @@ export default function Contact() {
 
       {/* --- Details + form ------------------------------------------------ */}
       <section class="section bg-sand-50">
+        <Show when={fromBooking()}>
+          <div class="shell mb-14">
+            <Reveal class="flex flex-col gap-6 rounded-3xl border border-orange-300/50 bg-white p-7 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:p-9">
+              <div class="grid h-32 w-40 shrink-0 place-items-center rounded-2xl bg-sea-50">
+                <TurtleIllustration class="w-36" />
+              </div>
+              <div class="flex-1">
+                <p class="eyebrow">Slow and steady</p>
+                <h2 class="mt-2 font-display text-3xl text-navy-900 md:text-4xl">
+                  Online booking is on its way
+                </h2>
+                <p class="mt-3 max-w-2xl leading-relaxed text-navy-700/80">
+                  We are still building online reservations. Until then, our front desk books
+                  every stay personally — call or text with your dates and number of guests, or
+                  send the form below, and we will confirm your room.
+                </p>
+              </div>
+              <a href={telHref(site.phone)} class="btn-accent shrink-0">
+                Call {site.phone}
+              </a>
+            </Reveal>
+          </div>
+        </Show>
+
         <div class="shell grid gap-14 lg:grid-cols-12">
           {/* Details */}
           <div class="lg:col-span-5">
@@ -160,10 +186,15 @@ export default function Contact() {
                     <span class="grid h-14 w-14 place-items-center rounded-full bg-orange-100 text-orange-600">
                       <Icon name="check" size={26} />
                     </span>
-                    <h3 class="mt-6 font-display text-3xl text-navy-900">Message sent</h3>
+                    <h3 class="mt-6 font-display text-3xl text-navy-900">Almost there</h3>
                     <p class="mt-3 max-w-sm leading-relaxed text-navy-700/80">
-                      Thank you, {firstName()}. We have your note and will reply to {email()}{" "}
-                      shortly — usually within the day.
+                      Thank you, {firstName()}. Your email app should now be open with your
+                      message ready — press send there and we will reply to {email()}, usually
+                      within the day. If nothing opened, write to{" "}
+                      <a href={`mailto:${site.email}`} class="text-orange-600 underline">
+                        {site.email}
+                      </a>{" "}
+                      or call {site.phone}.
                     </p>
                     <Button
                       variant="outline"

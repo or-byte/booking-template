@@ -6,6 +6,7 @@ import PageHero from "~/components/ui/PageHero";
 import Reveal from "~/components/ui/Reveal";
 import SectionHeading from "~/components/ui/SectionHeading";
 import Icon from "~/components/ui/Icon";
+import { bookHref, bookingEnabled } from "~/data/features";
 import { amenities, dining, experiences, nearbyPlaces, photos, site } from "~/data/site";
 
 const facilities = [
@@ -221,8 +222,8 @@ export default function Explore() {
           </Reveal>
 
           <Reveal delay={160} class="mt-14 text-center">
-            <A href="/rooms" class="btn-accent">
-              Check availability
+            <A href={bookHref} class="btn-accent">
+              {bookingEnabled ? "Check availability" : "Book a stay"}
             </A>
           </Reveal>
         </div>

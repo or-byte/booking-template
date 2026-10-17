@@ -1,5 +1,7 @@
 import { A } from "@solidjs/router";
+import { Show } from "solid-js";
 import BookingBar from "~/components/booking/BookingBar";
+import { bookingEnabled } from "~/data/features";
 import { photos, site } from "~/data/site";
 
 export default function Hero() {
@@ -50,7 +52,9 @@ export default function Hero() {
         </div>
 
         {/* Availability strip, tucked into the base of the hero. */}
-        <BookingBar class="mt-12 md:mt-16" />
+        <Show when={bookingEnabled}>
+          <BookingBar class="mt-12 md:mt-16" />
+        </Show>
       </div>
     </section>
   );

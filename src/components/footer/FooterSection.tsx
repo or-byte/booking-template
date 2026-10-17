@@ -1,6 +1,7 @@
 import { A } from "@solidjs/router";
 import { For } from "solid-js";
 import Icon from "~/components/ui/Icon";
+import { bookHref, bookingEnabled } from "~/data/features";
 import { fullAddress, photos, primaryNav, site, telHref } from "~/data/site";
 
 const exploreLinks = [
@@ -24,8 +25,8 @@ export default function Footer() {
             </p>
           </div>
           <div class="flex flex-wrap gap-3">
-            <A href="/rooms" class="btn-accent">
-              Check Availability
+            <A href={bookHref} class="btn-accent">
+              {bookingEnabled ? "Check Availability" : "Book a Stay"}
             </A>
             <A href="/contact" class="btn-ghost-light">
               Talk to Us

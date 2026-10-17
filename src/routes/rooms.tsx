@@ -8,6 +8,7 @@ import Reveal from "~/components/ui/Reveal";
 import Icon from "~/components/ui/Icon";
 import { getRooms } from "~/lib/rooms";
 import { formatPrice } from "~/utils/price";
+import { bookingEnabled, bookingFallbackHref } from "~/data/features";
 import { photos, site } from "~/data/site";
 
 /** Kept for callers that still import the old placeholder constant. */
@@ -45,7 +46,7 @@ export default function Rooms() {
 
       <section class="bg-sand-50 py-14 md:py-20">
         <div class="shell">
-          <Show when={hasSearch()}>
+          <Show when={bookingEnabled && hasSearch()}>
             <Reveal class="mb-8 flex flex-wrap items-center gap-3 rounded-xl border border-orange-300/60 bg-orange-100/50 px-5 py-4 text-sm text-navy-800">
               <Icon name="clock" size={16} class="text-orange-600" />
               <span>
@@ -63,7 +64,9 @@ export default function Rooms() {
             </Reveal>
           </Show>
 
-          <BookingBar class="mb-14" />
+          <Show when={bookingEnabled}>
+            <BookingBar class="mb-14" />
+          </Show>
 
           <Suspense
             fallback={
@@ -87,7 +90,7 @@ export default function Rooms() {
                       view={room.view}
                       features={room.features}
                       reversed={i() % 2 === 1}
-                      href="/contact"
+                      href={bookingEnabled ? "/contact" : bookingFallbackHref}
                     />
                   </Reveal>
                 )}
