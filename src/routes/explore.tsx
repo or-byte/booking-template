@@ -6,7 +6,7 @@ import PageHero from "~/components/ui/PageHero";
 import Reveal from "~/components/ui/Reveal";
 import SectionHeading from "~/components/ui/SectionHeading";
 import Icon from "~/components/ui/Icon";
-import { amenities, dining, experiences, photos, site } from "~/data/site";
+import { amenities, dining, experiences, nearbyPlaces, photos, site } from "~/data/site";
 
 const facilities = [
   {
@@ -174,6 +174,25 @@ export default function Explore() {
               )}
             </For>
           </div>
+
+          <Reveal delay={120} class="mt-14">
+            <div class="rounded-2xl border border-white/10 bg-navy-900 p-7 md:p-9">
+              <h3 class="font-display text-2xl text-sand-50">Nearby places</h3>
+              <ul class="mt-6 grid gap-x-10 gap-y-3 sm:grid-cols-2">
+                <For each={nearbyPlaces}>
+                  {(place) => (
+                    <li class="flex items-baseline justify-between gap-4 border-b border-white/10 pb-3 text-sm">
+                      <span class="text-sand-100">{place.name}</span>
+                      <span class="shrink-0 text-sand-300/70">{place.distance}</span>
+                    </li>
+                  )}
+                </For>
+              </ul>
+              <p class="mt-6 text-xs text-sand-300/60">
+                Distances are straight-line from the resort. Actual travel distances may vary.
+              </p>
+            </div>
+          </Reveal>
         </div>
       </section>
 

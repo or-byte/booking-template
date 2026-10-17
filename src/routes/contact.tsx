@@ -7,7 +7,7 @@ import Icon, { type IconName } from "~/components/ui/Icon";
 import PageHero from "~/components/ui/PageHero";
 import Reveal from "~/components/ui/Reveal";
 import SectionHeading from "~/components/ui/SectionHeading";
-import { fullAddress, photos, site, travel } from "~/data/site";
+import { fullAddress, photos, site, telHref, travel } from "~/data/site";
 
 const MapGoogle = clientOnly(() => import("~/components/map/MapGoogle"));
 
@@ -27,25 +27,20 @@ const directions = [
     steps: [
       "NLEX to SCTEX, exit at Dinalupihan.",
       "Follow the Roman Highway south, then the coastal road through Bagac.",
-      "Turn at Nagbalayong; the resort gate is 1.2 km down Sitio Pasinay.",
+      "At Barangay Nagbalayong, look for the resort gate at the Crossing.",
     ],
   },
 ];
 
 const contactLines: { icon: IconName; label: string; value: string; href?: string }[] = [
   { icon: "mail", label: "Email", value: site.email, href: `mailto:${site.email}` },
-  {
-    icon: "phone",
-    label: "Reservations",
-    value: site.phone,
-    href: `tel:${site.phone.replace(/\s/g, "")}`,
-  },
-  {
-    icon: "phone",
-    label: "Front desk",
-    value: site.phoneAlt,
-    href: `tel:${site.phoneAlt.replace(/\s/g, "")}`,
-  },
+  ...site.mobiles.map((number) => ({
+    icon: "phone" as IconName,
+    label: "Mobile",
+    value: number,
+    href: telHref(number),
+  })),
+  { icon: "phone", label: "Telephone", value: site.telephone, href: telHref(site.telephone) },
   { icon: "globe", label: "Website", value: site.website },
   { icon: "pin", label: "Address", value: fullAddress },
 ];

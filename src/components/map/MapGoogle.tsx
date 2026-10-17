@@ -225,7 +225,7 @@ export default function MapGoogle(props: any) {
             <div>
               <p class="font-display text-2xl text-navy-900">{RESORT.name}</p>
               <p class="mt-2 max-w-xs text-sm text-navy-700/70">
-                Sitio Pasinay, Barangay Nagbalayong, Morong, Bataan
+                Crossing, Barangay Nagbalayong, Morong, Bataan 2108
               </p>
             </div>
             <a

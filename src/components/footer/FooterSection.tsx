@@ -1,7 +1,7 @@
 import { A } from "@solidjs/router";
 import { For } from "solid-js";
 import Icon from "~/components/ui/Icon";
-import { fullAddress, photos, primaryNav, site } from "~/data/site";
+import { fullAddress, photos, primaryNav, site, telHref } from "~/data/site";
 
 const exploreLinks = [
   { href: "/explore#dining", label: "Dining" },
@@ -122,7 +122,7 @@ export default function Footer() {
             </li>
             <li>
               <a
-                href={`tel:${site.phone.replace(/\s/g, "")}`}
+                href={telHref(site.phone)}
                 class="flex gap-3 transition-colors hover:text-sand-50"
               >
                 <Icon name="phone" size={17} class="mt-0.5 shrink-0 text-gold-400" />

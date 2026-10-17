@@ -68,7 +68,7 @@ export default function About() {
             <SectionHeading
               eyebrow="About us"
               title="A resort that grew out of a family weekend house"
-              description="What is now twenty-four rooms started as one house on a lot in Sitio Pasinay, bought because the sunset was better there than anywhere else on the bay."
+              description="What is now twenty-four rooms started as one house on a lot in Nagbalayong, bought because the sunset was better there than anywhere else on the bay."
             />
 
             <Reveal delay={120} class="mt-6 space-y-5 leading-relaxed text-navy-700/80">

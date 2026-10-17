@@ -1,7 +1,7 @@
 import { A, useLocation, useNavigate } from "@solidjs/router";
 import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import Icon from "~/components/ui/Icon";
-import { photos, primaryNav, site } from "~/data/site";
+import { photos, primaryNav, site, telHref } from "~/data/site";
 
 export default function NavBar() {
   const location = useLocation();
@@ -280,7 +280,7 @@ export default function NavBar() {
             </button>
 
             <div class="mt-8 space-y-2 text-sm text-navy-700">
-              <a href={`tel:${site.phone.replace(/\s/g, "")}`} class="flex items-center gap-2.5">
+              <a href={telHref(site.phone)} class="flex items-center gap-2.5">
                 <Icon name="phone" size={16} class="text-gold-600" />
                 {site.phone}
               </a>

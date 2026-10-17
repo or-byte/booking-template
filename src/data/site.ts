@@ -14,15 +14,17 @@ export const site = {
   description:
     "A quiet beachfront retreat in Morong, Bataan — sunset views over the West Philippine Sea, unhurried rooms, and the kind of stay you plan the rest of the year around.",
   address: {
-    line1: "Sitio Pasinay, Barangay Nagbalayong",
+    line1: "Crossing, Barangay Nagbalayong",
     city: "Morong",
     region: "Bataan",
     country: "Philippines",
     postal: "2108",
   },
-  phone: "+63 912 345 6789",
-  phoneAlt: "+63 47 123 4567",
-  email: "stay@thewaterfrontbeachresort.com",
+  /** Primary mobile, shown in the navbar and footer. */
+  phone: "0917 137 4375",
+  mobiles: ["0917 137 4375", "0919 991 2480", "0917 137 9848"],
+  telephone: "(047) 676 2250",
+  email: "marketing@thewaterfrontbeachresort.com",
   website: "thewaterfrontbeachresort.com",
   checkIn: "2:00 PM",
   checkOut: "12:00 NN",
@@ -32,6 +34,9 @@ export const site = {
     { label: "TikTok", href: "https://tiktok.com", icon: "tiktok" as const },
   ],
 } as const;
+
+/** Builds a tel: href from a display number. */
+export const telHref = (number: string) => `tel:${number.replace(/[^\d+]/g, "")}`;
 
 export const fullAddress = `${site.address.line1}, ${site.address.city}, ${site.address.region}`;
 
@@ -187,31 +192,46 @@ export const amenities: { label: string; note: string; icon: AmenityIcon }[] = [
 ];
 
 /* ---------------------------------------------------------------------------
-   Experiences around the resort — all real places within reach of Morong.
+   Experiences around the resort, from the resort's nearby places sheet.
    ------------------------------------------------------------------------- */
 
 export const experiences = [
   {
     title: "Pawikan Conservation Center",
-    distance: "5 minutes away",
+    distance: "1.87 km away",
     description:
       "A community-run hatchery in Nagbalayong. From November to February, guests join the evening release of olive ridley hatchlings.",
     image: photos.explore[0],
   },
   {
-    title: "Mount Samat Shrine",
-    distance: "1 hour away",
+    title: "The Boat People Museum",
+    distance: "5.34 km away",
     description:
-      "The Shrine of Valor above Pilar, with the memorial cross and a viewing gallery that takes in the whole peninsula.",
+      "The story of the Philippine Refugee Processing Center, which sheltered Indochinese refugees in Morong from 1980 to 1994.",
     image: photos.explore[1],
   },
   {
-    title: "Five Fingers Cove",
-    distance: "Boat from the resort",
+    title: "Kairukan Falls",
+    distance: "8.07 km away",
     description:
-      "The finger-shaped coves along the Mariveles coastline — clear water, high rock walls, and a half-day boat trip.",
+      "A short trek inland to a cool forest pool, a good change of pace from a morning on the beach.",
     image: photos.explore[2],
   },
+];
+
+/** Straight-line distances from the resort; actual travel distances may vary. */
+export const nearbyPlaces = [
+  { name: "Pawikan Conservation Center", distance: "1.87 km" },
+  { name: "Our Lady of the Pillar Parish Church", distance: "2.43 km" },
+  { name: "Morong Municipal Hall and Health Center", distance: "2.44 km" },
+  { name: "Vietnamese Memorial Park", distance: "4.28 km" },
+  { name: "Buddhist Shrine", distance: "4.78 km" },
+  { name: "The Boat People Museum", distance: "5.34 km" },
+  { name: "Camp Kanawan", distance: "5.36 km" },
+  { name: "Kairukan Falls", distance: "8.07 km" },
+  { name: "Among Pulo Cove", distance: "8.45 km" },
+  { name: "Zoobic Safari", distance: "9.70 km" },
+  { name: "Botanical Garden", distance: "9.72 km" },
 ];
 
 /* ---------------------------------------------------------------------------
