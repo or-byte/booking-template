@@ -109,9 +109,11 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    /* Italiana ships one weight; never let the browser fake bold or italic. */
+    /* Italiana ships one weight; never let the browser fake bold or italic.
+       A stroke scaled to the type size gives it a heavier, even weight. */
     font-weight: 400;
     font-synthesis: none;
+    -webkit-text-stroke: 0.022em currentColor;
     letter-spacing: -0.01em;
     line-height: 1.08;
     text-wrap: balance;
@@ -136,6 +138,7 @@
   /* Same guard for non-heading elements set in the display face. */
   .font-display {
     font-synthesis: none;
+    -webkit-text-stroke: 0.022em currentColor;
   }
 
   /* A single visible focus treatment across the whole site. */
