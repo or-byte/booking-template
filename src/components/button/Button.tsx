@@ -3,13 +3,13 @@ import { splitProps, type JSX } from "solid-js";
 type ButtonProps = {
   children: JSX.Element;
   /** Visual weight. Maps to the button recipes in app.css. */
-  variant?: "primary" | "gold" | "outline" | "ghost-light";
+  variant?: "primary" | "accent" | "outline" | "ghost-light";
   class?: string;
 } & JSX.ButtonHTMLAttributes<HTMLButtonElement>;
 
 const variants = {
   primary: "btn-primary",
-  gold: "btn-gold",
+  accent: "btn-accent",
   outline: "btn-outline",
   "ghost-light": "btn-ghost-light",
 } as const;

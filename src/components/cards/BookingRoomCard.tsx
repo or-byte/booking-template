@@ -75,7 +75,7 @@ export default function BookingRoomCard(props: BookingRoomCardProps): JSX.Elemen
             <For each={meta()}>
               {(item) => (
                 <li class="flex items-center gap-2">
-                  <Icon name={item.icon} size={16} class="text-gold-600" />
+                  <Icon name={item.icon} size={16} class="text-orange-600" />
                   {item.label}
                 </li>
               )}

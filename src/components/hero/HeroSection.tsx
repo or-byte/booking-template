@@ -18,21 +18,21 @@ export default function Hero() {
       {/* Two scrims rather than one: a vertical wash to seat the type, and a
           warm bottom band that carries the sunset colour into the page. */}
       <div class="absolute inset-0 -z-10 bg-gradient-to-b from-navy-950/70 via-navy-950/30 to-navy-950/85" />
-      <div class="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-navy-950/70 via-gold-700/10 to-transparent" />
+      <div class="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-navy-950/70 via-orange-700/10 to-transparent" />
 
       <div class="shell pb-10 pt-32 md:pb-14">
         <div class="max-w-3xl">
           <span
-            class="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-gold-300"
+            class="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-orange-300"
             data-reveal="shown"
           >
-            <span class="h-px w-8 bg-gold-300/70" aria-hidden="true" />
+            <span class="h-px w-8 bg-orange-300/70" aria-hidden="true" />
             Morong, Bataan
           </span>
 
           <h1 class="mt-6 font-display text-sand-50 drop-shadow-[0_2px_24px_rgb(5_13_32/0.45)]">
             Sunsets over the{" "}
-            <em class="not-italic text-gold-300">West Philippine Sea</em>
+            <em class="not-italic text-orange-300">West Philippine Sea</em>
           </h1>
 
           <p class="mt-6 max-w-xl text-base leading-relaxed text-sand-100/85 md:text-lg">
@@ -40,7 +40,7 @@ export default function Hero() {
           </p>
 
           <div class="mt-9 flex flex-wrap items-center gap-4">
-            <A href="/rooms" class="btn-gold">
+            <A href="/rooms" class="btn-accent">
               Explore Rooms
             </A>
             <A href="/explore" class="btn-ghost-light">

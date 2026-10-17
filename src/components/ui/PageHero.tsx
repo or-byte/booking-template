@@ -22,12 +22,13 @@ export default function PageHero(props: PageHeroProps) {
         class="absolute inset-0 -z-20 h-full w-full object-cover"
         style={{ "object-position": props.focus ?? "center" }}
       />
-      <div class="absolute inset-0 -z-10 bg-gradient-to-t from-navy-950/90 via-navy-950/55 to-navy-950/40" />
+      <div class="absolute inset-0 -z-10 bg-gradient-to-r from-navy-950/85 via-navy-950/45 to-navy-950/10" />
+      <div class="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-navy-950/60 to-transparent" />
 
       <div class="shell pb-14 pt-32 md:pb-20">
         <Show when={props.eyebrow}>
-          <span class="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.26em] text-gold-300">
-            <span class="h-px w-8 bg-gold-300/70" aria-hidden="true" />
+          <span class="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.26em] text-orange-300">
+            <span class="h-px w-8 bg-orange-300/70" aria-hidden="true" />
             {props.eyebrow}
           </span>
         </Show>

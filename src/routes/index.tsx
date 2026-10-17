@@ -114,7 +114,7 @@ export default function Home() {
                   <div class="absolute inset-x-0 bottom-0 p-6 text-left text-white md:p-7">
                     <p
                       class={`text-[11px] uppercase tracking-[0.18em] transition-all duration-500
-                        ${isActive ? "text-gold-300 opacity-100" : "text-sand-200 opacity-70"}`}
+                        ${isActive ? "text-orange-300 opacity-100" : "text-sand-200 opacity-70"}`}
                     >
                       From {formatPrice(room.price)}
                     </p>
@@ -250,7 +250,7 @@ export default function Home() {
 
               <Reveal delay={120} class="mt-8 space-y-5 text-sm text-navy-700">
                 <div class="flex gap-3">
-                  <Icon name="pin" size={18} class="mt-0.5 shrink-0 text-gold-600" />
+                  <Icon name="pin" size={18} class="mt-0.5 shrink-0 text-orange-600" />
                   <span>
                     {site.address.line1}
                     <br />
@@ -258,11 +258,11 @@ export default function Home() {
                   </span>
                 </div>
                 <div class="flex gap-3">
-                  <Icon name="car" size={18} class="mt-0.5 shrink-0 text-gold-600" />
+                  <Icon name="car" size={18} class="mt-0.5 shrink-0 text-orange-600" />
                   <span>SCTEX to Dinalupihan, then the coastal road through Bagac.</span>
                 </div>
                 <div class="flex gap-3">
-                  <Icon name="plane" size={18} class="mt-0.5 shrink-0 text-gold-600" />
+                  <Icon name="plane" size={18} class="mt-0.5 shrink-0 text-orange-600" />
                   <span>NAIA is the nearest airport, 2.5–3 hours by road.</span>
                 </div>
 

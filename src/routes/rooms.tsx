@@ -46,8 +46,8 @@ export default function Rooms() {
       <section class="bg-sand-50 py-14 md:py-20">
         <div class="shell">
           <Show when={hasSearch()}>
-            <Reveal class="mb-8 flex flex-wrap items-center gap-3 rounded-xl border border-gold-300/60 bg-gold-100/50 px-5 py-4 text-sm text-navy-800">
-              <Icon name="clock" size={16} class="text-gold-600" />
+            <Reveal class="mb-8 flex flex-wrap items-center gap-3 rounded-xl border border-orange-300/60 bg-orange-100/50 px-5 py-4 text-sm text-navy-800">
+              <Icon name="clock" size={16} class="text-orange-600" />
               <span>
                 Showing rooms for{" "}
                 <strong class="font-semibold">{readableDate(params.checkIn as string)}</strong> –{" "}

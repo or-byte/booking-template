@@ -109,7 +109,7 @@ export default function BookingBar(props: { class?: string }) {
           <span class="hidden text-xs text-navy-600/70 xl:block">
             {nights()} {nights() === 1 ? "night" : "nights"}
           </span>
-          <button type="button" class="btn-gold w-full sm:w-auto" onClick={search}>
+          <button type="button" class="btn-accent w-full sm:w-auto" onClick={search}>
             Check Availability
           </button>
         </div>

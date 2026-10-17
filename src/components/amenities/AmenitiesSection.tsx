@@ -24,9 +24,9 @@ export default function AmenitiesSection(props: { id?: string }) {
                 class="group flex flex-col gap-3 bg-navy-950 p-6 transition-colors duration-500 hover:bg-navy-900"
               >
                 <span
-                  class="grid h-10 w-10 place-items-center rounded-full border border-gold-400/35
-                         text-gold-300 transition-colors duration-500 group-hover:border-gold-300
-                         group-hover:bg-gold-400 group-hover:text-navy-950"
+                  class="grid h-10 w-10 place-items-center rounded-full border border-sea-300/40
+                         text-sea-300 transition-colors duration-500 group-hover:border-orange-300
+                         group-hover:bg-orange-400 group-hover:text-navy-950"
                 >
                   <Icon name={amenity.icon} size={18} />
                 </span>

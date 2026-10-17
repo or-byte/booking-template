@@ -85,7 +85,7 @@ export const photos = {
   pool: "/images/pool.jpg",
   spa: "/images/cabanas.jpg",
   shore: "/images/shore.jpg",
-  dusk: "/images/beach-flags.jpg",
+  dusk: "/images/beach-hut.jpg",
 };
 
 /* ---------------------------------------------------------------------------

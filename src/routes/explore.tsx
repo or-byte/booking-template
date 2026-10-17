@@ -128,7 +128,7 @@ export default function Explore() {
               <For each={amenities}>
                 {(amenity) => (
                   <li class="flex items-center gap-3 text-sm text-navy-800">
-                    <Icon name="check" size={15} class="shrink-0 text-gold-600" />
+                    <Icon name="check" size={15} class="shrink-0 text-orange-600" />
                     {amenity.label}
                   </li>
                 )}
@@ -221,7 +221,7 @@ export default function Explore() {
           </Reveal>
 
           <Reveal delay={160} class="mt-14 text-center">
-            <A href="/rooms" class="btn-gold">
+            <A href="/rooms" class="btn-accent">
               Check availability
             </A>
           </Reveal>

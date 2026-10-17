@@ -56,7 +56,7 @@ export default function About() {
                 class="absolute -right-4 bottom-8 hidden rounded-2xl bg-navy-950 px-7 py-6 text-sand-50
                        shadow-[var(--shadow-lift)] md:block"
               >
-                <p class="font-display text-4xl leading-none text-gold-300">1998</p>
+                <p class="font-display text-4xl leading-none text-orange-300">1998</p>
                 <p class="mt-2 text-[11px] uppercase tracking-[0.16em] text-sand-300/70">
                   First guests
                 </p>
@@ -113,7 +113,7 @@ export default function About() {
               {(value, i) => (
                 <Reveal delay={i() * 100}>
                   <article class="h-full rounded-2xl border border-sand-300/70 bg-sand-50 p-8">
-                    <span class="grid h-11 w-11 place-items-center rounded-full bg-navy-950 text-gold-300">
+                    <span class="grid h-11 w-11 place-items-center rounded-full bg-navy-950 text-orange-300">
                       <Icon name={value.icon} size={19} />
                     </span>
                     <h3 class="mt-6 font-display text-2xl text-navy-900">{value.title}</h3>
@@ -133,7 +133,7 @@ export default function About() {
             <For each={glance}>
               {(stat, i) => (
                 <Reveal delay={i() * 80} class="text-center">
-                  <dt class="font-display text-4xl text-gold-300 md:text-5xl">{stat.value}</dt>
+                  <dt class="font-display text-4xl text-orange-300 md:text-5xl">{stat.value}</dt>
                   <dd class="mt-2 text-xs uppercase tracking-[0.16em] text-sand-300/60">
                     {stat.label}
                   </dd>

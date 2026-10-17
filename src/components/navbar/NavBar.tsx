@@ -64,8 +64,8 @@ export default function NavBar() {
      ${isActive(href) ? "after:scale-x-100" : ""}
      ${
        overHero()
-         ? "text-white/90 hover:text-white after:bg-gold-300"
-         : "text-navy-800 hover:text-navy-950 after:bg-gold-500"
+         ? "text-white/90 hover:text-white after:bg-orange-300"
+         : "text-navy-800 hover:text-navy-950 after:bg-orange-500"
      }`;
 
   return (
@@ -157,7 +157,7 @@ export default function NavBar() {
             <button
               type="button"
               onClick={[goTo, "/rooms"]}
-              class={overHero() ? "btn-ghost-light !px-6 !py-2.5" : "btn-gold !px-6 !py-2.5"}
+              class={overHero() ? "btn-ghost-light !px-6 !py-2.5" : "btn-accent !px-6 !py-2.5"}
             >
               Book Now
             </button>
@@ -168,7 +168,7 @@ export default function NavBar() {
             <button
               type="button"
               onClick={[goTo, "/rooms"]}
-              class={`${overHero() ? "btn-ghost-light" : "btn-gold"} !px-5 !py-2 !text-[11px]`}
+              class={`${overHero() ? "btn-ghost-light" : "btn-accent"} !px-5 !py-2 !text-[11px]`}
             >
               Book
             </button>
@@ -252,7 +252,7 @@ export default function NavBar() {
                         style={{ "grid-template-rows": exploreOpen() ? "1fr" : "0fr" }}
                       >
                         <div class="min-h-0">
-                          <div class="ml-1 flex flex-col gap-1 border-l border-gold-400/60 pb-4 pl-5">
+                          <div class="ml-1 flex flex-col gap-1 border-l border-orange-400/60 pb-4 pl-5">
                             <For each={children()}>
                               {(sub) => (
                                 <A
@@ -275,17 +275,17 @@ export default function NavBar() {
           </For>
 
           <div class="mt-auto pt-10">
-            <button type="button" class="btn-gold w-full" onClick={[goTo, "/rooms"]}>
+            <button type="button" class="btn-accent w-full" onClick={[goTo, "/rooms"]}>
               Check Availability
             </button>
 
             <div class="mt-8 space-y-2 text-sm text-navy-700">
               <a href={telHref(site.phone)} class="flex items-center gap-2.5">
-                <Icon name="phone" size={16} class="text-gold-600" />
+                <Icon name="phone" size={16} class="text-orange-600" />
                 {site.phone}
               </a>
               <a href={`mailto:${site.email}`} class="flex items-center gap-2.5">
-                <Icon name="mail" size={16} class="text-gold-600" />
+                <Icon name="mail" size={16} class="text-orange-600" />
                 {site.email}
               </a>
             </div>

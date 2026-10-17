@@ -24,7 +24,7 @@ export default function Footer() {
             </p>
           </div>
           <div class="flex flex-wrap gap-3">
-            <A href="/rooms" class="btn-gold">
+            <A href="/rooms" class="btn-accent">
               Check Availability
             </A>
             <A href="/contact" class="btn-ghost-light">
@@ -55,8 +55,8 @@ export default function Footer() {
                   rel="noreferrer noopener"
                   aria-label={social.label}
                   class="grid h-10 w-10 place-items-center rounded-full border border-white/15 text-sand-200
-                         transition-all duration-300 hover:-translate-y-0.5 hover:border-gold-400
-                         hover:bg-gold-400 hover:text-navy-950"
+                         transition-all duration-300 hover:-translate-y-0.5 hover:border-orange-400
+                         hover:bg-orange-400 hover:text-navy-950"
                 >
                   <Icon name={social.icon} size={17} />
                 </a>
@@ -67,7 +67,7 @@ export default function Footer() {
 
         {/* Navigation */}
         <nav class="md:col-span-2" aria-label="Site">
-          <h3 class="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold-300">
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-300">
             Visit
           </h3>
           <ul class="mt-5 space-y-3 text-sm">
@@ -87,7 +87,7 @@ export default function Footer() {
         </nav>
 
         <nav class="md:col-span-2" aria-label="Explore">
-          <h3 class="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold-300">
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-300">
             Explore
           </h3>
           <ul class="mt-5 space-y-3 text-sm">
@@ -108,12 +108,12 @@ export default function Footer() {
 
         {/* Contact */}
         <div class="md:col-span-4">
-          <h3 class="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold-300">
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-300">
             Get in touch
           </h3>
           <ul class="mt-5 space-y-4 text-sm text-sand-300/75">
             <li class="flex gap-3">
-              <Icon name="pin" size={17} class="mt-0.5 shrink-0 text-gold-400" />
+              <Icon name="pin" size={17} class="mt-0.5 shrink-0 text-orange-400" />
               <span>
                 {site.address.line1}
                 <br />
@@ -125,7 +125,7 @@ export default function Footer() {
                 href={telHref(site.phone)}
                 class="flex gap-3 transition-colors hover:text-sand-50"
               >
-                <Icon name="phone" size={17} class="mt-0.5 shrink-0 text-gold-400" />
+                <Icon name="phone" size={17} class="mt-0.5 shrink-0 text-orange-400" />
                 {site.phone}
               </a>
             </li>
@@ -134,12 +134,12 @@ export default function Footer() {
                 href={`mailto:${site.email}`}
                 class="flex gap-3 transition-colors hover:text-sand-50"
               >
-                <Icon name="mail" size={17} class="mt-0.5 shrink-0 text-gold-400" />
+                <Icon name="mail" size={17} class="mt-0.5 shrink-0 text-orange-400" />
                 {site.email}
               </a>
             </li>
             <li class="flex gap-3">
-              <Icon name="clock" size={17} class="mt-0.5 shrink-0 text-gold-400" />
+              <Icon name="clock" size={17} class="mt-0.5 shrink-0 text-orange-400" />
               <span>
                 Check in {site.checkIn} · Check out {site.checkOut}
               </span>

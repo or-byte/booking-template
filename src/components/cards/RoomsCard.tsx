@@ -50,9 +50,9 @@ export default function RoomsCard<T extends RoomsCardItem>(props: RoomsCardProps
               onClick={() => setActive(index())}
               aria-label={item.name}
               aria-expanded={isActive()}
-              class="group relative h-[300px] cursor-pointer overflow-hidden rounded-2xl text-left
-                     transition-[flex-grow] duration-700 ease-[var(--ease-out-soft)] md:h-full"
-              style={{ "flex-grow": isActive() ? expanded() : collapsed(), "flex-basis": "0%" }}
+              class="group relative h-[300px] shrink-0 cursor-pointer overflow-hidden rounded-2xl text-left
+                     transition-[flex-grow] duration-700 ease-[var(--ease-out-soft)] md:h-full md:shrink md:basis-0"
+              style={{ "flex-grow": isActive() ? expanded() : collapsed() }}
             >
               <img
                 src={item.image ?? props.fallbackImage}

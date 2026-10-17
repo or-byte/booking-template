@@ -68,14 +68,9 @@ export default function ImageGallery(props: ImageGalleryProps) {
     >
       <For each={props.images}>
         {(image, i) => {
-          const span =
-            i() === 0
-              ? "col-span-2 row-span-2"
-              : i() % 5 === 0
-                ? "col-span-2"
-                : i() % 3 === 0
-                  ? "row-span-2"
-                  : "";
+          // Lead frame takes a 2x2 block, the next four fill the column beside
+          // it, and anything after runs two-wide so rows always close flush.
+          const span = i() === 0 ? "col-span-2 row-span-2" : i() >= 5 ? "col-span-2" : "";
           return tile(image, span);
         }}
       </For>

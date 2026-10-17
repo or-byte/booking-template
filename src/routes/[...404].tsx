@@ -17,7 +17,7 @@ export default function NotFound() {
       <div class="absolute inset-0 -z-10 bg-navy-950/80" />
 
       <div class="shell py-32 text-center">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-gold-300">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-orange-300">
           Error 404
         </p>
 
@@ -31,7 +31,7 @@ export default function NotFound() {
         </p>
 
         <div class="mt-10 flex flex-wrap justify-center gap-3">
-          <A href="/" class="btn-gold">
+          <A href="/" class="btn-accent">
             Back to home
           </A>
           <A href="/rooms" class="btn-ghost-light">

@@ -138,7 +138,7 @@ export default function MapGoogle(props: any) {
             Get directions from
           </p>
           <div class="flex items-center gap-2">
-            <MdFillLocation_on color="var(--color-gold-600)" />
+            <MdFillLocation_on color="var(--color-orange-600)" />
             <p class="text-sm font-semibold text-navy-900">The Waterfront Beach Resort</p>
           </div>
         </div>
@@ -155,7 +155,7 @@ export default function MapGoogle(props: any) {
                            bg-sand-100/70 px-5 py-3 text-left transition-colors hover:bg-sand-200/70"
                   >
                     <div class="flex items-center gap-2">
-                      <category.icon size={15} color="var(--color-gold-600)" />
+                      <category.icon size={15} color="var(--color-orange-600)" />
                       <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-navy-700">
                         {category.label}
                       </p>
@@ -177,7 +177,7 @@ export default function MapGoogle(props: any) {
                               class="w-full cursor-pointer border-b border-l-[3px] border-sand-200 px-5 py-3.5
                                      text-left transition-colors duration-150"
                               classList={{
-                                "bg-gold-100/50 !border-l-gold-500": isSelected(),
+                                "bg-orange-100/50 !border-l-orange-500": isSelected(),
                                 "bg-white !border-l-transparent hover:bg-sand-50": !isSelected(),
                               }}
                             >
@@ -221,7 +221,7 @@ export default function MapGoogle(props: any) {
         when={!unavailable()}
         fallback={
           <div class="flex h-[300px] w-full flex-col items-center justify-center gap-4 bg-sand-100 px-8 text-center md:h-auto md:flex-1">
-            <MdFillLocation_on size={26} color="var(--color-gold-600)" />
+            <MdFillLocation_on size={26} color="var(--color-orange-600)" />
             <div>
               <p class="font-display text-2xl text-navy-900">{RESORT.name}</p>
               <p class="mt-2 max-w-xs text-sm text-navy-700/70">

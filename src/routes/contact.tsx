@@ -115,7 +115,7 @@ export default function Contact() {
                 <For each={contactLines}>
                   {(line) => (
                     <li class="flex gap-4">
-                      <span class="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full border border-sand-300 bg-white text-gold-600">
+                      <span class="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full border border-sand-300 bg-white text-orange-600">
                         <Icon name={line.icon} size={16} />
                       </span>
                       <div>
@@ -128,7 +128,7 @@ export default function Contact() {
                         >
                           <a
                             href={line.href}
-                            class="mt-1 block text-navy-900 transition-colors hover:text-gold-600"
+                            class="mt-1 block text-navy-900 transition-colors hover:text-orange-600"
                           >
                             {line.value}
                           </a>
@@ -157,7 +157,7 @@ export default function Contact() {
                 when={!sent()}
                 fallback={
                   <div class="flex min-h-[420px] flex-col items-center justify-center text-center">
-                    <span class="grid h-14 w-14 place-items-center rounded-full bg-gold-100 text-gold-600">
+                    <span class="grid h-14 w-14 place-items-center rounded-full bg-orange-100 text-orange-600">
                       <Icon name="check" size={26} />
                     </span>
                     <h3 class="mt-6 font-display text-3xl text-navy-900">Message sent</h3>
@@ -238,7 +238,7 @@ export default function Contact() {
                     </p>
                   </Show>
 
-                  <Button type="submit" variant="gold" class="mt-1 self-start">
+                  <Button type="submit" variant="accent" class="mt-1 self-start">
                     Send message
                   </Button>
                 </form>
@@ -266,7 +266,7 @@ export default function Contact() {
               {(route, i) => (
                 <Reveal delay={i() * 100} class="rounded-2xl border border-sand-300/70 bg-sand-50 p-7">
                   <div class="flex items-center gap-3">
-                    <span class="grid h-9 w-9 place-items-center rounded-full bg-navy-950 text-gold-300">
+                    <span class="grid h-9 w-9 place-items-center rounded-full bg-navy-950 text-orange-300">
                       <Icon name={route.icon} size={17} />
                     </span>
                     <h3 class="font-display text-2xl text-navy-900">{route.title}</h3>
@@ -276,7 +276,7 @@ export default function Contact() {
                     <For each={route.steps}>
                       {(step, n) => (
                         <li class="flex gap-3 text-sm leading-relaxed text-navy-700/85">
-                          <span class="mt-0.5 font-display text-lg leading-none text-gold-500">
+                          <span class="mt-0.5 font-display text-lg leading-none text-orange-500">
                             {n() + 1}
                           </span>
                           {step}

@@ -38,9 +38,9 @@ export default function SectionHeading(props: SectionHeadingProps) {
         {props.title}
       </h2>
 
-      {/* A short gold rule reads as a signature mark across the site. */}
+      {/* A short orange rule reads as a signature mark across the site. */}
       <span
-        class={`mt-5 h-px w-14 ${light() ? "bg-gold-300/70" : "bg-gold-400"}`}
+        class={`mt-5 h-px w-14 ${light() ? "bg-orange-300/70" : "bg-orange-400"}`}
         aria-hidden="true"
       />
 
@@ -57,7 +57,7 @@ export default function SectionHeading(props: SectionHeadingProps) {
       <Show when={props.linkHref && props.linkLabel}>
         <A
           href={props.linkHref!}
-          class={`link-arrow mt-7 ${light() ? "text-sand-100 hover:text-gold-300" : ""}`}
+          class={`link-arrow mt-7 ${light() ? "text-sand-100 hover:text-orange-300" : ""}`}
         >
           {props.linkLabel}
         </A>
